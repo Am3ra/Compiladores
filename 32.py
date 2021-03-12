@@ -164,9 +164,8 @@ def p_contenido(p):
                 | expresion COMMA contenido '''
 
 def p_expresion(p):
-    '''expresion : exp relop exp
-                | exp'''
-
+    ''''expresion : exp relop exp
+                | exp''' 
 def p_nombre(p):
     '''nombre : ID 
                 | ID COMMA nombre'''

@@ -1,0 +1,20 @@
+#define PLUS 1
+#define MINUS 2
+#define TIMES 3
+#define DIVIDE 4
+#define LPAREN 5
+#define RPAREN 6
+#define SCOLON 7 
+#define LBRACKET 8
+#define RBRACKET 9
+#define COMMA 10
+#define COLON 11
+#define ASSIGN 12
+#define NE 13
+#define LT 14
+#define GT 15
+#define CTEI 16
+#define CTEF 17
+#define ID 18
+#define CTESTRING 19
+
