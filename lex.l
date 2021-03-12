@@ -1,6 +1,6 @@
 %{
 
-#include "scanner.h"
+#include "gramatica.tab.h"
 
 %}
 
@@ -12,7 +12,6 @@
 "var"       return VAR;
 "float"      return FLOAT ;
 "program"   return PROGRAM ;
-
 \+            return PLUS ;
 \-            return MINUS ;
 \/            return TIMES ;
@@ -32,6 +31,7 @@
 [1-9][0-9]*            return CTEI;
 [a-zA-Z]+            return ID ;
 \"[a-zA-Z]*\"            return CTESTRING;
+" "+       ;
 .           printf("UNEXPECTED TOKEN");
 
 %%

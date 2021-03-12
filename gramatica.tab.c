@@ -129,7 +129,9 @@
 #line 1 "gramatica.y"
 
 void yyerror (char *s);
-
+#include <stdio.h>
+#include <stdlib.h>
+int yylex();
 
 
 /* Enabling traces.  */
@@ -163,7 +165,7 @@ typedef int YYSTYPE;
 
 
 /* Line 216 of yacc.c.  */
-#line 167 "gramatica.tab.c"
+#line 169 "gramatica.tab.c"
 
 #ifdef short
 # undef short
@@ -464,11 +466,11 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    37,    37,    38,    42,    44,    45,    48,    49,    53,
-      55,    56,    59,    60,    61,    64,    66,    69,    70,    71,
-      72,    75,    76,    79,    80,    83,    84,    88,    89,    90,
-      93,    94,    97,    98,   101,   102,   106,   107,   110,   111,
-     114,   115,   116
+       0,    39,    39,    40,    44,    46,    47,    50,    51,    55,
+      57,    58,    61,    62,    63,    66,    68,    71,    72,    73,
+      74,    77,    78,    81,    82,    85,    86,    90,    91,    92,
+      95,    96,    99,   100,   103,   104,   108,   109,   112,   113,
+     116,   117,   118
 };
 #endif
 
@@ -1418,158 +1420,158 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 37 "gramatica.y"
+#line 39 "gramatica.y"
     {;}
     break;
 
   case 3:
-#line 38 "gramatica.y"
+#line 40 "gramatica.y"
     {;}
     break;
 
   case 4:
-#line 42 "gramatica.y"
-    {;}
-    break;
-
-  case 5:
 #line 44 "gramatica.y"
     {;}
     break;
 
+  case 5:
+#line 46 "gramatica.y"
+    {;}
+    break;
+
   case 6:
-#line 45 "gramatica.y"
+#line 47 "gramatica.y"
     {;}
     break;
 
   case 7:
-#line 48 "gramatica.y"
+#line 50 "gramatica.y"
     {;}
     break;
 
   case 8:
-#line 49 "gramatica.y"
+#line 51 "gramatica.y"
     {;}
     break;
 
   case 9:
-#line 53 "gramatica.y"
-    {;}
-    break;
-
-  case 10:
 #line 55 "gramatica.y"
     {;}
     break;
 
+  case 10:
+#line 57 "gramatica.y"
+    {;}
+    break;
+
   case 11:
-#line 56 "gramatica.y"
+#line 58 "gramatica.y"
     {;}
     break;
 
   case 12:
-#line 59 "gramatica.y"
-    {;}
-    break;
-
-  case 13:
-#line 60 "gramatica.y"
-    {;}
-    break;
-
-  case 14:
 #line 61 "gramatica.y"
     {;}
     break;
 
-  case 15:
-#line 64 "gramatica.y"
+  case 13:
+#line 62 "gramatica.y"
     {;}
     break;
 
-  case 16:
+  case 14:
+#line 63 "gramatica.y"
+    {;}
+    break;
+
+  case 15:
 #line 66 "gramatica.y"
     {;}
     break;
 
+  case 16:
+#line 68 "gramatica.y"
+    {;}
+    break;
+
   case 17:
-#line 69 "gramatica.y"
-    {;}
-    break;
-
-  case 18:
-#line 70 "gramatica.y"
-    {;}
-    break;
-
-  case 19:
 #line 71 "gramatica.y"
     {;}
     break;
 
-  case 20:
+  case 18:
 #line 72 "gramatica.y"
     {;}
     break;
 
+  case 19:
+#line 73 "gramatica.y"
+    {;}
+    break;
+
+  case 20:
+#line 74 "gramatica.y"
+    {;}
+    break;
+
   case 21:
-#line 75 "gramatica.y"
+#line 77 "gramatica.y"
     {;}
     break;
 
   case 22:
-#line 76 "gramatica.y"
+#line 78 "gramatica.y"
     {;}
     break;
 
   case 23:
-#line 79 "gramatica.y"
+#line 81 "gramatica.y"
     {;}
     break;
 
   case 24:
-#line 80 "gramatica.y"
+#line 82 "gramatica.y"
     {;}
     break;
 
   case 25:
-#line 83 "gramatica.y"
+#line 85 "gramatica.y"
     {;}
     break;
 
   case 26:
-#line 84 "gramatica.y"
+#line 86 "gramatica.y"
     {;}
     break;
 
   case 27:
-#line 88 "gramatica.y"
-    {;}
-    break;
-
-  case 28:
-#line 89 "gramatica.y"
-    {;}
-    break;
-
-  case 29:
 #line 90 "gramatica.y"
     {;}
     break;
 
+  case 28:
+#line 91 "gramatica.y"
+    {;}
+    break;
+
+  case 29:
+#line 92 "gramatica.y"
+    {;}
+    break;
+
   case 30:
-#line 93 "gramatica.y"
+#line 95 "gramatica.y"
     {;}
     break;
 
   case 31:
-#line 94 "gramatica.y"
+#line 96 "gramatica.y"
     {;}
     break;
 
 
 /* Line 1267 of yacc.c.  */
-#line 1573 "gramatica.tab.c"
+#line 1575 "gramatica.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1783,12 +1785,11 @@ yyreturn:
 }
 
 
-#line 119 "gramatica.y"
+#line 121 "gramatica.y"
 
 
 int main (void) {
     return yyparse();
 
 }
-
-void yyerror(char *s){fprintf (stderr, "%s\n",s);}
+void yyerror(char *s){printf ( "%s\n",s);}

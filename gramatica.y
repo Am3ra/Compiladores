@@ -1,6 +1,8 @@
 %{
 void yyerror (char *s);
-
+#include <stdio.h>
+#include <stdlib.h>
+int yylex();
 %}
 
 %start programa
@@ -122,5 +124,4 @@ int main (void) {
     return yyparse();
 
 }
-
-void yyerror(char *s){fprintf (stderr, "%s\n",s);}
+void yyerror(char *s){printf ( "%s\n",s);}
