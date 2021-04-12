@@ -248,13 +248,13 @@ def p_estatutos(p):
     else:
         p[0] = [p[1]]
 
-
+#! SE AGREGO SEMICOLON A LLAMADA_FUNC Y LLAMADA_OBJ
 def p_estatuto(p):
     ''' estatuto : asignacion
                 | expresion
                 | returns
-                | llamada_funcion
-                | llamada_objeto
+                | llamada_funcion SEMICOLON
+                | llamada_objeto SEMICOLON
                 | lectura
                 | escritura
                 | decision
@@ -343,9 +343,10 @@ def p_returns(p):
     ''' returns : RETURN expresion SEMICOLON '''
     p[0] = ("RETURNS", p[2])
 
+#! SE QUITO EL SEMICOLON
 
 def p_llamada_funcion(p):
-    ''' llamada_funcion : ID LPAREN param_llamada RPAREN SEMICOLON '''
+    ''' llamada_funcion : ID LPAREN param_llamada RPAREN '''
     p[0] = ("CALL_FUNC", {"name": p[1], "params": p[3]})
 
 
@@ -372,7 +373,7 @@ def p_param_llamada(p):
 
 
 def p_llamada_objeto(p):
-    ''' llamada_objeto : ID DOT ID LPAREN param_llamada RPAREN SEMICOLON '''
+    ''' llamada_objeto : ID DOT ID LPAREN param_llamada RPAREN  '''
     p[0] = ("CALL_OBJ", {"className": p[1],
             "methodName": p[3], "params": p[5]})
 
@@ -390,26 +391,30 @@ def p_op_lectura(p):
     else:
         p[0] = [p[2]] + p[3]
 
+#! SE AGREGO LLAMADA OBJETO
 
 def p_variable(p):
-    ''' variable : ID variable_op '''
-    p[0] = ("VAR", {"name": p[1], "call_type": p[2]})
+    ''' variable : ID variable_op
+                  | llamada_objeto '''
+    if(len(p) == 3):
+        p[0] = ("VAR", {"name": p[1], "call_type": p[2]})
+    else:
+        p[0] = p[1]
 
-
-# TODO: ADD METHOD CALLS
 
 def p_variable_op(p):
-    ''' variable_op : DOT ID
+    ''' variable_op : DOT ID 
                     | LBRACKET expresion RBRACKET 
                     | LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET
                     | empty
                     '''
     if(len(p) == 2):
-        p[0] = ("Simple")
+        if(p[1]== None):
+            p[0] = ("Simple")
+        else:
+            p[0] = ("method_call",p[1])
     elif (len(p) == 3):
         p[0] = ("attribute_call", p[2])
-    elif (len(p) == 4):
-
     elif (len(p) == 4):
         p[0] = ("Array", p[2])
     else:
@@ -516,7 +521,7 @@ Main ()
 {
     lee ( alan.cabello , alan );
     i = 3; 
-    hola(i.hola());
+    hola(i.hola);
     desde i = 1 hasta 10 hacer 
     { 
         escribe("hola", 10);
