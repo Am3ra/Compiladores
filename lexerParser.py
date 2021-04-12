@@ -170,7 +170,7 @@ def p_bloque_func(p):
 
 def p_main(p):
     ''' main : MAIN LPAREN RPAREN bloque_func'''
-    p[0] = ("MAIN", p[5])
+    p[0] = ("MAIN", p[4])
     
 
 
@@ -232,7 +232,7 @@ def p_estatuto(p):
     ''' estatuto : asignacion
                 | expresion
                 | returns
-                | llamada_void
+                | llamada_funcion
                 | llamada_objeto
                 | lectura
                 | escritura
@@ -264,7 +264,9 @@ def p_asignacion(p):
 ''' factor : LPAREN expr RPAREN 
             | var_cte
             | variable '''
-
+            
+''' mulop : TIMES 
+              | DIVIDE '''
 
 ## ADD ESTO
     expresion : expresion BINOP expresion
@@ -274,100 +276,183 @@ def p_asignacion(p):
 
 """
 
-
 def p_expresion(p):
-    ''' expresion : expresion BINOP expresion
+    ''' expresion : expresion binop expresion
                | plus_minus expresion
                | LPAREN expresion RPAREN
                | var_cte '''
+    if(len(p)==2):
+        p[0]=p[1]
+    elif(len(p)==3):
+        p[0]= ("UNARY_OP",p[1],p[2])
+    else:
+        print(p[1:])
+        p[0]="COOL"
+
 
 def p_binop(p):
     ''' binop : SAME
               | NOTEQ
               | GTHAN 
-              | LTHAN '''
+              | LTHAN 
+              | PLUS
+              | MINUS
+              | TIMES
+              | DIVIDE'''
+    p[0] = p[1]
 
-def p_mulop(p):
-    ''' mulop : TIMES 
-              | DIVIDE '''
 
 def p_plus_minus(p):
     ''' plus_minus : PLUS
                    | MINUS '''
+    p[0] = p [1]
 
 def p_var_cte(p):
     ''' var_cte : variable
                 | CTEF
                 | CTEI '''
+
+    p[0] = p[1]
                 
 def p_returns(p):
     ''' returns : RETURN expresion SEMICOLON '''
+    p[0] = ("RETURNS", p[2])
 
-def p_llamada_void(p):
-    ''' llamada_void : ID LPAREN param_llamada RPAREN SEMICOLON '''
+def p_llamada_funcion(p):
+    ''' llamada_funcion : ID LPAREN param_llamada RPAREN SEMICOLON '''
+    p[0] = ("CALL_FUNC",{"name":p[1],"params": p[3]})
+
+"""
+#! GRAMATICA CORREGIDA 
+
+''' param_llamada : expresion
+                  | empty '''
+
+"""
+
 
 def p_param_llamada(p):
-    ''' param_llamada : expr
+    ''' param_llamada : expresion
+                      | expresion COMMA param_llamada
                       | empty '''
+    if(len(p)==2):
+        if (p[1] == None):
+            p[0] = []
+        else:
+            p[0] = [p[1]]
+    else:
+        p[0] = [p[1]] + p[3]
 
 def p_llamada_objeto(p):
     ''' llamada_objeto : ID DOT ID LPAREN param_llamada RPAREN SEMICOLON '''
+    p[0] = ("CALL_OBJ", {"className": p[1], "methodName": p[3], "params": p[5]})
     
 def p_lectura(p):
     ''' lectura : READ LPAREN variable op_lectura RPAREN SEMICOLON '''
+    p[0] = ("READ", [p[3]]+p[4])
 
 def p_op_lectura(p):
     ''' op_lectura : COMMA variable op_lectura 
                    | empty '''
+    if (len(p)==2):
+        p[0]= []
+    else:
+        p[0] = [p[2]] + p[3]
 
 def p_variable(p):
     ''' variable : ID variable_op ''' 
+    p[0] = ("VAR", {"name": p[1], "call_type": p[2]})
                  
+
+
+#TODO: ADD METHOD CALLS
 
 def p_variable_op(p):
     ''' variable_op : DOT ID
-                    | LBRACKET expresion RBRACKET matrix
+                    | LBRACKET expresion RBRACKET 
+                    | LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET
                     | empty
                     '''
+    if(len(p) == 2):
+        p[0] = ("Simple")
+    elif (len(p) == 3):
+        p[0] = ("attribute_call", p[2])
+    elif (len(p)==4):
+        
+    elif (len(p) == 4):
+        p[0] = ("Array", p[2])
+    else:
+        p[0] = ("MATRIX", (p[2],p[5]))
 
-def p_matrix(p):
-    ''' matrix : LBRACKET expresion RBRACKET matrix
-               | empty ''' 
+
+
+"""
+#! GRAMATICA MODIFICADA
+
+variable_op : DOT ID
+                    | LBRACKET expresion RBRACKET matrix
+                    | empty
+                    
+GRAMATICA ELIMINADA
+
+matrix : LBRACKET expresion RBRACKET
+               | empty
+
+"""
 
 def p_escritura(p):
     ''' escritura : WRITE LPAREN type_escritura op_escritura RPAREN SEMICOLON '''
+    p[0] = ("WRITE", [p[3]] + p[4])
 
 def p_type_escritura(p):
     ''' type_escritura : CTESTRING 
                        | expresion '''
+    p[0] = p[1]
 
 def p_op_escritura(p):
     ''' op_escritura : COMMA CTESTRING op_escritura 
                      | COMMA expresion op_escritura
                      | empty '''
-                     
+    if(len(p)==4):
+        p[0] = [p[2]]
+    else:
+        p[0] = []
+
 def p_decision(p):
     ''' decision : IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision '''
+    p[0] = ("IF_STMT", {"condition": p[3], "estatutos" :p[7], "else": p[9]})
 
 def p_op_decision(p):
     ''' op_decision : ELSE LBRACE estatutos RBRACE 
                     | empty '''
+    if(len(p)==4):
+        p[0] = [p[3]]
+    else:
+        p[0] = []
 
 def p_repeticion(p):
     ''' repeticion : condicional 
                    | no_condicional '''
+    p[0] = p[1]
 
 def p_condicional(p):
     ''' condicional : WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE '''
+    p[0] = ("WHILE", {"condition": p[3], "estatutos" :p[7]})
+
 
 def p_no_condicional(p):
-    ''' no_condicional : FROM type_no_condicional EQUAL expresion TO expresion DO LBRACE estatutos RBRACE '''
+    ''' no_condicional : FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE '''
+    p[0] = ("FOR", {"VAR":p[2],"ASSIGN": p[4],"END":p[6],"BODY":p[9]})
 
-def p_type_no_condicional(p):
-    ''' type_no_condicional : ID
+"""
+#! CAMBiO GRAMATICA QUITAR TYPE NO CONDICIONAL
+
+type_no_condicional : ID.ID
                             | ID LBRACKET expresion RBRACKET 
-                            | ID LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET '''  
+                            | ID LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET
 
+"""
+  
 def p_empty(p):
     ''' empty : '''
     p[0] = None 
@@ -375,6 +460,10 @@ def p_empty(p):
 def p_error(p):
     print("Syntax error in input!")
 
+precedence = (
+    ('left', 'PLUS', 'MINUS'),
+    ('left', 'TIMES', 'DIVIDE'),
+)
 
 parser = yacc.yacc()
 
@@ -386,7 +475,7 @@ Main ()
 {
     lee ( alan.cabello , alan );
     i = 3; 
-    hola(i);
+    hola(i.hola());
     desde i = 1 hasta 10 hacer 
     { 
         escribe("hola", 10);
