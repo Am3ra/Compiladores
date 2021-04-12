@@ -192,21 +192,15 @@ def p_var_def(p):
                 | VAR type_simple       ID op_vardef  SEMICOLON '''
                 # VAR TYPE_COMP VAR1,VAR2... ;
                 # VAR TYPE_SIMPLE VAR1;
-    p[0] = ("VARDEF",{"type": p[2], "id": p[3]] })
+    p[0] = ("VARDEF",{"type": p[2], "id": p[3] })
 
-# def p_ids(p):
-#     ''' ids : COMMA ID ids
-#                 | empty'''
-#     if (len(p)== 4):
-#         p[0] = [p[2]] + p[3]
-#     else:
-#         p[0] = []
+
 
 def p_op_vardef(p):
     ''' op_vardef : LBRACKET CTEI RBRACKET 
                   | LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET 
                   | empty'''
-    p[0] = 
+    if(len(p))
 
 def p_type_simple(p):
     ''' type_simple : INT
