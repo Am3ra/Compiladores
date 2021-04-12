@@ -192,20 +192,28 @@ def p_var_def(p):
                 | VAR type_simple       ID op_vardef  SEMICOLON '''
                 # VAR TYPE_COMP VAR1,VAR2... ;
                 # VAR TYPE_SIMPLE VAR1;
-    p[0] = ("VARDEF",{"type": p[2], "id": p[3] })
-
+    if (len(p) == 5):
+        p[0] = ("VARDEF",{"type": p[2], "id": p[3] })
+    else:
+        p[0] = ("VARDEF",{"type": p[2], "id": p[3], "dims" : p[4] })
 
 
 def p_op_vardef(p):
     ''' op_vardef : LBRACKET CTEI RBRACKET 
                   | LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET 
                   | empty'''
-    if(len(p))
+    dims = []
+    if(len(p) == 4):
+        dims =  [p[2]]
+    elif (len(p)== 7):
+        dims = [p[2],p[5]]
+    p[0] = dims
 
 def p_type_simple(p):
     ''' type_simple : INT
                     | FLOAT
                     | STRING '''
+    p[0]= p[1]
 
 def p_type_compuesto(p):
     ''' type_compuesto : ID '''
@@ -215,11 +223,14 @@ def p_estatutos(p):
     ''' estatutos : estatuto
                 | estatuto estatutos
                 | empty '''
-
+    if(len(p) == 3):
+        p[0] = [p[1]]+p[2]
+    else:
+        p[0] = [p[1]]
 
 def p_estatuto(p):
     ''' estatuto : asignacion
-                | expr
+                | expresion
                 | returns
                 | llamada_void
                 | llamada_objeto
@@ -227,36 +238,48 @@ def p_estatuto(p):
                 | escritura
                 | decision
                 | repeticion '''
-
+    p[0]= p[1]
 
     
 def p_asignacion(p):
-    ''' asignacion : variable EQUAL expr SEMICOLON '''
+    ''' asignacion : variable EQUAL expresion SEMICOLON '''
+    p[0] = ("ASIGN", p[1], p[3])
 
+"""
+#! CAMBIO DE GRAMATICA, REGLAS DE EXPRESIONES MODIFICADAS 
 
-def p_expr(p):
-    ''' expr : expresion
+''' expr : expresion
              | expresion binop expresion '''
+
+''' expresion : termino op_expresion '''
+
+''' op_expresion : plus_minus expresion 
+                     | empty'''
+    
+''' termino : factor op_factor '''
+
+''' op_factor : mulop factor
+                | empty '''
+
+''' factor : LPAREN expr RPAREN 
+            | var_cte
+            | variable '''
+
+
+## ADD ESTO
+    expresion : expresion BINOP expresion
+               | plus_minus expresion
+               | LPAREN expresion RPAREN
+               | var_cte     
+
+"""
 
 
 def p_expresion(p):
-    ''' expresion : termino op_expresion '''
-
-def p_op_expresion(p):
-    ''' op_expresion : plus_minus expresion 
-                     | empty'''
-
-def p_termino(p):
-    ''' termino : factor op_factor '''
-
-def p_op_factor(p):
-    ''' op_factor : mulop factor
-                  | empty '''
-
-def p_factor(p):
-    ''' factor : LPAREN expr RPAREN 
-               | var_cte
-               | variable '''
+    ''' expresion : expresion BINOP expresion
+               | plus_minus expresion
+               | LPAREN expresion RPAREN
+               | var_cte '''
 
 def p_binop(p):
     ''' binop : SAME
@@ -273,12 +296,12 @@ def p_plus_minus(p):
                    | MINUS '''
 
 def p_var_cte(p):
-    ''' var_cte : ID
+    ''' var_cte : variable
                 | CTEF
                 | CTEI '''
                 
 def p_returns(p):
-    ''' returns : RETURN expr SEMICOLON '''
+    ''' returns : RETURN expresion SEMICOLON '''
 
 def p_llamada_void(p):
     ''' llamada_void : ID LPAREN param_llamada RPAREN SEMICOLON '''
@@ -303,12 +326,12 @@ def p_variable(p):
 
 def p_variable_op(p):
     ''' variable_op : DOT ID
-                    | LBRACKET expr RBRACKET matrix
+                    | LBRACKET expresion RBRACKET matrix
                     | empty
                     '''
 
 def p_matrix(p):
-    ''' matrix : LBRACKET expr RBRACKET matrix
+    ''' matrix : LBRACKET expresion RBRACKET matrix
                | empty ''' 
 
 def p_escritura(p):
@@ -316,15 +339,15 @@ def p_escritura(p):
 
 def p_type_escritura(p):
     ''' type_escritura : CTESTRING 
-                       | expr '''
+                       | expresion '''
 
 def p_op_escritura(p):
     ''' op_escritura : COMMA CTESTRING op_escritura 
-                     | COMMA expr op_escritura
+                     | COMMA expresion op_escritura
                      | empty '''
                      
 def p_decision(p):
-    ''' decision : IF LPAREN expr RPAREN THEN LBRACE estatutos RBRACE op_decision '''
+    ''' decision : IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision '''
 
 def p_op_decision(p):
     ''' op_decision : ELSE LBRACE estatutos RBRACE 
@@ -335,15 +358,15 @@ def p_repeticion(p):
                    | no_condicional '''
 
 def p_condicional(p):
-    ''' condicional : WHILE LPAREN expr RPAREN DO LBRACE estatutos RBRACE '''
+    ''' condicional : WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE '''
 
 def p_no_condicional(p):
-    ''' no_condicional : FROM type_no_condicional EQUAL expr TO expr DO LBRACE estatutos RBRACE '''
+    ''' no_condicional : FROM type_no_condicional EQUAL expresion TO expresion DO LBRACE estatutos RBRACE '''
 
 def p_type_no_condicional(p):
     ''' type_no_condicional : ID
-                            | ID LBRACKET expr RBRACKET 
-                            | ID LBRACKET expr RBRACKET LBRACKET expr RBRACKET '''  
+                            | ID LBRACKET expresion RBRACKET 
+                            | ID LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET '''  
 
 def p_empty(p):
     ''' empty : '''
