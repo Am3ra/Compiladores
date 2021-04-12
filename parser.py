@@ -1,124 +1,91 @@
-import ply.lex as lex
 import ply.yacc as yacc
+from lexer import lexer
+from lexer import tokens
+# from semanticAnalyzer import SemanticAnalyzer
 
-# Reserved Words
-reserved = {
-    # 'Programa'  : 'PROGRAM',
-    'Clase': 'CLASS',
-    'hereda': 'INHERIT',
-    'Funcion': 'FUNC',
-    # 'void'      : 'VOID',
-    'Main': 'MAIN',
-    'var': 'VAR',
-    'int': 'INT',
-    'float': 'FLOAT',
-    'string': 'STRING',
-    'returns': 'RETURN',
-    'lee': 'READ',
-    'escribe': 'WRITE',
-    'si': 'IF',
-    'entonces': 'THEN',
-    'sino': 'ELSE',
-    'mientras': 'WHILE',
-    'hacer': 'DO',
-    'desde': 'FROM',
-    'hasta': 'TO',
-    'hacer': 'DO'
-}
+class SemanticAnalyzer():
+    def __init__(self,input):
+        self.input = input
+        self.main : MainNode = parser.parse(input)
+        self.symbol_table_vars_list = [{}]
+        self.symbol_table_funcs_list = [{}]
 
-# Definition of tokens
-tokens = ['GTHAN', 'LTHAN', 'NOTEQ', 'SAME', 'ID', 'CTEI', 'CTEF', 'CTESTRING', 'PLUS', 'MINUS',
-          'TIMES', 'DIVIDE', 'LPAREN', 'RPAREN', 'LBRACE', 'RBRACE', 'COMMA', 'SEMICOLON', 'EQUAL',
-          'COLON', 'RET', 'DOT', 'LBRACKET', 'RBRACKET'] + list(reserved.values())
+    def analisis_semantico(self):
+        self.main.analyze(self)
 
-# Regular expressions
-t_GTHAN = r'\>'
-t_LTHAN = r'\<'
-t_NOTEQ = r'!='
-t_SAME = r'=='
-t_PLUS = r'\+'
-t_MINUS = r'-'
-t_TIMES = r'\*'
-t_DIVIDE = r'/'
-t_LPAREN = r'\('
-t_RPAREN = r'\)'
-t_LBRACE = r'\{'
-t_RBRACE = r'\}'
-t_COMMA = r'\,'
-t_SEMICOLON = r'\;'
-t_EQUAL = r'\='
-t_COLON = r'\:'
-t_RET = r'->'
-t_DOT = r'\.'
-t_LBRACKET = r'\['
-t_RBRACKET = r'\]'
+    def check_if_declared(self,dec,typeDec):
+        for function in self.symbol_table_funcs_list:
+            if(function.get(dec["id"]) is not None):
+                raise SyntaxError("{0} YA DECLARADA COMO FUNCION:".format(typeDec) + dec["id"])
+        
+        for var in self.symbol_table_vars_list:
+            if(var.get(dec["id"]) is not None):
+                raise SyntaxError("{0} YA DECLARADA COMO VARIABLE:".format(typeDec) + dec["id"])
+
+    def declarar_var(self,dec):
+        ##Ya se declaro?
+        self.check_if_declared(dec,"VARIABLE")
+        self.symbol_table_vars_list[-1][dec.id] = dec
+
+    
+    def declarar_func(self,dec):
+        self.check_if_declared(dec,"FUNCION")
+        self.symbol_table_funcs_list[-1][dec.id] = dec
 
 
-def t_CTEF(t):
-    r'\d+\.\d+'
-    t.value = float(t.value)
-    return t
 
+# SemanticAnalyzer(text).analisis_semantico()
 
-def t_CTEI(t):
-    r'\d+'
-    t.value = int(t.value)
-    return t
+class Node():
+    def analyze(self, analyzer : SemanticAnalyzer):
+        '''Complete Semantic analysis of this node ''' 
+        pass
 
+class MainNode(Node):
+    def __init__(self, declaraciones , main ):
+        self.declaraciones = declaraciones
+        self.main = main
+    
 
-def t_ID(t):
-    r'[A-Za-z][A-Za-z0-9]*'
-    t.type = reserved.get(t.value, 'ID')  # checks for reserved words
-    return t
+    def analyze(self, analyzer : SemanticAnalyzer):
+        ## Analyzar declaraciones
 
+        ## Analyzar el main
 
-def t_CTESTRING(t):
-    r'\"([^\\\n]|(\\.))*?\"'
-    return t
+        ##
+        for dec in self.declaraciones:
+            dec.analyze()
+        
+        self.main.analyze()
+    
+    def __str__(self):
+        return "{0}".format(("Programa" , self.declaraciones, self.main))
 
-
-# A string containing ignored characters (spaces and tabs)
-t_ignore = ' \t'
-
-
-def t_newline(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
-
-# Error handling rule
-
-
-def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
-    t.lexer.skip(1)
-
-
-# Build the lexer
-lexer = lex.lex()
-
-data = " Main si escribe j"
-
-lexer.input(data)
-
-
-# for tok in lexer:
-#     print(tok)
+class VarDecNode(Node):
+    def __init__(self):
+        super().__init__()
+    
+    def __str__(self):
+        return super().__str__()
+    
+    def analyze(self, analyzer):
+        return super().analyze(analyzer)
 
 # FUNCIONA!
 def p_programa(p):
-    '''programa : definiciones main '''
-    p[0] = ("PROGRAMA", p[1], p[2])
+    '''programa : declaraciones main '''
+    p[0] = MainNode(p[1],p[2])
 
 
-def p_definiciones(p):
-    '''definiciones : var_def definiciones
-                    | funcion_def definiciones
-                    | clase_def definiciones
+def p_declaraciones(p):
+    '''declaraciones : var_def declaraciones
+                    | funcion_def declaraciones
+                    | clase_def declaraciones
                     | empty '''
     if (len(p) == 3):
-        p[0] = ("DEFINCION", p[1], p[2])
+        p[0] = [p[1]] + p[2]
     else:
-        p[0] = None
+        p[0] = []
 
 
 def p_clase_def(p):
@@ -148,7 +115,7 @@ def p_op_func(p):
 
 def p_funcion_def(p):
     ''' funcion_def : FUNC ID LPAREN params RPAREN return_option bloque_func'''
-    p[0] = {"name": p[2], "params": p[4], "return_op": p[5], "body": p[6]}
+    p[0] = {"name": p[2], "params": p[4], "return_op": p[6], "vars" : p[7]["VARS"], "estatutos":p[7]["Estatutos"] }
 
 
 def p_op_var(p):
@@ -160,16 +127,20 @@ def p_op_var(p):
 def p_return_option(p):
     ''' return_option : RET type_simple
                       | empty '''
-    if(len(p) == 2):
-        p[0] = ("RETURN_OP", p[2])
+    if(len(p) == 3):
+        p[0] =  p[2]
     else:
         p[0] = None
 
+#! PARAMS AHORA PUEDE SER EMPTY
 
 def p_params(p):
-    ''' params : ID COLON type_simple params_op'''
-    p[0] = [(p[2], p[4])] + p[5]
-
+    ''' params : ID COLON type_simple params_op
+               | empty'''
+    if(len(p) == 5):
+        p[0] = [(p[2], p[4])] + p[5]
+    else:
+        p[0] = []
 
 def p_params_op(p):
     ''' params_op : COMMA params
@@ -182,12 +153,12 @@ def p_params_op(p):
 
 def p_bloque_func(p):
     ''' bloque_func : LBRACE op_var estatutos RBRACE'''
-    p[0] = ("BLOQUE_FUNC", p[2], p[3])
+    p[0] = {"VARS" : p[2], "Estatutos" : p[3] }
 
 
 def p_main(p):
     ''' main : MAIN LPAREN RPAREN bloque_func'''
-    p[0] = ("MAIN", p[4])
+    p[0] =  p[4]
 
 
 """
@@ -246,9 +217,14 @@ def p_estatutos(p):
     if(len(p) == 3):
         p[0] = [p[1]]+p[2]
     else:
-        p[0] = [p[1]]
+        if p[1] == None:
+            p[0] = []
+        else:
+            p[0] = [p[1]]
 
 #! SE AGREGO SEMICOLON A LLAMADA_FUNC Y LLAMADA_OBJ
+
+
 def p_estatuto(p):
     ''' estatuto : asignacion
                 | expresion
@@ -345,6 +321,7 @@ def p_returns(p):
 
 #! SE QUITO EL SEMICOLON
 
+
 def p_llamada_funcion(p):
     ''' llamada_funcion : ID LPAREN param_llamada RPAREN '''
     p[0] = ("CALL_FUNC", {"name": p[1], "params": p[3]})
@@ -393,6 +370,7 @@ def p_op_lectura(p):
 
 #! SE AGREGO LLAMADA OBJETO
 
+
 def p_variable(p):
     ''' variable : ID variable_op
                   | llamada_objeto '''
@@ -409,10 +387,10 @@ def p_variable_op(p):
                     | empty
                     '''
     if(len(p) == 2):
-        if(p[1]== None):
+        if(p[1] == None):
             p[0] = ("Simple")
         else:
-            p[0] = ("method_call",p[1])
+            p[0] = ("method_call", p[1])
     elif (len(p) == 3):
         p[0] = ("attribute_call", p[2])
     elif (len(p) == 4):
@@ -517,6 +495,11 @@ programa_ejemplo = '''
 
 var int alan ; 
 
+Funcion karen() -> int 
+{
+    
+}
+
 Main ()
 {
     lee ( alan.cabello , alan );
@@ -532,3 +515,7 @@ Main ()
 
 print(parser.parse(programa_ejemplo))
 # print(parser.parse(programa_ejemplo+";")) ##ERROR
+
+
+
+

@@ -16,3 +16,5 @@ Gramatica, Tokens, y Diagrama de Sintaxis se pueden encontrar en [Este Documento
 El parser ahora genera un Arbol de Sintaxis Abstracta (AST) para ayudar en el paso de analisis semantico
 
 Se simplifico y cambio la gramatica
+
+Se separo el lexer, parser, y analizador semantico
