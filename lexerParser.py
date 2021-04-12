@@ -94,112 +94,159 @@ data = " Main si escribe j"
 lexer.input(data)
 
 
-for tok in lexer:
-    print(tok)
+# for tok in lexer:
+#     print(tok)
 
 ## FUNCIONA!
 def p_programa(p):
-	'''programa : definiciones main ''' 
+    '''programa : definiciones main ''' 
+    p[0] = ("PROGRAMA", p[1], p[2])
 
 def p_definiciones(p):
-	'''definiciones : var_def definiciones
-					| funcion_def definiciones
-					| clase_def definiciones
-					| empty '''
-					
+    '''definiciones : var_def definiciones
+                    | funcion_def definiciones
+                    | clase_def definiciones
+                    | empty '''
+    if (len(p) == 3):
+        p[0] = ("DEFINCION", p[1], p[2])
+    else:
+        p[0] = None
+
+                    
 def p_clase_def(p):
-	'''clase_def : CLASS ID clase_op bloque_clase'''
+    '''clase_def : CLASS ID clase_op bloque_clase'''
+    p[0] = ("CLASE_DEF", p[2],p[3],p[4])
 
 def p_clase_op(p):
-	''' clase_op : INHERIT ID 
-				| empty '''
+    ''' clase_op : INHERIT ID 
+                | empty '''
+    if(len(p) == 2):
+        p[0] = ("CLASE_OP", p[2])
+    else:
+        p[0] = None
 
 def p_bloque_clase(p):
-	''' bloque_clase : LBRACE op_var op_func RBRACE'''
+    ''' bloque_clase : LBRACE op_var op_func RBRACE'''
+    p[0] = ("BLOQUE_CLASE", p[2],p[3])
 
 
 def p_op_func(p):
-	''' op_func : funcion_def
-				| empty'''
+    ''' op_func : funcion_def
+                | empty'''
+    p[0] = p[1]
 
 def p_funcion_def(p):
-	''' funcion_def : FUNC ID LPAREN params RPAREN return_option bloque_func'''
+    ''' funcion_def : FUNC ID LPAREN params RPAREN return_option bloque_func'''
+    p[0] = {"name": p[2], "params": p[4], "return_op":p[5], "body": p[6]}
 
 def p_op_var(p):
-	''' op_var : var_def
-				| empty'''
+    ''' op_var : var_def
+                | empty'''
+    p[0] = p[1]
 
 def p_return_option(p):
-	''' return_option : RET type_simple
-					  | empty ''' 
-
-
+    ''' return_option : RET type_simple
+                      | empty ''' 
+    if(len(p) == 2):
+        p[0] = ("RETURN_OP", p[2])
+    else:
+        p[0] = None
+        
 def p_params(p):
-	''' params : ID COLON type_simple params_op''' 
+    ''' params : ID COLON type_simple params_op'''
+    p[0] =  [(p[2] , p[4])] + p[5]
 
 def p_params_op(p):
-	''' params_op : COMMA params
-					| empty ''' 
+    ''' params_op : COMMA params
+                    | empty ''' 
+    if (len(p)== 3):
+        p[0] = [p[3]]
+    else:
+        p[0] = []
 
 def p_bloque_func(p):
-	''' bloque_func : LBRACE op_var estatutos RBRACE'''
+    ''' bloque_func : LBRACE op_var estatutos RBRACE'''
+    p[0] = ("BLOQUE_FUNC", p[2] , p[3])
 
 def p_main(p):
-	''' main : MAIN  LPAREN RPAREN bloque_func'''
-	
+    ''' main : MAIN LPAREN RPAREN bloque_func'''
+    p[0] = ("MAIN", p[5])
+    
+
+
+"""
+#! CAMBIO DE GRAMATICA
+
+''' var_def : VAR type_compuesto    ID ids         SEMICOLON
+                | VAR type_simple   ID op_var_def  SEMICOLON '''
+
+#! REGLA ELIMINADA                
+
+ ''' ids : COMMA ID ids
+                | empty'''
+
+"""
+
 def p_var_def(p):
-	''' var_def : VAR type_compuesto ID ids SEMICOLON
-				| VAR type_simple ID op_vardef SEMICOLON '''
+    ''' var_def : VAR type_compuesto    ID           SEMICOLON
+                | VAR type_simple       ID op_vardef  SEMICOLON '''
+                # VAR TYPE_COMP VAR1,VAR2... ;
+                # VAR TYPE_SIMPLE VAR1;
+    p[0] = ("VARDEF",{"type": p[2], "id": p[3]] })
 
-def p_ids(p):
-	''' ids : COMMA ID ids
-				| empty'''
-
+# def p_ids(p):
+#     ''' ids : COMMA ID ids
+#                 | empty'''
+#     if (len(p)== 4):
+#         p[0] = [p[2]] + p[3]
+#     else:
+#         p[0] = []
 
 def p_op_vardef(p):
-	''' op_vardef : LBRACKET CTEI RBRACKET 
-				  | LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET 
-				  | empty'''
-
+    ''' op_vardef : LBRACKET CTEI RBRACKET 
+                  | LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET 
+                  | empty'''
+    p[0] = 
 
 def p_type_simple(p):
-	''' type_simple : INT
-					| FLOAT
-					| STRING '''
+    ''' type_simple : INT
+                    | FLOAT
+                    | STRING '''
 
 def p_type_compuesto(p):
-	''' type_compuesto : ID '''
+    ''' type_compuesto : ID '''
+    p[0]= p[1]
 
 def p_estatutos(p):
-	''' estatutos : estatuto
-				| estatuto estatutos
-				| empty '''
+    ''' estatutos : estatuto
+                | estatuto estatutos
+                | empty '''
 
 
 def p_estatuto(p):
-	''' estatuto : asignacion
-				| expr
-				| returns
-				| llamada_void
+    ''' estatuto : asignacion
+                | expr
+                | returns
+                | llamada_void
                 | llamada_objeto
-				| lectura
-				| escritura
-				| decision
-				| repeticion '''
+                | lectura
+                | escritura
+                | decision
+                | repeticion '''
 
 
-	
+    
 def p_asignacion(p):
-	''' asignacion : variable EQUAL expr SEMICOLON '''
+    ''' asignacion : variable EQUAL expr SEMICOLON '''
 
 
 def p_expr(p):
-	''' expr : expresion
-			 | expresion binop expresion '''
+    ''' expr : expresion
+             | expresion binop expresion '''
 
 
 def p_expresion(p):
-	''' expresion : termino op_expresion '''
+    ''' expresion : termino op_expresion '''
 
 def p_op_expresion(p):
     ''' op_expresion : plus_minus expresion 
@@ -261,14 +308,14 @@ def p_variable(p):
                  
 
 def p_variable_op(p):
-	''' variable_op : DOT ID
-					| LBRACKET expr RBRACKET matrix
-					| empty
-					'''
+    ''' variable_op : DOT ID
+                    | LBRACKET expr RBRACKET matrix
+                    | empty
+                    '''
 
 def p_matrix(p):
     ''' matrix : LBRACKET expr RBRACKET matrix
-			   | empty ''' 
+               | empty ''' 
 
 def p_escritura(p):
     ''' escritura : WRITE LPAREN type_escritura op_escritura RPAREN SEMICOLON '''
@@ -306,7 +353,7 @@ def p_type_no_condicional(p):
 
 def p_empty(p):
     ''' empty : '''
-    pass  
+    p[0] = None 
 
 def p_error(p):
     print("Syntax error in input!")
@@ -332,4 +379,6 @@ Main ()
 
 
 print(parser.parse(programa_ejemplo))
-print(parser.parse(programa_ejemplo+";")) ##ERROR
+# print(parser.parse(programa_ejemplo+";")) ##ERROR
+
+
