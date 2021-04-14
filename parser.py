@@ -40,9 +40,7 @@ class SemanticAnalyzer():
 		self.check_if_declared(dec, "VAR")
 		self.symbol_table[-1][dec.id] = dec
 
-	def declarar_func(self, dec):
-		self.check_if_declared(dec, "FUNC")
-		self.symbol_table_funcs_list[dec.id] = dec
+		
 
 	def declarar_class(self, dec):
 		self.check_if_declared(dec, "CLASS")
@@ -114,6 +112,8 @@ class VarDecNode(Node):
 class FuncDecNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
+		#{"name": p[2], "params": p[4], "return_op": p[6],
+		# "vars": p[7]["VARS"], "estatutos": p[7]["Estatutos"]}
 
 	def __str__(self):
 		return "{0}".format(("FUNCDEC", self.dec))
@@ -122,13 +122,21 @@ class FuncDecNode(Node):
 		return "{0}".format(("FUNCDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
+		## CHECAR ID
+		analyzer.check_if_declared(dec, "FUNC")
+		analyzer.symbol_table_funcs_list[dec.id] = dec
+		## CREAR DIC VACIO
+
+		## DECLARAR PARAMETROS
+
+		## METER CUERPO
 		analyzer.declarar_func(self.dec)
+
 
 class SemanticError(Exception):
 	pass
 
 class ClassDecNode(Node):
-	#! DECLARACION DE METODOS Y ATRIBUTOS FALTA
 	def __init__(self, dec):
 		self.dec = dec
 
@@ -172,13 +180,20 @@ class BloqueNode(Node):
 		self.estatutos = estatutos
 
 	def __str__(self):
-		return "{0}".format(("CLASSDEC", self.dec))
+		return "{0}".format(("BLOQUE CODE", self.dec))
 
 	def __repr__(self):
-		return "{0}".format(("CLASSDEC", self.dec))
+		return "{0}".format(("BLOQUE CODE", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		analyzer.declarar_class(self.dec)
+		analyzer.symbol_table_vars_list+{} # Push new lexical scope
+
+
+		for estatuto in self.estatutos:
+			estatuto.analyze()
+
+		analyzer.symbol_table_vars_list.pop() # pop lexical scope
+
 
 # FUNCIONA!
 
@@ -248,7 +263,7 @@ def p_op_func(p):
 def p_funcion_def(p):
 	''' funcion_def : FUNC ID LPAREN params RPAREN return_option bloque_func'''
 	p[0] = {"name": p[2], "params": p[4], "return_op": p[6],
-			"vars": p[7]["VARS"], "estatutos": p[7]["Estatutos"]}
+			"body":p[7]}
 
 
 def p_op_var(p):
@@ -294,10 +309,11 @@ def p_params_op(p):
 	else:
 		p[0] = []
 
+#! SE QUITO VARDEF
 
 def p_bloque_func(p):
-	''' bloque_func : LBRACE op_var estatutos RBRACE'''
-	p[0] = {"VARS": p[2], "Estatutos": p[3]}
+	''' bloque_func : LBRACE estatutos RBRACE'''
+	p[0] = {"Estatutos": p[2]}
 
 
 def p_main(p):
@@ -324,10 +340,10 @@ def p_var_def(p):
 				|  type_simple       ID op_vardef   '''
 	# VAR TYPE_COMP VAR1,VAR2... ;
 	# VAR TYPE_SIMPLE VAR1;
-	if (len(p) == 5):
-		p[0] = {"type": p[2], "id": p[3]}
+	if (len(p) == 3):
+		p[0] = {"type": p[1], "id": p[2]}
 	else:
-		p[0] = {"type": p[2], "id": p[3], "dims": p[4]}
+		p[0] = {"type": p[1], "id": p[2], "dims": p[3]}
 
 
 def p_op_vardef(p):
@@ -366,7 +382,7 @@ def p_estatutos(p):
 		else:
 			p[0] = [p[1]]
 
-#! SE AGREGO SEMICOLON A LLAMADA_FUNC Y LLAMADA_OBJ
+#! SE AGREGO SEMICOLON A LLAMADA_FUNC Y LLAMADA_OBJ y VAR FEC
 
 
 def p_estatuto(p):
@@ -375,7 +391,7 @@ def p_estatuto(p):
 				| returns
 				| llamada_funcion SEMICOLON
 				| llamada_objeto SEMICOLON
-				
+				| var_def SEMICOLON
 				| lectura
 				| escritura
 				| decision
