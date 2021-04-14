@@ -9,18 +9,30 @@ from lexer import tokens
 
 # simple_types + symbol_table_classes.keys()
 
+
+
+def declarar_var_scope(dec,scope):
+	check_if_declared_scope(dec,scope)
+	scope[dec["id"]] = dec
+
 class SemanticAnalyzer():
 	def __init__(self, input):
 		self.input = input
 		self.main: MainNode = parser.parse(input)
-		self.symbol_table_vars_list = [{}]
+		self.symbol_table_vars_list = [[]] # CAMBIAR POR [[]] + {}
+		# Declaraciones symbol_table_vars -> symbol_table_vars[-1]
+		# En llamar una funcion append []
+		# Separar vars/symbolos globales
+		# Checar siempre vars globales
+		self.global_vars = {}
 		self.symbol_table_funcs = {}
 		self.symbol_table_classes = {}
 
 	def analisis_semantico(self):
 		self.main.analyze(self)
 
-	def check_if_declared(self, dec, typeDec):
+
+	def check_if_declared_global(self, dec, typeDec):
 		# for function in self.symbol_table_funcs_list:
 		if(self.symbol_table_funcs.get(dec["id"]) is not None):
 			raise SyntaxError(
@@ -36,14 +48,23 @@ class SemanticAnalyzer():
 			raise SyntaxError(
 				"{0} YA DECLARADA COMO CLASE:".format(typeDec) + dec["id"])
 
+	
+	def check_if_declared_scope(self,dec,scope,error_message = "{0} is already declared!".format(dec["id"])):
+		if (self.global_vars.get(dec["id"]) is not None):
+			raise SemanticError(error_message)
+		
+		if(scope.get(dec["id"]) is not None):
+			raise SemanticError(error_message)
+
+
 	def declarar_var(self, dec):
-		self.check_if_declared(dec, "VAR")
+		self.check_if_declared_global(dec, "VAR")
 		self.symbol_table[-1][dec.id] = dec
 
-		
+	
 
 	def declarar_class(self, dec):
-		self.check_if_declared(dec, "CLASS")
+		self.check_if_declared_global(dec, "CLASS")
 		self.symbol_table_classes[dec.id] = dec
 
 	# def declare_symbol(self,dec,type):
@@ -61,12 +82,13 @@ class SemanticAnalyzer():
 	# 	self.check_if_declared(dec,type)
 	# 	self.symbol_table[-1][dec.id] = dec
 
-	def check_if_declared_class(self,dec,class_name):
-		if (self.symbol_table_classes[class_name].get(dec[id]) is not None):
-			raise SemanticError("Name already declared in class")
+	# def check_if_declared_class(self,dec,class_name):
+	# 	if (self.symbol_table_classes[class_name].get(dec[id]) is not None):
+	# 		raise SemanticError("Name already declared in class")
 
 	def declare_symbol_class(self, dec, class_name, type):
-		self.check_if_declared_class(self,dec,class_name)
+		# self.check_if_declared_class(self,dec,class_name)
+		check_if_declared_scope(dec,self.symbol_table_classes[class_name])
 		self.symbol_table_classes[class_name][type][dec["id"]] = dec
 
 
@@ -113,7 +135,7 @@ class FuncDecNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
 		#{"name": p[2], "params": p[4], "return_op": p[6],
-		# "vars": p[7]["VARS"], "estatutos": p[7]["Estatutos"]}
+		# ""estatutos": p[7]}
 
 	def __str__(self):
 		return "{0}".format(("FUNCDEC", self.dec))
@@ -122,14 +144,25 @@ class FuncDecNode(Node):
 		return "{0}".format(("FUNCDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		## CHECAR ID
-		analyzer.check_if_declared(dec, "FUNC")
-		analyzer.symbol_table_funcs_list[dec.id] = dec
+		## CHECAR ID GLOBAL
+		analyzer.check_if_declared_global(dec, "FUNC")
+		
 		## CREAR DIC VACIO
+		analyzer.symbol_table_funcs_list[dec["id"]] = {
 
+			"id": dec["id"],
+			"parameters": dec["params"],
+			"return_type":dec["return_op"],
+			"symbol_table":{}
+		}
+		
 		## DECLARAR PARAMETROS
+		for param in dec["params"]:
+			declarar_var_scope(param,analyzer.symbol_table_funcs[dec["id"]])
 
-		## METER CUERPO
+		for estatuto in self.dec["estatutos"]:
+			estatuto.analyze()
+		## Analyzar CUERPO
 		analyzer.declarar_func(self.dec)
 
 
@@ -151,7 +184,7 @@ class ClassDecNode(Node):
 
 		
 		# Checar el id
-		analyzer.check_if_declared(dec["id"], "CLASS")
+		analyzer.check_if_declared_global(dec["id"], "CLASS")
 		# Checar nombres de funcs y vars
 		analyzer.declarar_class({"id":dec["id"],"attributes":{},"methods":{}})
 

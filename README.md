@@ -18,3 +18,6 @@ El parser ahora genera un Arbol de Sintaxis Abstracta (AST) para ayudar en el pa
 Se simplifico y cambio la gramatica
 
 Se separo el lexer, parser, y analizador semantico
+Se agrego declaraciones de clases, variables y funciones
+
+Casi se agrega habilidad de llamar funciones
