@@ -22,13 +22,14 @@ reserved = {
     'hacer': 'DO',
     'desde': 'FROM',
     'hasta': 'TO',
-    'hacer': 'DO'
+    'hacer': 'DO',
+	'bool': "BOOL"
 }
 
 # Definition of tokens
 tokens = ['GTHAN', 'LTHAN', 'NOTEQ', 'SAME', 'ID', 'CTEI', 'CTEF', 'CTESTRING', 'PLUS', 'MINUS',
           'TIMES', 'DIVIDE', 'LPAREN', 'RPAREN', 'LBRACE', 'RBRACE', 'COMMA', 'SEMICOLON', 'EQUAL',
-          'COLON', 'RET', 'DOT', 'LBRACKET', 'RBRACKET'] + list(reserved.values())
+          'COLON', 'RET', 'DOT', 'LBRACKET', 'RBRACKET', 'BOOL', 'TRUE', 'FALSE'] + list(reserved.values())
 
 # Regular expressions
 t_GTHAN = r'\>'
@@ -73,6 +74,16 @@ def t_ID(t):
 
 def t_CTESTRING(t):
     r'\"([^\\\n]|(\\.))*?\"'
+    return t
+
+def t_TRUE(t):
+    r'(true)'
+    t.value = True
+    return t
+
+def t_FALSE(t):
+    r'(false)'
+    t.value = False
     return t
 
 

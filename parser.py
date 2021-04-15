@@ -272,7 +272,7 @@ def p_clase_op(p):
 	''' clase_op : INHERIT ID 
 				 | empty '''
 	if(len(p) == 3):
-		p[0] = ("CLASE_OP", p[2])
+		p[0] = p[2]
 	else:
 		p[0] = None
 
@@ -335,8 +335,8 @@ params_op : COMMA ID COLON type_simple params_op
 def p_params(p):
 	''' params : var_def params_op
 				| empty'''
-	if(len(p) == 5):
-		p[0] = [(p[2], p[4])] + p[5]
+	if(len(p) == 3):
+		p[0] = [p[1]] + p[5]
 	else:
 		p[0] = []
 
@@ -400,10 +400,18 @@ def p_op_vardef(p):
 
 def p_type_simple(p):
 	''' type_simple : INT
-									| FLOAT
-									| STRING '''
+					| FLOAT
+					| STRING 
+					| BOOL'''
 	p[0] = p[1]
 
+# def p_bool_true(p):
+# 	''' bool : TRUE'''
+# 	p[0] = True
+
+# def p_bool_false(p):
+# 	''' bool : false'''
+# 	p[0] = True
 
 def p_type_compuesto(p):
 	''' type_compuesto : ID '''
