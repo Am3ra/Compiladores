@@ -11,6 +11,7 @@ from lexer import tokens
 # simple_types + symbol_table_classes.keys()
 
 
+#! Juntar simbolos?
 
 
 
@@ -34,6 +35,13 @@ class SemanticAnalyzer():
 		f = open(filename,'wb')
 		pickle.dump(self.main,f) # Se serializa el AST
 		f.close()
+
+	def check_if_declared_var(self, id) -> dict:
+		for scope in self.symbol_table_vars_list:
+			if scope.get(id) is not None:
+				return scope.get(id)
+		else:
+			SemanticError("Variable with name {0} not declared".format(id))
 
 	def check_if_declared_global(self, dec:dict, typeDec):
 		# for function in self.symbol_table_funcs_list:
@@ -70,25 +78,7 @@ class SemanticAnalyzer():
 		self.check_if_declared_global(dec, "CLASS")
 		self.symbol_table_classes[dec["id"]] = dec
 
-	# def declare_symbol(self,dec,type):
-	# 	symbol_table = {}
-
-	# 	if type == "VAR":
-	# 		symbol_table = self.symbol_table_vars_list
-	# 	elif type == "FUNC":
-	# 		symbol_table = self.symbol_table_funcs
-	# 	elif type == "CLASS":
-	# 		symbol_table = self.symbol_table_classes
-	# 	else:
-	# 		raise ValueError("EXPECTED VAR, FUNC, CLASS in TYPE PARAMETER")
-
-	# 	self.check_if_declared(dec,type)
-	# 	self.symbol_table[-1][dec.id] = dec
-
-	# def check_if_declared_class(self,dec,class_name):
-	# 	if (self.symbol_table_classes[class_name].get(dec[id]) is not None):
-	# 		raise SemanticError("Name already declared in class")
-
+	
 	def declare_symbol_class(self, dec, class_name, type):
 		# self.check_if_declared_class(self,dec,class_name)
 		self.check_if_declared_scope(dec,self.symbol_table_classes[class_name])
@@ -117,7 +107,7 @@ class MainNode(Node):
 			dec.analyze(analyzer)
 
 		for estatuto in self.main:
-			estatuto.analyze
+			estatuto.analyze(analyzer.symbol_table_vars_list,analyzer)
 
 	def __str__(self):
 		return "{0}".format(("Programa", self.declaraciones, self.main))
@@ -167,9 +157,16 @@ class FuncDecNode(Node):
 			analyzer.declarar_var_scope(param,analyzer.symbol_table_funcs[self.dec["id"]])
 
 		for estatuto in self.dec["body"]:
-			estatuto.analyze()
+			estatuto.analyze([analyzer.symbol_table_vars_list[0],analyzer.symbol_table_funcs[self.dec["id"]]["scope"]],analyzer)
 		## Analyzar CUERPO
-
+		# if has return type
+		if self.dec["return_op"]:
+			for estatuto in self.dec["body"]:
+				if estatuto is ReturnNode: # PseudoCode
+					if estatuto.type != self.dec["return_op"]:
+						SemanticError("Return of Wrong Type!")
+			else:
+				SemanticError("Function is Missing Return!")
 
 class SemanticError(Exception):
 	pass
@@ -213,27 +210,72 @@ class ClassDecNode(Node):
 				for attribute in father["attributes"]:
 					analyzer.symbol_table_classes[dec["id"]]["attributes"].setdefault(attribute,father[attribute])
 
+# class Estatuto():
+# 	def __init__(self):
+# 	 super().__init__()
+	
+def variable_declarada_scopes(id,scopes):
+	'''Returns var if found, else returns False'''
+	for scope in scopes:
+		if scope.get(id) is not None:
+			return scope.get(id)
+	else: 
+		SemanticError("Symbol not declared")
 
-class BloqueNode(Node):
-	def __init__(self, vars, estatutos):
-		self.vars = vars
-		self.estatutos = estatutos
+# class BloqueNode(Node):
+# 	def __init__(self, vars, estatutos):
+# 		self.vars = vars
+# 		self.estatutos = estatutos
+
+# 	def __str__(self):
+# 		return "{0}".format(("BLOQUE CODE", self.dec))
+
+# 	def __repr__(self):
+# 		return "{0}".format(("BLOQUE CODE", self.dec))
+
+# 	def analyze(self, analyzer: SemanticAnalyzer):
+# 		analyzer.symbol_table_vars_list+{} # Push new lexical scope
+
+
+# 		for estatuto in self.estatutos:
+# 			estatuto.analyze()
+
+# 		analyzer.symbol_table_vars_list.pop() # pop lexical scope
+
+class AssignNode(Node):
+	def __init__(self, var, expresion):
+		self.var = var
+		self.expresion = expresion
 
 	def __str__(self):
-		return "{0}".format(("BLOQUE CODE", self.dec))
+		return "{0}".format(("ASSIGN", self.dec))
 
 	def __repr__(self):
-		return "{0}".format(("BLOQUE CODE", self.dec))
+		return "{0}".format(("ASSIGN", self.dec))
 
-	def analyze(self, analyzer: SemanticAnalyzer):
-		analyzer.symbol_table_vars_list+{} # Push new lexical scope
+	def analyze(self, scope ,analyzer: SemanticAnalyzer):
+		# Variable es metodo?
+		if self.var["call_type"] == "method_call":
+			SemanticError("Can't assign to a method")
 
+		variable = ""
+		# Existe la variable?
+		if self.var["call_type"] == "simple":
+			variable = variable_declarada_scopes(self.var["id"],scope)
+		elif self.var["call_type"] == "attribute_call":
+			#Check class table
+			pass
+		elif self.var["call_type"] == "Array":
+			pass
+		## Obtener tipo de variable?
+		var_type = variable["type"]
+		# La asignacion es de tipo correcto?
+		## Analyzar expresion
+		expr = self.expresion.analyze(scope)
+		### Obtener tipo expresion
 
-		for estatuto in self.estatutos:
-			estatuto.analyze()
-
-		analyzer.symbol_table_vars_list.pop() # pop lexical scope
-
+		if variable["tipo"] != expr["tipo"]:
+			SemanticError("Asignacion de tipo incorrecto")
 
 # FUNCIONA!
 
@@ -432,7 +474,9 @@ def p_estatutos(p):
 
 #! SE AGREGO SEMICOLON A LLAMADA_FUNC Y LLAMADA_OBJ y VAR FEC
 
-
+# Asignacion : VAR EXISTA, y no METODO, Y que el tipo expresion sea correcto
+# returns : cambiar que solo las funciones puedan tener el return
+# 
 def p_estatuto(p):
 	''' estatuto : asignacion
 				| expresion
@@ -582,7 +626,7 @@ def p_op_lectura(p):
 
 def p_variable(p):
 	''' variable : ID variable_op
-							  | llamada_objeto '''
+				| llamada_objeto '''
 	if(len(p) == 3):
 		p[0] = ("VAR", {"id": p[1], "call_type": p[2]})
 	else:
