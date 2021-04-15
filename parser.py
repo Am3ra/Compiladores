@@ -1,4 +1,5 @@
 import ply.yacc as yacc
+import pickle
 from lexer import lexer
 from lexer import tokens
 # from semanticAnalyzer import SemanticAnalyzer
@@ -11,28 +12,30 @@ from lexer import tokens
 
 
 
-def declarar_var_scope(dec,scope):
-	check_if_declared_scope(dec,scope)
-	scope[dec["id"]] = dec
+
 
 class SemanticAnalyzer():
 	def __init__(self, input):
 		self.input = input
 		self.main: MainNode = parser.parse(input)
-		self.symbol_table_vars_list = [[]] # CAMBIAR POR [[]] + {}
+		self.symbol_table_vars_list = [{}] # CAMBIAR POR [[]] + {}
 		# Declaraciones symbol_table_vars -> symbol_table_vars[-1]
 		# En llamar una funcion append []
 		# Separar vars/symbolos globales
 		# Checar siempre vars globales
-		self.global_vars = {}
+		# self.global_vars = {}
 		self.symbol_table_funcs = {}
 		self.symbol_table_classes = {}
 
-	def analisis_semantico(self):
-		self.main.analyze(self)
+	def analisis_semantico(self,filename):
+		#Falta hacer el analysis
+		# self.main.analyze(self)
+		
+		f = open(filename,'wb')
+		pickle.dump(self.main,f) # Se serializa el AST
+		f.close()
 
-
-	def check_if_declared_global(self, dec, typeDec):
+	def check_if_declared_global(self, dec:dict, typeDec):
 		# for function in self.symbol_table_funcs_list:
 		if(self.symbol_table_funcs.get(dec["id"]) is not None):
 			raise SyntaxError(
@@ -49,8 +52,8 @@ class SemanticAnalyzer():
 				"{0} YA DECLARADA COMO CLASE:".format(typeDec) + dec["id"])
 
 	
-	def check_if_declared_scope(self,dec,scope,error_message = "{0} is already declared!".format(dec["id"])):
-		if (self.global_vars.get(dec["id"]) is not None):
+	def check_if_declared_scope(self,dec,scope,error_message = "Var already declared" ):
+		if (scope.get(dec["id"]) is not None):
 			raise SemanticError(error_message)
 		
 		if(scope.get(dec["id"]) is not None):
@@ -59,13 +62,13 @@ class SemanticAnalyzer():
 
 	def declarar_var(self, dec):
 		self.check_if_declared_global(dec, "VAR")
-		self.symbol_table[-1][dec.id] = dec
+		self.symbol_table_vars_list[-1][dec["id"]] = dec
 
 	
 
 	def declarar_class(self, dec):
 		self.check_if_declared_global(dec, "CLASS")
-		self.symbol_table_classes[dec.id] = dec
+		self.symbol_table_classes[dec["id"]] = dec
 
 	# def declare_symbol(self,dec,type):
 	# 	symbol_table = {}
@@ -88,10 +91,12 @@ class SemanticAnalyzer():
 
 	def declare_symbol_class(self, dec, class_name, type):
 		# self.check_if_declared_class(self,dec,class_name)
-		check_if_declared_scope(dec,self.symbol_table_classes[class_name])
+		self.check_if_declared_scope(dec,self.symbol_table_classes[class_name])
 		self.symbol_table_classes[class_name][type][dec["id"]] = dec
 
-
+	def declarar_var_scope(self,dec,scope):
+		self.check_if_declared_scope(dec,scope)
+		scope[dec["id"]] = dec
 
 
 # SemanticAnalyzer(text).analisis_semantico()
@@ -109,9 +114,10 @@ class MainNode(Node):
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		for dec in self.declaraciones:
-			dec.analyze()
+			dec.analyze(analyzer)
 
-		self.main.analyze()
+		for estatuto in self.main:
+			estatuto.analyze
 
 	def __str__(self):
 		return "{0}".format(("Programa", self.declaraciones, self.main))
@@ -145,25 +151,24 @@ class FuncDecNode(Node):
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		## CHECAR ID GLOBAL
-		analyzer.check_if_declared_global(dec, "FUNC")
+		analyzer.check_if_declared_global(self.dec, "FUNC")
 		
 		## CREAR DIC VACIO
-		analyzer.symbol_table_funcs_list[dec["id"]] = {
+		analyzer.symbol_table_funcs[self.dec["id"]] = {
 
-			"id": dec["id"],
-			"parameters": dec["params"],
-			"return_type":dec["return_op"],
+			"id": self.dec["id"],
+			"parameters": self.dec["params"],
+			"return_type":self.dec["return_op"],
 			"symbol_table":{}
 		}
 		
 		## DECLARAR PARAMETROS
-		for param in dec["params"]:
-			declarar_var_scope(param,analyzer.symbol_table_funcs[dec["id"]])
+		for param in self.dec["params"]:
+			analyzer.declarar_var_scope(param,analyzer.symbol_table_funcs[self.dec["id"]])
 
-		for estatuto in self.dec["estatutos"]:
+		for estatuto in self.dec["body"]:
 			estatuto.analyze()
 		## Analyzar CUERPO
-		analyzer.declarar_func(self.dec)
 
 
 class SemanticError(Exception):
@@ -172,6 +177,10 @@ class SemanticError(Exception):
 class ClassDecNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
+		'''('CLASSDEC', {'id': 'team', 'inheritance': None, 
+		'body': {'attributes': [], 'methods': 
+			[{'id': 'team', 'params': [], 'return_op': None, 
+			'body': {'Estatutos': []}}]}})'''
 
 	def __str__(self):
 		return "{0}".format(("CLASSDEC", self.dec))
@@ -184,15 +193,15 @@ class ClassDecNode(Node):
 
 		
 		# Checar el id
-		analyzer.check_if_declared_global(dec["id"], "CLASS")
+		analyzer.check_if_declared_global(self.dec, "CLASS")
 		# Checar nombres de funcs y vars
-		analyzer.declarar_class({"id":dec["id"],"attributes":{},"methods":{}})
+		analyzer.declarar_class({"id": self.dec["id"],"attributes":{},"methods":{}})
 
-		for attribute in dec["attributes"] :
-			analyzer.declare_symbol_class(attribute,dec["id"], "attributes")
+		for attribute in self.dec["body"]["attributes"] :
+			analyzer.declare_symbol_class(attribute,self.dec["id"], "attributes")
 
-		for method in dec["methods"] :
-			analyzer.declare_symbol_class(method,dec["id"], "methods")
+		for method in self.dec["body"]["methods"] :
+			analyzer.declare_symbol_class(method,self.dec["id"], "methods")
 
 		## Agregar cosas inheritance
 
@@ -202,8 +211,6 @@ class ClassDecNode(Node):
 				raise SemanticError("Inherits undeclared class")
 			else:
 				for attribute in father["attributes"]:
-					analyzer.symbol_table_classes[dec["id"]]["attributes"].setdefault(attribute,father[attribute])
-		for attribute in father["attributes"]:
 					analyzer.symbol_table_classes[dec["id"]]["attributes"].setdefault(attribute,father[attribute])
 
 
@@ -295,7 +302,7 @@ def p_op_func(p):
 
 def p_funcion_def(p):
 	''' funcion_def : FUNC ID LPAREN params RPAREN return_option bloque_func'''
-	p[0] = {"name": p[2], "params": p[4], "return_op": p[6],
+	p[0] = {"id": p[2], "params": p[4], "return_op": p[6],
 			"body":p[7]}
 
 
@@ -346,7 +353,7 @@ def p_params_op(p):
 
 def p_bloque_func(p):
 	''' bloque_func : LBRACE estatutos RBRACE'''
-	p[0] = {"Estatutos": p[2]}
+	p[0] =  p[2]
 
 
 def p_main(p):
@@ -518,7 +525,7 @@ def p_returns(p):
 
 def p_llamada_funcion(p):
 	''' llamada_funcion : ID LPAREN param_llamada RPAREN '''
-	p[0] = ("CALL_FUNC", {"name": p[1], "params": p[3]})
+	p[0] = ("CALL_FUNC", {"id": p[1], "params": p[3]})
 
 
 """
@@ -569,7 +576,7 @@ def p_variable(p):
 	''' variable : ID variable_op
 							  | llamada_objeto '''
 	if(len(p) == 3):
-		p[0] = ("VAR", {"name": p[1], "call_type": p[2]})
+		p[0] = ("VAR", {"id": p[1], "call_type": p[2]})
 	else:
 		p[0] = p[1]
 
@@ -691,7 +698,7 @@ int alan ;
 
 Clase team{
 	int cool;
-	Funcion team(){
+	Funcion electron(){
 		
 	}
 }
@@ -715,4 +722,6 @@ Main ()
 
 
 print(parser.parse(programa_ejemplo))
+
 # print(parser.parse(programa_ejemplo+";")) ##ERROR
+SemanticAnalyzer(programa_ejemplo).analisis_semantico("codigo.pkl")
