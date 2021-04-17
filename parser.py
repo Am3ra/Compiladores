@@ -19,14 +19,8 @@ class SemanticAnalyzer():
 	def __init__(self, input):
 		self.input = input
 		self.main: MainNode = parser.parse(input)
-		self.symbol_table_vars_list = [{}] # CAMBIAR POR [[]] + {}
-		# Declaraciones symbol_table_vars -> symbol_table_vars[-1]
-		# En llamar una funcion append []
-		# Separar vars/symbolos globales
-		# Checar siempre vars globales
-		# self.global_vars = {}
-		self.symbol_table_funcs = {}
-		self.symbol_table_classes = {}
+		self.symbol_table_list = [{}]
+
 
 	def analisis_semantico(self,filename):
 		#Falta hacer el analysis
@@ -36,43 +30,16 @@ class SemanticAnalyzer():
 		pickle.dump(self.main,f) # Se serializa el AST
 		f.close()
 
-	def check_if_declared_var(self, id) -> dict:
-		for scope in self.symbol_table_vars_list:
+	def check_if_declared(self, id : str) -> dict :
+		''' Raises no error if not declared '''
+		for scope in self.symbol_table_list:
 			if scope.get(id) is not None:
 				return scope.get(id)
 		else:
-			SemanticError("Variable with name {0} not declared".format(id))
-
-	def check_if_declared_global(self, dec:dict, typeDec):
-		# for function in self.symbol_table_funcs_list:
-		if(self.symbol_table_funcs.get(dec["id"]) is not None):
-			raise SyntaxError(
-				"{0} YA DECLARADA COMO FUNCION:".format(typeDec) + dec["id"])
-
-		for var in self.symbol_table_vars_list:
-			if(var.get(dec["id"]) is not None):
-				raise SyntaxError(
-					"{0} YA DECLARADA COMO VARIABLE:".format(typeDec) + dec["id"])
-
-		# for clase in self.symbol_table_classes_list:
-		if(self.symbol_table_classes.get(dec["id"]) is not None):
-			raise SyntaxError(
-				"{0} YA DECLARADA COMO CLASE:".format(typeDec) + dec["id"])
-
-	
-	def check_if_declared_scope(self,dec,scope,error_message = "Var already declared" ):
-		if (scope.get(dec["id"]) is not None):
-			raise SemanticError(error_message)
-		
-		if(scope.get(dec["id"]) is not None):
-			raise SemanticError(error_message)
+			return False
+			# SemanticError("Variable with name {0} not declared".format(id))
 
 
-	def declarar_var(self, dec):
-		self.check_if_declared_global(dec, "VAR")
-		self.symbol_table_vars_list[-1][dec["id"]] = dec
-
-	
 
 	def declarar_class(self, dec):
 		self.check_if_declared_global(dec, "CLASS")
@@ -81,13 +48,19 @@ class SemanticAnalyzer():
 	
 	def declare_symbol_class(self, dec, class_name, type):
 		# self.check_if_declared_class(self,dec,class_name)
-		self.check_if_declared_scope(dec,self.symbol_table_classes[class_name])
+		self.check_if_symbol_declared_scope(dec,self.symbol_table_classes[class_name])
 		self.symbol_table_classes[class_name][type][dec["id"]] = dec
 
-	def declarar_var_scope(self,dec,scope):
-		self.check_if_declared_scope(dec,scope)
-		scope[dec["id"]] = dec
+def declarar_symbol_scope(dec,scope):
+	if (check_if_symbol_declared_scope(dec,scope)):
+		raise SemanticError("{0} already declared".format(dec["id"]))
+	scope[dec["id"]] = dec
 
+def check_if_symbol_declared_scope(dec,scope):
+	if (scope.get(dec["id"]) is not None):
+		return scope.get(dec["id"])
+	return False
+	
 
 # SemanticAnalyzer(text).analisis_semantico()
 
@@ -103,11 +76,11 @@ class MainNode(Node):
 		self.main = main
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		for dec in self.declaraciones:
+		for dec  in self.declaraciones:
 			dec.analyze(analyzer)
 
 		for estatuto in self.main:
-			estatuto.analyze(analyzer.symbol_table_vars_list,analyzer)
+			estatuto.analyze(analyzer)
 
 	def __str__(self):
 		return "{0}".format(("Programa", self.declaraciones, self.main))
@@ -123,8 +96,11 @@ class VarDecNode(Node):
 	def __repr__(self):
 		return "{0}".format(("VARDEC", self.dec))
 
+
 	def analyze(self, analyzer: SemanticAnalyzer):
-		analyzer.declarar_var(self.dec)
+		if (analyzer.check_if_declared(dec)):
+			raise SemanticError("Symbol already declared")
+		analyzer.symbol_table_list[-1][dec["id"]] = dec
 
 
 class FuncDecNode(Node):
@@ -141,20 +117,25 @@ class FuncDecNode(Node):
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		## CHECAR ID GLOBAL
-		analyzer.check_if_declared_global(self.dec, "FUNC")
+		if (analyzer.check_if_declared(self.dec) ):
+			raise SemanticError("Symbol declared with same name.")
+			
 		
 		## CREAR DIC VACIO
-		analyzer.symbol_table_funcs[self.dec["id"]] = {
+		analyzer.symbol_table_list[0][self.dec["id"]] = temp_symbol_table = {
 
 			"id": self.dec["id"],
 			"parameters": self.dec["params"],
 			"return_type":self.dec["return_op"],
-			"symbol_table":{}
 		}
 		
+		analyzer.symbol_table_list+= {}
+
+		#Declarar todos los params
+
 		## DECLARAR PARAMETROS
 		for param in self.dec["params"]:
-			analyzer.declarar_var_scope(param,analyzer.symbol_table_funcs[self.dec["id"]])
+			analyzer.declarar_symbol_scope(param,analyzer.symbol_table_funcs[self.dec["id"]])
 
 		for estatuto in self.dec["body"]:
 			estatuto.analyze([analyzer.symbol_table_vars_list[0],analyzer.symbol_table_funcs[self.dec["id"]]["scope"]],analyzer)
@@ -167,6 +148,8 @@ class FuncDecNode(Node):
 						SemanticError("Return of Wrong Type!")
 			else:
 				SemanticError("Function is Missing Return!")
+		
+		analyzer.symbol_table_list.pop()
 
 class SemanticError(Exception):
 	pass
