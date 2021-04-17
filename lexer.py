@@ -29,7 +29,7 @@ reserved = {
 # Definition of tokens
 tokens = ['GTHAN', 'LTHAN', 'NOTEQ', 'SAME', 'ID', 'CTEI', 'CTEF', 'CTESTRING', 'PLUS', 'MINUS',
           'TIMES', 'DIVIDE', 'LPAREN', 'RPAREN', 'LBRACE', 'RBRACE', 'COMMA', 'SEMICOLON', 'EQUAL',
-          'COLON', 'RET', 'DOT', 'LBRACKET', 'RBRACKET', 'BOOL', 'TRUE', 'FALSE'] + list(reserved.values())
+          'COLON', 'RET', 'DOT', 'LBRACKET', 'RBRACKET', 'TRUE', 'FALSE'] + list(reserved.values())
 
 # Regular expressions
 t_GTHAN = r'\>'

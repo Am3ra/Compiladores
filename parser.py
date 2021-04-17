@@ -14,7 +14,6 @@ from lexer import tokens
 #! Juntar simbolos?
 
 
-
 class SemanticAnalyzer():
 	def __init__(self, input):
 		self.input = input
@@ -24,22 +23,11 @@ class SemanticAnalyzer():
 
 	def analisis_semantico(self,filename):
 		#Falta hacer el analysis
-		# self.main.analyze(self)
+		self.main.analyze(self)
 		
 		f = open(filename,'wb')
 		pickle.dump(self.main,f) # Se serializa el AST
 		f.close()
-
-	def check_if_declared(self, id : str) -> dict :
-		''' Raises no error if not declared '''
-		for scope in self.symbol_table_list:
-			if scope.get(id) is not None:
-				return scope.get(id)
-		else:
-			return False
-			# SemanticError("Variable with name {0} not declared".format(id))
-
-
 
 	def declarar_class(self, dec):
 		self.check_if_declared_global(dec, "CLASS")
@@ -51,14 +39,15 @@ class SemanticAnalyzer():
 		self.check_if_symbol_declared_scope(dec,self.symbol_table_classes[class_name])
 		self.symbol_table_classes[class_name][type][dec["id"]] = dec
 
-def declarar_symbol_scope(dec,scope):
-	if (check_if_symbol_declared_scope(dec,scope)):
+def declarar_symbol_scopes(dec,scopes):
+	if (check_if_symbol_declared_scopes(dec,scopes)):
 		raise SemanticError("{0} already declared".format(dec["id"]))
-	scope[dec["id"]] = dec
+	scopes[-1][dec["id"]] = dec
 
-def check_if_symbol_declared_scope(dec,scope):
-	if (scope.get(dec["id"]) is not None):
-		return scope.get(dec["id"])
+def check_if_symbol_declared_scopes(dec,scopes):
+	for scope in scopes:
+		if (scope.get(dec["id"]) is not None):
+			return scope.get(dec["id"])
 	return False
 	
 
@@ -96,11 +85,9 @@ class VarDecNode(Node):
 	def __repr__(self):
 		return "{0}".format(("VARDEC", self.dec))
 
-
 	def analyze(self, analyzer: SemanticAnalyzer):
-		if (analyzer.check_if_declared(dec)):
-			raise SemanticError("Symbol already declared")
-		analyzer.symbol_table_list[-1][dec["id"]] = dec
+		# print("Symbol list:",analyzer.symbol_table_list)
+		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
 
 
 class FuncDecNode(Node):
@@ -117,28 +104,32 @@ class FuncDecNode(Node):
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		## CHECAR ID GLOBAL
-		if (analyzer.check_if_declared(self.dec) ):
+		if (check_if_symbol_declared_scopes(self.dec, analyzer.symbol_table_list) ):
 			raise SemanticError("Symbol declared with same name.")
-			
-		
+
+
+		# print(analyzer.symbol_table_list)
+
 		## CREAR DIC VACIO
 		analyzer.symbol_table_list[0][self.dec["id"]] = temp_symbol_table = {
 
 			"id": self.dec["id"],
 			"parameters": self.dec["params"],
-			"return_type":self.dec["return_op"],
+			"return_type":self.dec["return_op"]
 		}
 		
-		analyzer.symbol_table_list+= {}
+
+		analyzer.symbol_table_list.append({})
+		# print("push to list")
+		# print(analyzer.symbol_table_list)
 
 		#Declarar todos los params
 
 		## DECLARAR PARAMETROS
 		for param in self.dec["params"]:
-			analyzer.declarar_symbol_scope(param,analyzer.symbol_table_funcs[self.dec["id"]])
-
+			declarar_symbol_scopes(param,analyzer.symbol_table_list)
 		for estatuto in self.dec["body"]:
-			estatuto.analyze([analyzer.symbol_table_vars_list[0],analyzer.symbol_table_funcs[self.dec["id"]]["scope"]],analyzer)
+			estatuto.analyze(analyzer)
 		## Analyzar CUERPO
 		# if has return type
 		if self.dec["return_op"]:
@@ -149,7 +140,11 @@ class FuncDecNode(Node):
 			else:
 				SemanticError("Function is Missing Return!")
 		
+		# print(analyzer.symbol_table_list)
+
 		analyzer.symbol_table_list.pop()
+
+		# print(analyzer.symbol_table_list)
 
 class SemanticError(Exception):
 	pass
@@ -173,29 +168,34 @@ class ClassDecNode(Node):
 
 		
 		# Checar el id
-		analyzer.check_if_declared_global(self.dec, "CLASS")
+		check_if_symbol_declared_scopes(self.dec,analyzer.symbol_table_list)
 		# Checar nombres de funcs y vars
-		analyzer.declarar_class({"id": self.dec["id"],"attributes":{},"methods":{}})
+		analyzer.symbol_table_list[0]["id"] = ({"id": self.dec["id"],"attributes":self.dec["attributes"],"methods":self.dec["methods"]})
 
-		for attribute in self.dec["body"]["attributes"] :
-			analyzer.declare_symbol_class(attribute,self.dec["id"], "attributes")
+		analyzer.symbol_table_list.append({})
 
-		for method in self.dec["body"]["methods"] :
-			analyzer.declare_symbol_class(method,self.dec["id"], "methods")
+		for attribute in self.dec["attributes"] :
+			declarar_symbol_scopes(attribute, analyzer.symbol_table_list)
+
+		for method in self.dec["methods"] :
+			declarar_symbol_scopes(method, analyzer.symbol_table_list)
 
 		## Agregar cosas inheritance
+		# print(declarar_symbol_scopes)
+		analyzer.symbol_table_list.pop()
 
 		if (self.dec["inheritance"]):
-			father = analyzer.symbol_table_classes.get(self.dec["inheritance"])
+			father = analyzer.symbol_table_list[0].get(self.dec["inheritance"])
 			if (father is None):
 				raise SemanticError("Inherits undeclared class")
 			else:
 				for attribute in father["attributes"]:
-					analyzer.symbol_table_classes[dec["id"]]["attributes"].setdefault(attribute,father[attribute])
+					analyzer.symbol_table_list[0][dec["id"]]["attributes"].setdefault(attribute,father[attribute])
 
-# class Estatuto():
-# 	def __init__(self):
-# 	 super().__init__()
+class Estatuto():
+	def __init__(self):
+		pass
+	
 	
 def variable_declarada_scopes(id,scopes):
 	'''Returns var if found, else returns False'''
@@ -290,7 +290,7 @@ def p_declaraciones_clases(p):
 
 def p_clase_def(p):
 	'''clase_def : CLASS ID clase_op bloque_clase'''
-	p[0] = ({"id" : p[2], "inheritance" : p[3], "body":p[4]})
+	p[0] = ({"id" : p[2], "inheritance" : p[3], "attributes": p[4]["attributes"], "methods" : p[4]["methods"]})
 
 
 def p_clase_op(p):
@@ -361,7 +361,7 @@ def p_params(p):
 	''' params : var_def params_op
 				| empty'''
 	if(len(p) == 3):
-		p[0] = [p[1]] + p[5]
+		p[0] = [p[1]] + p[2]
 	else:
 		p[0] = []
 
@@ -513,43 +513,51 @@ def p_asignacion(p):
 
 def p_expresion(p):
 	''' expresion : expresion binop expresion
-					   | plus_minus expresion
-					   | LPAREN expresion RPAREN
-					   | var_cte '''
+					| plus_minus expresion
+					| LPAREN expresion RPAREN
+					| var_cte '''
 	if(len(p) == 2):
 		p[0] = p[1]
 	elif(len(p) == 3):
 		p[0] = ("UNARY_OP", p[1], p[2])
 	else:
-		print(p[1:])
-		p[0] = "COOL"
+		if (p[1] == '('):
+			p[0] = p[2]
+		else:
+			p[0]=("BINOP", p[2] ,p[1], p[3]) # Cambiar por dicccionario
 
 
 def p_binop(p):
 	''' binop : SAME
-					  | NOTEQ
-					  | GTHAN 
-					  | LTHAN 
-					  | PLUS
-					  | MINUS
-					  | TIMES
-					  | DIVIDE'''
+			| NOTEQ
+			| GTHAN 
+			| LTHAN 
+			| PLUS
+			| MINUS
+			| TIMES
+			| DIVIDE'''
 	p[0] = p[1]
 
 
 def p_plus_minus(p):
 	''' plus_minus : PLUS
-							   | MINUS '''
+					| MINUS '''
 	p[0] = p[1]
 
 
 def p_var_cte(p):
 	''' var_cte : variable
-							| CTEF
-							| CTEI '''
+				| boolean
+				| CTEF
+				| CTEI '''
 
 	p[0] = p[1]
 
+
+def p_bool(p):
+	''' boolean : TRUE
+				| FALSE '''
+	p[0] = p[1]
 
 def p_returns(p):
 	''' returns : RETURN expresion SEMICOLON '''
@@ -738,15 +746,16 @@ Clase team{
 	}
 }
 
-Funcion karen() -> int 
+Funcion karen(int alanbruki, int bo) -> int 
 {
 	
 }
 
 Main ()
 {
+	alan = 4; 
 	lee ( alan.cabello , alan );
-	i = 3; 
+	i = 3*3-1+(alan+b); 
 	hola(i.hola);
 	desde i = 1 hasta 10 hacer 
 	{ 
