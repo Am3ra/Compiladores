@@ -192,18 +192,6 @@ class ClassDecNode(Node):
 				for attribute in father["attributes"]:
 					analyzer.symbol_table_list[0][dec["id"]]["attributes"].setdefault(attribute,father[attribute])
 
-class Estatuto():
-	def __init__(self):
-		pass
-	
-	
-def variable_declarada_scopes(id,scopes):
-	'''Returns var if found, else returns False'''
-	for scope in scopes:
-		if scope.get(id) is not None:
-			return scope.get(id)
-	else: 
-		SemanticError("Symbol not declared")
 
 # class BloqueNode(Node):
 # 	def __init__(self, vars, estatutos):
@@ -244,7 +232,7 @@ class AssignNode(Node):
 		variable = ""
 		# Existe la variable?
 		if self.var["call_type"] == "simple":
-			variable = variable_declarada_scopes(self.var["id"],scope)
+			# variable = variable_declarada_scopes(self.var["id"],scope)
 		elif self.var["call_type"] == "attribute_call":
 			#Check class table
 			pass
