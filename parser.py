@@ -41,14 +41,14 @@ class SemanticAnalyzer():
 		self.symbol_table_classes[class_name][type][dec["id"]] = dec
 
 def declarar_symbol_scopes(dec,scopes):
-	if (check_if_symbol_declared_scopes(dec,scopes)):
+	if (check_if_symbol_declared_scopes(dec["id"],scopes)):
 		raise SemanticError("{0} already declared".format(dec["id"]))
 	scopes[-1][dec["id"]] = dec
 
-def check_if_symbol_declared_scopes(dec,scopes):
+def check_if_symbol_declared_scopes(id,scopes):
 	for scope in scopes:
-		if (scope.get(dec["id"]) is not None):
-			return scope.get(dec["id"])
+		if (scope.get(id) is not None):
+			return scope.get(id)
 	return False
 	
 
@@ -105,7 +105,7 @@ class FuncDecNode(Node):
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		## CHECAR ID GLOBAL
-		if (check_if_symbol_declared_scopes(self.dec, analyzer.symbol_table_list) ):
+		if (check_if_symbol_declared_scopes(self.dec["id"], analyzer.symbol_table_list) ):
 			raise SemanticError("Symbol declared with same name.")
 
 
@@ -169,7 +169,7 @@ class ClassDecNode(Node):
 
 		
 		# Checar el id
-		check_if_symbol_declared_scopes(self.dec,analyzer.symbol_table_list)
+		check_if_symbol_declared_scopes(self.dec["id"],analyzer.symbol_table_list)
 		# Checar nombres de funcs y vars
 		analyzer.symbol_table_list[0]["id"] = ({"id": self.dec["id"],"attributes":self.dec["attributes"],"methods":self.dec["methods"]})
 
@@ -229,7 +229,7 @@ class AssignNode(Node):
 		# Variable es metodo?
 		if self.var["call_type"] == "method_call":
 			SemanticError("Can't assign to a method")
-
+		# Marcar como definido?
 		variable = ""
 		# Existe la variable?
 		if self.var["call_type"] == "simple":
@@ -391,6 +391,49 @@ class LTNode(CompareNode):
 
 	def __repr__(self):
 		return "{0}".format(("LTHAN", self.operation, self.lhs, self.rhs))
+
+class ConstantNode(Node):
+	def analyze(self, analyzer):
+		return self.type_name
+
+class BoolNode(ConstantNode):
+	def __init__(self, value):
+		self.value = value
+		self.type_name = BaseType.BOOL
+
+class FloatNode(ConstantNode):
+	def __init__(self, value):
+		self.value = value
+		self.type_name = BaseType.FLOAT
+		
+class IntNode(ConstantNode):
+	def __init__(self, value):
+		self.value = value
+		self.type_name = BaseType.INT
+
+#!NOT DONE
+class VarCallNode(Node):
+	def __init__(self,id,call_type):
+		self.id = id
+		self.call_type = call_type
+	
+	def __str__(self):
+		return "{0}".format(("VAR_CALL", self.operation, self.lhs,self.rhs))
+
+	def __repr__(self):
+		return "{0}".format(("VAR_CALL", self.operation, self.lhs, self.rhs))
+		
+	def analyze(self, analyzer):
+		# Checar que existe
+		var = check_if_symbol_declared_scopes(self.id,analyzer.symbol_table_list) 
+		## CHECK CALL TYPE IS THE SAME AS VAR DIMS
+		if var is not None:
+			if var["defined"]:
+				return var["type"]
+			else:
+				SemanticError("CAN'T CALL UNDEFINDED VAR {0}".format(self.id))
+		else:
+			SemanticError("CAN'T CALL UNDECLARED VAR {0}".format(self.id))
 
 
 #DONE
@@ -667,8 +710,15 @@ def p_type_simple(p):
 					| FLOAT
 					| STRING 
 					| BOOL'''
-	p[0] = p[1]
-
+	if p[0] == "int":
+		return BaseType.INT
+	elif p[0] == "float":
+		return BaseType.FLOAT			
+	elif p[0] == "bool":
+		return BaseType.BOOL
+	else:
+		return BaseType.STRING
+	
 # def p_bool_true(p):
 # 	''' bool : TRUE'''
 # 	p[0] = True
@@ -800,12 +850,24 @@ def p_plus_minus(p):
 
 
 def p_var_cte(p):
-	''' var_cte : variable
-				| boolean
-				| CTEF
-				| CTEI '''
-
+	''' var_cte : variable'''
 	p[0] = p[1]
+
+
+def p_var_cte(p):
+	''' var_cte : boolean '''
+	p[0] = BoolNode(p[1])
+
+
+
+def p_var_cte(p):
+	''' var_cte : CTEF '''
+	p[0] = FloatNode(p[1])
+
+
+def p_var_cte(p):
+	''' var_cte : CTEI '''
+	p[0] = IntNode(p[1])
 
 
 def p_bool(p):
@@ -873,7 +935,7 @@ def p_variable(p):
 	''' variable : ID variable_op
 				| llamada_objeto '''
 	if(len(p) == 3):
-		p[0] = ("VAR", {"id": p[1], "call_type": p[2]})
+		p[0] = VarCallNode( p[1],  p[2])
 	else:
 		p[0] = p[1]
 

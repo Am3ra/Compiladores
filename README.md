@@ -24,3 +24,11 @@ Casi se agrega habilidad de llamar funciones
 
 
 ## Tercera entrega
+
+Agregamos capacidad de sistema de tipos
+Refactorizamos la funcion Check_if_declaredscope_ para ser más genérica
+Modificamos el parser para agregar más funcionalidad al arbol abstracto
+Agregamos analisis semantico de:
+- Expresion
+- operaciones binarias
+- valores constantes
