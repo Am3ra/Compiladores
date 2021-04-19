@@ -297,23 +297,22 @@ class UnopNode(Node):
 	def analyze(self, analyzer: SemanticAnalyzer):
 		operand_type = self.operand.analyze()
 
-		if operand_type is not "int" or operand_type is not "float":
+		if operand_type is not BaseType.INT or operand_type is not BaseType.FLOAT:
 			SemanticError("Can only apply unary +/- to int or float")
 		else:
 			return operand_type
 
 #done
 class BinopNode(Node):
-	def __init__(self, operation, lhs, rhs):
-		self.operation = operation
+	def __init__(self, lhs, rhs):
 		self.lhs = lhs
 		self.rhs = rhs
 
 	def __str__(self):
-		return "{0}".format(("BINOP", self.operation, self.lhs,self.rhs))
+		return "{0}".format(("BINOP",self.lhs,self.rhs))
 
 	def __repr__(self):
-		return "{0}".format(("BINOP", self.operation, self.lhs, self.rhs))
+		return "{0}".format(("BINOP", self.lhs, self.rhs))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		lh_type = self.lhs.analyze()
@@ -334,67 +333,74 @@ class CompareNode(BinopNode):
 		else:
 			return BaseType.BOOL
 
-
 class PlusNode(BinopNode):
 	def __str__(self):
-		return "{0}".format(("PLUS", self.operation, self.lhs,self.rhs))
+		return "{0}".format(("PLUS", self.lhs,self.rhs))
 
 	def __repr__(self):
-		return "{0}".format(("PLUS", self.operation, self.lhs, self.rhs))
-
+		return "{0}".format(("PLUS",self.lhs, self.rhs))
 
 class MinusNode(BinopNode):
 	def __str__(self):
-		return "{0}".format(("MINUS", self.operation, self.lhs,self.rhs))
+		return "{0}".format(("MINUS",  self.lhs,self.rhs))
 
 	def __repr__(self):
-		return "{0}".format(("MINUS", self.operation, self.lhs, self.rhs))
+		return "{0}".format(("MINUS",  self.lhs, self.rhs))
 
 class TimesNode(BinopNode):
 	def __str__(self):
-		return "{0}".format(("TIMES", self.operation, self.lhs,self.rhs))
+		return "{0}".format(("TIMES",  self.lhs,self.rhs))
 
 	def __repr__(self):
-		return "{0}".format(("TIMES", self.operation, self.lhs, self.rhs))
+		return "{0}".format(("TIMES", self.lhs, self.rhs))
 
 class DivideNode(BinopNode):
 	def __str__(self):
-		return "{0}".format(("DIVIDE", self.operation, self.lhs,self.rhs))
+		return "{0}".format(("DIVIDE", self.lhs,self.rhs))
 
 	def __repr__(self):
-		return "{0}".format(("DIVIDE", self.operation, self.lhs, self.rhs))
+		return "{0}".format(("DIVIDE",  self.lhs, self.rhs))
 
 class EqualsNode(CompareNode):
 	def __str__(self):
-		return "{0}".format(("EQUALS", self.operation, self.lhs,self.rhs))
+		return "{0}".format(("EQUALS", self.lhs,self.rhs))
 
 	def __repr__(self):
-		return "{0}".format(("EQUALS", self.operation, self.lhs, self.rhs))
+		return "{0}".format(("EQUALS", self.lhs, self.rhs))
 
 class NotEqualsNode(CompareNode):
 	def __str__(self):
-		return "{0}".format(("NOTEQ", self.operation, self.lhs,self.rhs))
+		return "{0}".format(("NOTEQ",  self.lhs,self.rhs))
 
 	def __repr__(self):
-		return "{0}".format(("NOTEQ", self.operation, self.lhs, self.rhs))
+		return "{0}".format(("NOTEQ",  self.lhs, self.rhs))
 
 class GTNode(CompareNode):
 	def __str__(self):
-		return "{0}".format(("GTHAN", self.operation, self.lhs,self.rhs))
+		return "{0}".format(("GTHAN", self.lhs,self.rhs))
 
 	def __repr__(self):
-		return "{0}".format(("GTHAN", self.operation, self.lhs, self.rhs))
+		return "{0}".format(("GTHAN",  self.lhs, self.rhs))
 
 class LTNode(CompareNode):
 	def __str__(self):
-		return "{0}".format(("LTHAN", self.operation, self.lhs,self.rhs))
+		return "{0}".format(("LTHAN", self.lhs,self.rhs))
 
 	def __repr__(self):
-		return "{0}".format(("LTHAN", self.operation, self.lhs, self.rhs))
+		return "{0}".format(("LTHAN",  self.lhs, self.rhs))
 
 class ConstantNode(Node):
+
 	def analyze(self, analyzer):
 		return self.type_name
+		
+	def __str__(self):
+		return "{0}".format(("Constant", self.value,self.type_name.name))
+
+	def __repr__(self):
+		return "{0}".format(("CONSTANT",  self.value, self.type_name.name))
+
+
 
 class BoolNode(ConstantNode):
 	def __init__(self, value):
@@ -418,10 +424,10 @@ class VarCallNode(Node):
 		self.call_type = call_type
 	
 	def __str__(self):
-		return "{0}".format(("VAR_CALL", self.operation, self.lhs,self.rhs))
+		return "{0}".format(("VAR_CALL", self.id, self.call_type))
 
 	def __repr__(self):
-		return "{0}".format(("VAR_CALL", self.operation, self.lhs, self.rhs))
+		return "{0}".format(("VAR_CALL", self.id, self.call_type))
 		
 	def analyze(self, analyzer):
 		# Checar que existe
@@ -751,7 +757,7 @@ def p_estatutos(p):
 # 
 def p_estatuto(p):
 	''' estatuto : asignacion
-				| expresion
+				| expresion SEMICOLON
 				| returns
 				| llamada_funcion SEMICOLON
 				| llamada_objeto SEMICOLON
@@ -849,23 +855,23 @@ def p_plus_minus(p):
 	p[0] = p[1]
 
 
-def p_var_cte(p):
+def p_var_cte_var(p):
 	''' var_cte : variable'''
 	p[0] = p[1]
 
 
-def p_var_cte(p):
+def p_var_cte_bool(p):
 	''' var_cte : boolean '''
 	p[0] = BoolNode(p[1])
 
 
 
-def p_var_cte(p):
+def p_var_cte_f(p):
 	''' var_cte : CTEF '''
 	p[0] = FloatNode(p[1])
 
 
-def p_var_cte(p):
+def p_var_cte_i(p):
 	''' var_cte : CTEI '''
 	p[0] = IntNode(p[1])
 
