@@ -2,6 +2,7 @@ import ply.yacc as yacc
 import pickle
 from lexer import lexer
 from lexer import tokens
+from enum import Enum
 # from semanticAnalyzer import SemanticAnalyzer
 
 #! TIPOS DISPONIBLES EN EL LENGUAJE:
@@ -232,6 +233,7 @@ class AssignNode(Node):
 		variable = ""
 		# Existe la variable?
 		if self.var["call_type"] == "simple":
+			pass
 			# variable = variable_declarada_scopes(self.var["id"],scope)
 		elif self.var["call_type"] == "attribute_call":
 			#Check class table
@@ -249,6 +251,172 @@ class AssignNode(Node):
 			SemanticError("Asignacion de tipo incorrecto")
 
 # FUNCIONA!
+
+# ''' estatuto : asignacion
+# 			| expresion
+# 			| returns
+# 			| llamada_funcion SEMICOLON
+# 			| llamada_objeto SEMICOLON
+# 			| var_def SEMICOLON
+# 			| lectura
+# 			| escritura
+# 			| decision
+# 			| repeticion '''
+
+# class ExpressionType(Enum):
+# 	UNOP = 1
+# 	BINOP = 2
+# 	CONSTANT = 3
+	
+
+# class ExpresionNode(Node):
+# 	def __init__(self, type, children):
+# 		self.dec = dec
+
+# 	def __str__(self):
+# 		return "{0}".format(("EXPR", self.dec))
+
+# 	def __repr__(self):
+# 		return "{0}".format(("EXPR", self.dec))
+
+# 	def analyze(self, analyzer: SemanticAnalyzer):
+		
+
+class UnopNode(Node):
+	def __init__(self, operation, operand):
+		self.operation = operation
+		self.operand = operand
+
+	def __str__(self):
+		return "{0}".format(("UNOP", self.operation, self.operand))
+
+	def __repr__(self):
+		return "{0}".format(("UNOP", self.operation, self.operand))
+
+	def analyze(self, analyzer: SemanticAnalyzer):
+		operand_type = self.operand.analyze()
+
+		if operand_type is not "int" or operand_type is not "float":
+			SemanticError("Can only apply unary +/- to int or float")
+		else:
+			return operand_type
+
+class BinopNode(Node):
+	def __init__(self, operation, lhs, rhs):
+		self.operation = operation
+		self.lhs = lhs
+		self.rhs = rhs
+
+	def __str__(self):
+		return "{0}".format(("BINOP", self.operation, self.lhs,self.rhs))
+
+	def __repr__(self):
+		return "{0}".format(("UNOP", self.operation, self.lhs, self.rhs))
+
+	def analyze(self, analyzer: SemanticAnalyzer):
+		lh_type = self.lhs.analyze()
+		rh_type = self.rhs.analyze()
+
+		if lh_type != rh_type:
+			SemanticError("Binary operations can only be done with same types")
+		else:
+			return lh_type
+
+class ReturnNode(Node):
+	def __init__(self, expr):
+		self.expr = expr
+
+	def __str__(self):
+		return "{0}".format(("RETURN", self.expr))
+
+	def __repr__(self):
+		return "{0}".format(("RETURN", self.epxr))
+
+	def analyze(self, analyzer: SemanticAnalyzer):
+		return self.expr.analyze()
+		
+class FuncCallNode(Node):
+	def __init__(self, dec):
+		self.dec = dec
+
+	def __str__(self):
+		return "{0}".format(("VARDEC", self.dec))
+
+	def __repr__(self):
+		return "{0}".format(("VARDEC", self.dec))
+
+	def analyze(self, analyzer: SemanticAnalyzer):
+		pass
+		
+class ObjectCodeNode(Node):
+	def __init__(self, dec):
+		self.dec = dec
+
+	def __str__(self):
+		return "{0}".format(("VARDEC", self.dec))
+
+	def __repr__(self):
+		return "{0}".format(("VARDEC", self.dec))
+
+	def analyze(self, analyzer: SemanticAnalyzer):
+		pass
+		
+class ReadNode(Node):
+	def __init__(self, dec):
+		self.dec = dec
+
+	def __str__(self):
+		return "{0}".format(("VARDEC", self.dec))
+
+	def __repr__(self):
+		return "{0}".format(("VARDEC", self.dec))
+
+	def analyze(self, analyzer: SemanticAnalyzer):
+		pass
+
+
+class WriteNode(Node):
+	def __init__(self, dec):
+		self.dec = dec
+
+	def __str__(self):
+		return "{0}".format(("VARDEC", self.dec))
+
+	def __repr__(self):
+		return "{0}".format(("VARDEC", self.dec))
+
+	def analyze(self, analyzer: SemanticAnalyzer):
+		# print("Symbol list:",analyzer.symbol_table_list)
+		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
+
+		
+class ConditionNode(Node):
+	def __init__(self, dec):
+		self.dec = dec
+
+	def __str__(self):
+		return "{0}".format(("VARDEC", self.dec))
+
+	def __repr__(self):
+		return "{0}".format(("VARDEC", self.dec))
+
+	def analyze(self, analyzer: SemanticAnalyzer):
+		# print("Symbol list:",analyzer.symbol_table_list)
+		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
+
+class LoopNode(Node):
+	def __init__(self, dec):
+		self.dec = dec
+
+	def __str__(self):
+		return "{0}".format(("VARDEC", self.dec))
+
+	def __repr__(self):
+		return "{0}".format(("VARDEC", self.dec))
+
+	def analyze(self, analyzer: SemanticAnalyzer):
+		# print("Symbol list:",analyzer.symbol_table_list)
+		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
 
 
 def p_programa(p):
@@ -507,7 +675,7 @@ def p_expresion(p):
 	if(len(p) == 2):
 		p[0] = p[1]
 	elif(len(p) == 3):
-		p[0] = ("UNARY_OP", p[1], p[2])
+		p[0] = UnopNode(p[1], p[2])
 	else:
 		if (p[1] == '('):
 			p[0] = p[2]
@@ -743,7 +911,7 @@ Main ()
 {
 	alan = 4; 
 	lee ( alan.cabello , alan );
-	i = 3*3-1+(alan+b); 
+	i = 3*3-1/-(alan+b); 
 	hola(i.hola);
 	desde i = 1 hasta 10 hacer 
 	{ 
