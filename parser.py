@@ -263,11 +263,11 @@ class AssignNode(Node):
 # 			| decision
 # 			| repeticion '''
 
-# class ExpressionType(Enum):
-# 	UNOP = 1
-# 	BINOP = 2
-# 	CONSTANT = 3
-	
+class BaseType(Enum):
+	STRING = 1
+	INT = 2
+	FLOAT = 3
+	BOOL = 4
 
 # class ExpresionNode(Node):
 # 	def __init__(self, type, children):
@@ -282,6 +282,7 @@ class AssignNode(Node):
 # 	def analyze(self, analyzer: SemanticAnalyzer):
 		
 
+#done
 class UnopNode(Node):
 	def __init__(self, operation, operand):
 		self.operation = operation
@@ -301,6 +302,7 @@ class UnopNode(Node):
 		else:
 			return operand_type
 
+#done
 class BinopNode(Node):
 	def __init__(self, operation, lhs, rhs):
 		self.operation = operation
@@ -311,7 +313,7 @@ class BinopNode(Node):
 		return "{0}".format(("BINOP", self.operation, self.lhs,self.rhs))
 
 	def __repr__(self):
-		return "{0}".format(("UNOP", self.operation, self.lhs, self.rhs))
+		return "{0}".format(("BINOP", self.operation, self.lhs, self.rhs))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		lh_type = self.lhs.analyze()
@@ -322,6 +324,76 @@ class BinopNode(Node):
 		else:
 			return lh_type
 
+class CompareNode(BinopNode):
+	def analyze(self, analyzer):
+		lh_type = self.lhs.analyze()
+		rh_type = self.rhs.analyze()
+
+		if lh_type != rh_type:
+			SemanticError("Binary operations can only be done with same types")
+		else:
+			return BaseType.BOOL
+
+
+class PlusNode(BinopNode):
+	def __str__(self):
+		return "{0}".format(("PLUS", self.operation, self.lhs,self.rhs))
+
+	def __repr__(self):
+		return "{0}".format(("PLUS", self.operation, self.lhs, self.rhs))
+
+
+class MinusNode(BinopNode):
+	def __str__(self):
+		return "{0}".format(("MINUS", self.operation, self.lhs,self.rhs))
+
+	def __repr__(self):
+		return "{0}".format(("MINUS", self.operation, self.lhs, self.rhs))
+
+class TimesNode(BinopNode):
+	def __str__(self):
+		return "{0}".format(("TIMES", self.operation, self.lhs,self.rhs))
+
+	def __repr__(self):
+		return "{0}".format(("TIMES", self.operation, self.lhs, self.rhs))
+
+class DivideNode(BinopNode):
+	def __str__(self):
+		return "{0}".format(("DIVIDE", self.operation, self.lhs,self.rhs))
+
+	def __repr__(self):
+		return "{0}".format(("DIVIDE", self.operation, self.lhs, self.rhs))
+
+class EqualsNode(CompareNode):
+	def __str__(self):
+		return "{0}".format(("EQUALS", self.operation, self.lhs,self.rhs))
+
+	def __repr__(self):
+		return "{0}".format(("EQUALS", self.operation, self.lhs, self.rhs))
+
+class NotEqualsNode(CompareNode):
+	def __str__(self):
+		return "{0}".format(("NOTEQ", self.operation, self.lhs,self.rhs))
+
+	def __repr__(self):
+		return "{0}".format(("NOTEQ", self.operation, self.lhs, self.rhs))
+
+class GTNode(CompareNode):
+	def __str__(self):
+		return "{0}".format(("GTHAN", self.operation, self.lhs,self.rhs))
+
+	def __repr__(self):
+		return "{0}".format(("GTHAN", self.operation, self.lhs, self.rhs))
+
+class LTNode(CompareNode):
+	def __str__(self):
+		return "{0}".format(("LTHAN", self.operation, self.lhs,self.rhs))
+
+	def __repr__(self):
+		return "{0}".format(("LTHAN", self.operation, self.lhs, self.rhs))
+
+
+#DONE
 class ReturnNode(Node):
 	def __init__(self, expr):
 		self.expr = expr
@@ -348,7 +420,7 @@ class FuncCallNode(Node):
 	def analyze(self, analyzer: SemanticAnalyzer):
 		pass
 		
-class ObjectCodeNode(Node):
+class ObjectCallNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
 
@@ -360,7 +432,8 @@ class ObjectCodeNode(Node):
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		pass
-		
+
+#!Siguiente entrega		
 class ReadNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
@@ -372,9 +445,10 @@ class ReadNode(Node):
 		return "{0}".format(("VARDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
+		# Checa que la variable exista, y sea de tipo string
 		pass
 
-
+#!Siguiente entrega		
 class WriteNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
@@ -386,7 +460,10 @@ class WriteNode(Node):
 		return "{0}".format(("VARDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		# print("Symbol list:",analyzer.symbol_table_list)
+		#checa que variable(s) exista(n)
+
+		#analyzar arg punto
+		
 		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
 
 		
@@ -402,6 +479,9 @@ class ConditionNode(Node):
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		# print("Symbol list:",analyzer.symbol_table_list)
+		# Checar que expresion condicion sea bool
+
+		# Checar estatutos internos.
 		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
 
 class LoopNode(Node):
@@ -416,6 +496,9 @@ class LoopNode(Node):
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		# print("Symbol list:",analyzer.symbol_table_list)
+		#Checar Condicion es bool
+
+		#Checar estatutos internos
 		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
 
 
@@ -680,7 +763,7 @@ def p_expresion(p):
 		if (p[1] == '('):
 			p[0] = p[2]
 		else:
-			p[0]=("BINOP", p[2] ,p[1], p[3]) # Cambiar por dicccionario
+			p[0]=p[2](p[1], p[3]) # Cambiar por dicccionario
 
 
 def p_binop(p):
@@ -692,7 +775,22 @@ def p_binop(p):
 			| MINUS
 			| TIMES
 			| DIVIDE'''
-	p[0] = p[1]
+	if p[1] == '==':
+		p[0] = EqualsNode
+	elif p[1] == '+':
+		p[0] = PlusNode
+	elif p[1] == '-':
+		p[0] = MinusNode
+	elif p[1] == '*':
+		p[0] = TimesNode
+	elif p[1] == '/':
+		p[0] = DivideNode
+	elif p[1] == '!=':
+		p[0] = NotEqualsNode
+	elif p[1] == '>':
+		p[0] = GTNode
+	elif p[1] == '<':
+		p[0] = LTNode
 
 
 def p_plus_minus(p):
