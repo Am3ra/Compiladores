@@ -16,19 +16,27 @@ from enum import Enum
 
 
 class SemanticAnalyzer():
-	def __init__(self, input):
-		self.input = input
-		self.main: MainNode = parser.parse(input)
+	def __init__(self, input, debug = False):
+		if not debug:
+			self.input = input
+			self.parser = yacc.yacc()
+			self.main: MainNode = self.parser.parse(input)
 		self.symbol_table_list = [{}]
 
 
-	def analisis_semantico(self,filename):
+	def analisis_semantico(self,filename="a.out",debug=False):
 		#Falta hacer el analysis
+		if debug:
+			print(self.main)
+
 		self.main.analyze(self)
+
 		
-		f = open(filename,'wb')
-		pickle.dump(self.main,f) # Se serializa el AST
-		f.close()
+		
+		if filename is not None:
+			f = open(filename,'wb')
+			pickle.dump(self.main,f) # Se serializa el AST
+			f.close()
 
 	def declarar_class(self, dec):
 		self.check_if_declared_global(dec, "CLASS")
@@ -220,35 +228,19 @@ class AssignNode(Node):
 		self.expresion = expresion
 
 	def __str__(self):
-		return "{0}".format(("ASSIGN", self.dec))
+		return "{0}".format(("ASSIGN", self.var, self.expresion))
 
 	def __repr__(self):
-		return "{0}".format(("ASSIGN", self.dec))
+		return "{0}".format(("ASSIGN", self.var, self.expresion))
 
-	def analyze(self, scope ,analyzer: SemanticAnalyzer):
-		# Variable es metodo?
-		if self.var["call_type"] == "method_call":
-			SemanticError("Can't assign to a method")
-		# Marcar como definido?
-		variable = ""
-		# Existe la variable?
-		if self.var["call_type"] == "simple":
-			pass
-			# variable = variable_declarada_scopes(self.var["id"],scope)
-		elif self.var["call_type"] == "attribute_call":
-			#Check class table
-			pass
-		elif self.var["call_type"] == "Array":
-			pass
-		## Obtener tipo de variable?
-		var_type = variable["type"]
-		# La asignacion es de tipo correcto?
-		## Analyzar expresion
-		expr = self.expresion.analyze(scope)
-		### Obtener tipo expresion
+	def analyze(self, analyzer: SemanticAnalyzer):
+		
+		var_type = self.var.analyze(analyzer,True)
+		expr_type = self.expresion.analyze(analyzer)
 
-		if variable["tipo"] != expr["tipo"]:
-			SemanticError("Asignacion de tipo incorrecto")
+		if var_type is not expr_type:
+			raise SemanticError("Wrong types in assign: Found {1}, expected:{0}".format(var_type,expr_type))
+		
 
 # FUNCIONA!
 
@@ -315,8 +307,8 @@ class BinopNode(Node):
 		return "{0}".format(("BINOP", self.lhs, self.rhs))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		lh_type = self.lhs.analyze()
-		rh_type = self.rhs.analyze()
+		lh_type = self.lhs.analyze(analyzer)
+		rh_type = self.rhs.analyze(analyzer)
 
 		if lh_type != rh_type:
 			SemanticError("Binary operations can only be done with same types")
@@ -417,7 +409,11 @@ class IntNode(ConstantNode):
 		self.value = value
 		self.type_name = BaseType.INT
 
-#!NOT DONE
+class StringNode(ConstantNode):
+	def __init__(self, value):
+		self.value = value
+		self.type_name = BaseType.STRING
+
 class VarCallNode(Node):
 	def __init__(self,id,call_type):
 		self.id = id
@@ -429,17 +425,46 @@ class VarCallNode(Node):
 	def __repr__(self):
 		return "{0}".format(("VAR_CALL", self.id, self.call_type))
 		
-	def analyze(self, analyzer):
+	def analyze(self, analyzer, assignment=False):
 		# Checar que existe
-		var = check_if_symbol_declared_scopes(self.id,analyzer.symbol_table_list) 
+		var = check_if_symbol_declared_scopes(self.id,analyzer.symbol_table_list)
 		## CHECK CALL TYPE IS THE SAME AS VAR DIMS
-		if var is not None:
-			if var["defined"]:
-				return var["type"]
+		if var:
+			if not assignment:
+				if var["defined"]:
+					return self.call_type.analyze(var,analyzer)
+				else:
+					SemanticError("CAN'T CALL UNDEFINDED VAR {0}".format(self.id))
 			else:
-				SemanticError("CAN'T CALL UNDEFINDED VAR {0}".format(self.id))
+				return self.call_type.analyze(var,analyzer)
 		else:
 			SemanticError("CAN'T CALL UNDECLARED VAR {0}".format(self.id))
+
+class SimpleCallNode(Node):
+	def __init__(self,dims):
+		self.dims = dims
+
+	def analyze(self,var,analyzer : SemanticAnalyzer):
+		if var["symbol_type"] != "simple":
+			raise SemanticError("Expected simple var.\n Recieved: {0}".format(var["symbol_type"]))
+
+		if len(var["dims"]) != len(self.dims):
+			return SemanticError("Wrong number of Dimensions! \n Expected: {0}".format(var["dims"]))
+		for dim in self.dims:
+			dimtype = dim.analyze()
+
+			if dimtype is not BaseType.INT:
+				return SemanticError("Index has to be int, found  {0}".format(dimtype))
+
+		return var["type"]
+
+
+class MethodCallNode():
+	pass
+
+class AttributeCallNode():
+	def __init__(self, val):
+		pass
 
 
 #DONE
@@ -497,24 +522,21 @@ class ReadNode(Node):
 		# Checa que la variable exista, y sea de tipo string
 		pass
 
-#!Siguiente entrega		
+
 class WriteNode(Node):
-	def __init__(self, dec):
-		self.dec = dec
+	def __init__(self, expresiones):
+		self.expresiones = expresiones 
 
 	def __str__(self):
-		return "{0}".format(("VARDEC", self.dec))
+		return "{0}".format(("VARDEC", self.expresiones))
 
 	def __repr__(self):
-		return "{0}".format(("VARDEC", self.dec))
+		return "{0}".format(("VARDEC", self.expresiones))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		#checa que variable(s) exista(n)
 
-		#analyzar arg punto
-		
-		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
-
+		for expresion in self.expresiones:
+			expresion.analyze(analyzer)
 		
 class ConditionNode(Node):
 	def __init__(self, dec):
@@ -550,11 +572,13 @@ class LoopNode(Node):
 		#Checar estatutos internos
 		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
 
+def generic_error(type,p):
+	print("Error in {2}  on line {0} \n At index {1}".format(p.lineno(4), p.lexpos(4),type))
 
 def p_programa(p):
 	'''programa : declaraciones main '''
 	p[0] = MainNode(p[1], p[2])
-
+	
 
 def p_declaraciones(p):
 	'''declaraciones : empty '''
@@ -578,7 +602,8 @@ def p_declaraciones_clases(p):
 
 def p_clase_def(p):
 	'''clase_def : CLASS ID clase_op bloque_clase'''
-	p[0] = ({"id" : p[2], "inheritance" : p[3], "attributes": p[4]["attributes"], "methods" : p[4]["methods"]})
+	p[0] = ({"id" : p[2], "inheritance" : p[3], 
+		"attributes": p[4]["attributes"], "methods" : p[4]["methods"], "symbol_type":"class"})
 
 
 def p_clase_op(p):
@@ -616,7 +641,7 @@ def p_op_func(p):
 def p_funcion_def(p):
 	''' funcion_def : FUNC ID LPAREN params RPAREN return_option bloque_func'''
 	p[0] = {"id": p[2], "params": p[4], "return_op": p[6],
-			"body":p[7]}
+			"body":p[7], "symbol_type":"func"}
 
 
 def p_op_var(p):
@@ -674,6 +699,10 @@ def p_main(p):
 	p[0] = p[4]
 
 
+def p_main_error(p):
+	''' main : MAIN LPAREN RPAREN error'''
+	generic_error("main function",p)
+
 """
 #! CAMBIO DE GRAMATICA
 
@@ -694,9 +723,9 @@ def p_var_def(p):
 	# VAR TYPE_COMP VAR1,VAR2... ;
 	# VAR TYPE_SIMPLE VAR1;
 	if (len(p) == 3):
-		p[0] = {"type": p[1], "id": p[2]}
+		p[0] = {"type": p[1], "id": p[2], "defined": False}
 	else:
-		p[0] = {"type": p[1], "id": p[2], "dims": p[3]}
+		p[0] = {"type": p[1], "id": p[2], "dims": p[3] , "defined":False, "symbol_type":"simple"}
 
 
 def p_op_vardef(p):
@@ -716,14 +745,14 @@ def p_type_simple(p):
 					| FLOAT
 					| STRING 
 					| BOOL'''
-	if p[0] == "int":
-		return BaseType.INT
-	elif p[0] == "float":
-		return BaseType.FLOAT			
-	elif p[0] == "bool":
-		return BaseType.BOOL
+	if p[1] == "int":
+		p[0] = BaseType.INT
+	elif p[1] == "float":
+		p[0] = BaseType.FLOAT
+	elif p[1] == "bool":
+		p[0] = BaseType.BOOL
 	else:
-		return BaseType.STRING
+		p[0] = BaseType.STRING
 	
 # def p_bool_true(p):
 # 	''' bool : TRUE'''
@@ -760,7 +789,7 @@ def p_estatuto(p):
 				| expresion SEMICOLON
 				| returns
 				| llamada_funcion SEMICOLON
-				| llamada_objeto SEMICOLON
+				| llamada_metodo SEMICOLON
 				| var_def SEMICOLON
 				| lectura
 				| escritura
@@ -771,7 +800,7 @@ def p_estatuto(p):
 
 def p_asignacion(p):
 	''' asignacion : variable EQUAL expresion SEMICOLON '''
-	p[0] = ("ASSIGN", p[1], p[3])
+	p[0] =  AssignNode(p[1], p[3])
 
 
 """
@@ -875,6 +904,10 @@ def p_var_cte_i(p):
 	''' var_cte : CTEI '''
 	p[0] = IntNode(p[1])
 
+def p_var_cte_string(p):
+	''' var_cte : CTESTRING'''
+	p[0] = StringNode(p[1])
+
 
 def p_bool(p):
 	''' boolean : TRUE
@@ -904,8 +937,8 @@ def p_llamada_funcion(p):
 
 def p_param_llamada(p):
 	''' param_llamada : expresion
-									  | expresion COMMA param_llamada
-									  | empty '''
+					| expresion COMMA param_llamada
+					| empty '''
 	if(len(p) == 2):
 		if (p[1] == None):
 			p[0] = []
@@ -915,9 +948,9 @@ def p_param_llamada(p):
 		p[0] = [p[1]] + p[3]
 
 
-def p_llamada_objeto(p):
-	''' llamada_objeto : ID DOT ID LPAREN param_llamada RPAREN  '''
-	p[0] = ("CALL_OBJ", {"className": p[1],
+def p_llamada_metodo(p):
+	''' llamada_metodo : ID DOT ID LPAREN param_llamada RPAREN  '''
+	p[0] = ("CALL_OBJ", {"objectName": p[1],
 						 "methodName": p[3], "params": p[5]})
 
 
@@ -928,22 +961,18 @@ def p_lectura(p):
 
 def p_op_lectura(p):
 	''' op_lectura : COMMA variable op_lectura 
-							   | empty '''
+					| empty '''
 	if (len(p) == 2):
 		p[0] = []
 	else:
 		p[0] = [p[2]] + p[3]
 
-#! SE AGREGO LLAMADA OBJETO
+#! Se quito llamada objeto
 
 
 def p_variable(p):
-	''' variable : ID variable_op
-				| llamada_objeto '''
-	if(len(p) == 3):
-		p[0] = VarCallNode( p[1],  p[2])
-	else:
-		p[0] = p[1]
+	''' variable : ID variable_op '''
+	p[0] = VarCallNode( p[1],  p[2])
 
 
 def p_variable_op(p):
@@ -953,17 +982,13 @@ def p_variable_op(p):
 					| empty
 									'''
 	if(len(p) == 2):
-		if(p[1] == None):
-			p[0] = ("Simple")
-		else:
-			p[0] = ("method_call", p[1])
+		p[0] =	SimpleCallNode([])
 	elif (len(p) == 3):
-		p[0] = ("attribute_call", p[2])
+		p[0] = AttributeCallNode(p[2])
 	elif (len(p) == 4):
-		p[0] = ("Array", p[2])
+		p[0] = SimpleCallNode([p[2]])
 	else:
-		p[0] = ("MATRIX", (p[2], p[5]))
-
+		p[0] = SimpleCallNode([p[2], p[5]])
 
 """
 #! GRAMATICA MODIFICADA
@@ -981,20 +1006,13 @@ matrix : LBRACKET expresion RBRACKET
 
 
 def p_escritura(p):
-	''' escritura : WRITE LPAREN type_escritura op_escritura RPAREN SEMICOLON '''
-	p[0] = ("WRITE", [p[3]] + p[4])
-
-
-def p_type_escritura(p):
-	''' type_escritura : CTESTRING 
-									   | expresion '''
-	p[0] = p[1]
+	''' escritura : WRITE LPAREN expresion op_escritura RPAREN SEMICOLON '''
+	p[0] = WriteNode([p[3]] + p[4])
 
 
 def p_op_escritura(p):
-	''' op_escritura : COMMA CTESTRING op_escritura 
-									 | COMMA expresion op_escritura
-									 | empty '''
+	''' op_escritura : COMMA expresion op_escritura
+					| empty '''
 	if(len(p) == 4):
 		p[0] = [p[2]]
 	else:
@@ -1047,7 +1065,7 @@ def p_empty(p):
 
 
 def p_error(p):
-	print("Syntax error in input!")
+	raise SyntaxError("Syntax error in input!")
 
 
 precedence = (
@@ -1055,39 +1073,6 @@ precedence = (
 	('left', 'TIMES', 'DIVIDE'),
 )
 
-parser = yacc.yacc()
-
-programa_ejemplo = '''
-
-int alan ; 
-
-Clase team{
-	int cool;
-	Funcion electron(){
-		
-	}
-}
-
-Funcion karen(int alanbruki, int bo) -> int 
-{
-	
-}
-
-Main ()
-{
-	alan = 4; 
-	lee ( alan.cabello , alan );
-	i = 3*3-1/-(alan+b); 
-	hola(i.hola);
-	desde i = 1 hasta 10 hacer 
-	{ 
-		escribe("hola", 10);
-	}
-}
- '''  # FUNCIONO!
 
 
-print(parser.parse(programa_ejemplo))
 
-# print(parser.parse(programa_ejemplo+";")) ##ERROR
-SemanticAnalyzer(programa_ejemplo).analisis_semantico("codigo.pkl")

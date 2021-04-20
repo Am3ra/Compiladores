@@ -106,11 +106,3 @@ def t_error(t):
 # Build the lexer
 lexer = lex.lex()
 
-
-# data = " Main si escribe j"
-
-# lexer.input(data)
-
-
-# for tok in lexer:
-#     print(tok)

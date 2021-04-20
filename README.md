@@ -32,3 +32,22 @@ Agregamos analisis semantico de:
 - Expresion
 - operaciones binarias
 - valores constantes
+- tipos simples
+
+Agregamos nombre defautl al archivo de salida
+Agregamos asignacion de variables
+Agregamos la funcion de escritura
+mejoramos binopNode
+agregamos llamadas a variables simples (e.g. a, a[], o a[][])
+
+Se empezo a agregar impresion sobre errores de sintaxis
+	- Se creo la funcion generic Error
+
+Agregamos StringNode (agregamos Strings a valores constantes)
+
+Agregamos anotacion de tipo a variables, funciones, y clases para tabla de simbolos
+
+Se cambio el nombre de llamada objeto a llamada metodo
+
+Se agregaron unit tests
+
