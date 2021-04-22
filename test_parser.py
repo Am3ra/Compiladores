@@ -6,11 +6,10 @@ def test_expresion():
 	analyzer = SemanticAnalyzer("",debug=True)
 	assert expr.analyze(analyzer) == BaseType.INT
 
-def test_analisis_semantico():
+def test_analisis_semantico_declaracion_clase_con_variable_global():
 	programa_ejemplo = '''
 
-	int alan ; 
-	float k ;
+	int cool;
 
 	Clase team{
 		int cool;
@@ -19,28 +18,186 @@ def test_analisis_semantico():
 		}
 	}
 
-	Funcion karen(int alanbruki, int bo) -> int 
+	Main ()
 	{
+
+	}
+	'''  # FUNCIO}
+
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+
+@pytest.mark.clase
+def test_analisis_semantico_declaracion_clase_error_atributos_dobles():
+	programa_ejemplo = '''
+
+	Clase team{
+		int cool;
+		int cool;
+		Funcion electron(){
+			
+		}
+	}
+
+	Main ()
+	{
+
+	}
+	'''  # FUNCIO
+
+	with pytest.raises(SemanticError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+
+
+def test_analisis_semantico_declaracion_clase_doble_error():
+	programa_ejemplo = '''
+
+	Clase team{
+
+	}
+
+	Clase team{
 		
 	}
 
 	Main ()
 	{
-		alan = 3;
-		alan + k;
-		lee ( alan.cabello , alan );
-		i = 3*3-1/-(alan+b); 
-		hola(i.hola);
-		desde i = 1 hasta 10 hacer 
-		{ 
-			escribe("hola", 10);
+
+	}
+	'''  # FUNCIO
+
+	with pytest.raises(SemanticError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+
+def test_analisis_semantico_declaracion_clase_error_metodos_dobles():
+	programa_ejemplo = '''
+
+	Clase team{
+		int cool;
+		Funcion electron(){
+			
 		}
+		Funcion electron(){
+			
+		}
+	}
+
+	Main ()
+	{
+
+	}
+	'''  # FUNCIO
+
+	with pytest.raises(SemanticError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+
+
+def test_analisis_semantico_declaracion_funcion():
+	programa_ejemplo = '''
+
+	Funcion alan(){
+
+	}
+
+	Main ()
+	{
+
 	}
 	'''  # FUNCIONO!
 
-
-    # print(parser.parse(programa_ejemplo+";")) ##ERROR
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+
+def test_analisis_semantico_declaracion_funcion_returns():
+	programa_ejemplo = '''
+
+	Funcion karen() -> int{
+
+		return 3;
+	}
+
+	Main ()
+	{
+
+	}
+	'''  # FUNCIONO!
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+
+
+
+def test_analisis_semantico_declaracion_funcion_returns_error():
+	programa_ejemplo = '''
+
+	Funcion karen() -> int{
+
+	}
+
+	Main ()
+	{
+
+	}
+	'''  # FUNCIONO!
+	with pytest.raises(SemanticError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+
+
+def test_analisis_semantico_declaracion_funcion_returns_wrong_type_error():
+	programa_ejemplo = '''
+
+	Funcion karen() -> int{
+
+		return 3.2;
+	}
+
+	Main ()
+	{
+
+	}
+	'''  # FUNCIONO!
+	with pytest.raises(SemanticError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+
+
+
+
+def test_analisis_semantico_declaracion_funcion_error():
+	programa_ejemplo = '''
+
+	Funcion alan(){
+
+	}
+
+	Funcion alan() -> int {
+
+	}
+
+	Main ()
+	{
+
+	}
+	'''  # FUNCIONO!
+
+	with pytest.raises(SemanticError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+
+
+def test_analisis_semantico_declaracion_funcion_error_syntaxis():
+	programa_ejemplo = '''
+
+	Funcion alan() -> int , int{
+
+	}
+
+
+
+	Main ()
+	{
+
+	}
+	'''  # FUNCIONO!
+
+	with pytest.raises(SyntaxError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+
+
 
 
 def test_analisis_semantico_declaracion_variables():
@@ -98,6 +255,7 @@ def test_analisis_semantico_asignacion_variables_existentes():
 	}
 	'''
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
 def test_analisis_semantico_asignacion_variables_tipo_incorrecto():
 	programa_ejemplo = '''
 
@@ -112,3 +270,47 @@ def test_analisis_semantico_asignacion_variables_tipo_incorrecto():
 	'''
 	with pytest.raises(SemanticError):
 		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+
+def test_analisis_semantico_expresion_binop_constantes_iguales():
+	programa_ejemplo = '''
+
+	int alan ; 
+
+	Main ()
+	{
+		alan = 3 + 5;
+	}
+	'''
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+
+def test_analisis_semantico_expresion_binop_constantes_tipo_diferentes():
+	programa_ejemplo = '''
+
+	int alan ; 
+
+	Main ()
+	{
+		alan = 3 + false;
+	}
+	'''
+	with pytest.raises(SemanticError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+
+def test_analisis_semantico_expresion_binop_variables_tipos_iguales():
+	programa_ejemplo = '''
+
+	int alan ; 
+	int f;
+
+	Main ()
+	{
+		alan = 3;
+		f = alan + 1;
+	}
+	'''
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+

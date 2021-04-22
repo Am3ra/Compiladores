@@ -3,7 +3,7 @@ import pickle
 from lexer import lexer
 from lexer import tokens
 from enum import Enum
-# from semanticAnalyzer import SemanticAnalyzer
+# from semanticAnalyzer import 
 
 #! TIPOS DISPONIBLES EN EL LENGUAJE:
 # 1) TIPOS SIMPLES
@@ -98,7 +98,6 @@ class VarDecNode(Node):
 		# print("Symbol list:",analyzer.symbol_table_list)
 		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
 
-
 class FuncDecNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
@@ -143,11 +142,13 @@ class FuncDecNode(Node):
 		# if has return type
 		if self.dec["return_op"]:
 			for estatuto in self.dec["body"]:
-				if estatuto is ReturnNode: # PseudoCode
-					if estatuto.type != self.dec["return_op"]:
-						SemanticError("Return of Wrong Type!")
+				if  isinstance(estatuto, ReturnNode): # PseudoCode
+					if estatuto.analyze(analyzer) != self.dec["return_op"]:
+						raise SemanticError("Return of Wrong Type!")
+					else:
+						break
 			else:
-				SemanticError("Function is Missing Return!")
+				raise SemanticError("Function is Missing Return!")
 		
 		# print(analyzer.symbol_table_list)
 
@@ -177,21 +178,21 @@ class ClassDecNode(Node):
 
 		
 		# Checar el id
-		check_if_symbol_declared_scopes(self.dec["id"],analyzer.symbol_table_list)
+		if check_if_symbol_declared_scopes(self.dec["id"],analyzer.symbol_table_list):
+			raise SemanticError("Clase ya declarada")
 		# Checar nombres de funcs y vars
-		analyzer.symbol_table_list[0]["id"] = ({"id": self.dec["id"],"attributes":self.dec["attributes"],"methods":self.dec["methods"]})
+		analyzer.symbol_table_list[0][self.dec["id"]] = ({"id": self.dec["id"],"attributes":self.dec["attributes"],"methods":self.dec["methods"]})
 
-		analyzer.symbol_table_list.append({})
+		scope = [{}]
 
 		for attribute in self.dec["attributes"] :
-			declarar_symbol_scopes(attribute, analyzer.symbol_table_list)
+			declarar_symbol_scopes(attribute, scope)
 
 		for method in self.dec["methods"] :
-			declarar_symbol_scopes(method, analyzer.symbol_table_list)
+			declarar_symbol_scopes(method, scope)
 
 		## Agregar cosas inheritance
 		# print(declarar_symbol_scopes)
-		analyzer.symbol_table_list.pop()
 
 		if (self.dec["inheritance"]):
 			father = analyzer.symbol_table_list[0].get(self.dec["inheritance"])
@@ -241,19 +242,21 @@ class AssignNode(Node):
 		if var_type is not expr_type:
 			raise SemanticError("Wrong types in assign: Found {1}, expected:{0}".format(var_type,expr_type))
 		
+		check_if_symbol_declared_scopes(self.var.id,analyzer.symbol_table_list)["defined"] = True
+		
 
 # FUNCIONA!
 
 # ''' estatuto : asignacion
-# 			| expresion
-# 			| returns
-# 			| llamada_funcion SEMICOLON
-# 			| llamada_objeto SEMICOLON
-# 			| var_def SEMICOLON
-# 			| lectura
-# 			| escritura
-# 			| decision
-# 			| repeticion '''
+	# 			| expresion
+	# 			| returns
+	# 			| llamada_funcion SEMICOLON
+	# 			| llamada_objeto SEMICOLON
+	# 			| var_def SEMICOLON
+	# 			| lectura
+	# 			| escritura
+	# 			| decision
+	# 			| repeticion '''
 
 class BaseType(Enum):
 	STRING = 1
@@ -387,10 +390,10 @@ class ConstantNode(Node):
 		return self.type_name
 		
 	def __str__(self):
-		return "{0}".format(("Constant", self.value,self.type_name.name))
+		return "{0}".format(("Constant", self.value,self.type_name))
 
 	def __repr__(self):
-		return "{0}".format(("CONSTANT",  self.value, self.type_name.name))
+		return "{0}".format(("CONSTANT",  self.value, self.type_name))
 
 
 
@@ -434,11 +437,12 @@ class VarCallNode(Node):
 				if var["defined"]:
 					return self.call_type.analyze(var,analyzer)
 				else:
-					SemanticError("CAN'T CALL UNDEFINDED VAR {0}".format(self.id))
+					raise SemanticError("CAN'T CALL UNDEFINDED VAR {0}".format(self.id))
 			else:
+				# var["defined"] == True
 				return self.call_type.analyze(var,analyzer)
 		else:
-			SemanticError("CAN'T CALL UNDECLARED VAR {0}".format(self.id))
+			raise SemanticError("CAN'T CALL UNDECLARED VAR {0}".format(self.id))
 
 class SimpleCallNode(Node):
 	def __init__(self,dims):
@@ -476,10 +480,10 @@ class ReturnNode(Node):
 		return "{0}".format(("RETURN", self.expr))
 
 	def __repr__(self):
-		return "{0}".format(("RETURN", self.epxr))
+		return "{0}".format(("RETURN", self.expr))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		return self.expr.analyze()
+		return self.expr.analyze(analyzer)
 		
 class FuncCallNode(Node):
 	def __init__(self, dec):
@@ -647,8 +651,8 @@ def p_funcion_def(p):
 def p_op_var(p):
 	''' op_var : var_def SEMICOLON op_var
 			   | empty'''
-	if (len(p)==3):
-		p[0] = [p[1]] + p[2]
+	if (len(p)==4):
+		p[0] = [p[1]] + p[3]
 	else:
 		p[0] = []
 		
@@ -916,7 +920,7 @@ def p_bool(p):
 
 def p_returns(p):
 	''' returns : RETURN expresion SEMICOLON '''
-	p[0] = ("RETURNS", p[2])
+	p[0] = ReturnNode(p[2])
 
 #! SE QUITO EL SEMICOLON
 

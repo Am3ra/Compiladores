@@ -1,0 +1,21 @@
+- [ ] Analizar expresiones
+	- [ ] Binop
+	- [ ] Comparenode
+	- [ ] Unop
+- [ ] analizar Funciones
+	- [ ] Parametros
+	- [x] cuerpo
+- [ ] analizar estatutos
+	- [ ] analizar write
+	- [ ] Read
+	- [ ] If	
+		- [ ] Condicion
+		- [ ] cuerpo
+	- [ ] If else
+		- [ ] cuerpo else
+	- [ ] while
+		- [ ] Condicion
+	- [ ] for raro
+		- [ ] Condicion
+	- [x] ret
+	- [ ] asignaciones

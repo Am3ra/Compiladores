@@ -12,7 +12,7 @@ reserved = {
     'int': 'INT',
     'float': 'FLOAT',
     'string': 'STRING',
-    'returns': 'RETURN',
+    'return': 'RETURN',
     'lee': 'READ',
     'escribe': 'WRITE',
     'si': 'IF',
