@@ -1,5 +1,6 @@
 from parser import * 
 import pytest as pytest
+import itertools
 
 def test_expresion():
 	expr = PlusNode(IntNode(3),IntNode(4))
@@ -313,4 +314,18 @@ def test_analisis_semantico_expresion_binop_variables_tipos_iguales():
 	'''
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
 
+@pytest.mark.parametrize("type, val1 , val2, op",[(x,y,z,w)for x in ["int"] for y in [1,2] for z in [3,4] for w in ["+","-"]])
+def test_analisis_semantico_expresiones_iguales(type, val1, val2, op):
+	programa_ejemplo = '''
 
+	{0} alan ; 
+	{0} f;
+
+	Main ()
+	{{
+		alan = {1};
+		f = {2};
+		alan {3} f;
+	}}
+	'''.format(type, val1, val2, op)
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
