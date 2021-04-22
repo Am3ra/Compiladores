@@ -38,15 +38,15 @@ class SemanticAnalyzer():
 			pickle.dump(self.main,f) # Se serializa el AST
 			f.close()
 
-	def declarar_class(self, dec):
-		self.check_if_declared_global(dec, "CLASS")
-		self.symbol_table_classes[dec["id"]] = dec
+#	def declarar_class(self, dec):
+#		self.check_if_declared_global(dec, "CLASS")
+#		self.symbol_table_classes[dec["id"]] = dec
 
 	
-	def declare_symbol_class(self, dec, class_name, type):
-		# self.check_if_declared_class(self,dec,class_name)
-		self.check_if_symbol_declared_scope(dec,self.symbol_table_classes[class_name])
-		self.symbol_table_classes[class_name][type][dec["id"]] = dec
+#	def declare_symbol_class(self, dec, class_name, type):
+#		# self.check_if_declared_class(self,dec,class_name)
+#		check_if_symbol_declared_scope(dec,self.symbol_table_classes[class_name])
+#		self.symbol_table_classes[class_name][type][dec["id"]] = dec
 
 def declarar_symbol_scopes(dec,scopes):
 	if (check_if_symbol_declared_scopes(dec["id"],scopes)):
@@ -199,7 +199,7 @@ class ClassDecNode(Node):
 				raise SemanticError("Inherits undeclared class")
 			else:
 				for attribute in father["attributes"]:
-					analyzer.symbol_table_list[0][dec["id"]]["attributes"].setdefault(attribute,father[attribute])
+					analyzer.symbol_table_list[0][self.dec["id"]]["attributes"].setdefault(attribute,father[attribute])
 
 
 # class BloqueNode(Node):
@@ -383,7 +383,9 @@ class LTNode(CompareNode):
 
 class ConstantNode(Node):
 
-	def analyze(self, analyzer):
+	def analyze(self, value, type_name,analyzer):
+		self.type_name = type_name
+		self.value = value
 		return self.type_name
 		
 	def __str__(self):
@@ -476,7 +478,7 @@ class ReturnNode(Node):
 		return "{0}".format(("RETURN", self.expr))
 
 	def __repr__(self):
-		return "{0}".format(("RETURN", self.epxr))
+		return "{0}".format(("RETURN", self.expr))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		return self.expr.analyze()
