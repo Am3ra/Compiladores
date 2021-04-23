@@ -314,8 +314,9 @@ def test_analisis_semantico_expresion_binop_variables_tipos_iguales():
 	'''
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
 
-@pytest.mark.parametrize("type, val1 , val2, op",[(x,y,z,w)for x in ["int"] for y in [1,2] for z in [3,4] for w in ["+","-"]])
-def test_analisis_semantico_expresiones_iguales(type, val1, val2, op):
+binops = ["+","-","*","/","<",">","!=","=="]
+@pytest.mark.parametrize("type, val1 , val2, op",[(x,y,z,w)for x in ["int"] for y in [1,2] for z in [3,4] for w in binops])
+def test_analisis_semantico_expresiones_iguales_int(type, val1, val2, op):
 	programa_ejemplo = '''
 
 	{0} alan ; 
@@ -328,4 +329,97 @@ def test_analisis_semantico_expresiones_iguales(type, val1, val2, op):
 		alan {3} f;
 	}}
 	'''.format(type, val1, val2, op)
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+
+@pytest.mark.parametrize("type, val1 , val2, op",[(x,y,z,w)for x in ["float"] for y in [11.1,2.2] for z in [33.0,4.1 ] for w in binops])
+def test_analisis_semantico_expresiones_iguales_float(type, val1, val2, op):
+	programa_ejemplo = '''
+
+	{0} alan ; 
+	{0} f;
+
+	Main ()
+	{{
+		alan = {1};
+		f = {2};
+		alan {3} f;
+	}}
+	'''.format(type, val1, val2, op)
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+
+def test_analisis_semantico_read():
+	programa_ejemplo = '''
+
+	string alan ; 
+
+	Main ()
+	{
+		lee(alan);
+	}
+	'''
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+@pytest.mark.parametrize("type",[(x)for x in ["float", "int", "bool"]])
+def test_analisis_semantico_read_type_error(type):
+	programa_ejemplo = '''
+
+	{0} alan ; 
+
+	Main ()
+	{{
+		lee(alan);
+	}}
+	'''.format(type)
+	with pytest.raises(SemanticError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+
+def test_analisis_semantico_if():
+	programa_ejemplo = '''
+
+	int alan ; 
+
+	Main ()
+	{
+		if (true){
+			2+3;
+		}
+	}
+	'''
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+def test_analisis_semantico_if_error_condicion():
+	programa_ejemplo = '''
+
+	int alan ; 
+
+	Main ()
+	{
+		if (alan){
+			2+3;
+		}
+	}
+	'''
+	with pytest.raises(SemanticError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+def test_analisis_semantico_if_else():
+	programa_ejemplo = '''
+
+	int alan ; 
+
+	Main ()
+	{
+		if(true)
+		{
+			alan = 3 * 4; 
+		}
+		else
+		{
+			alan = 3 + 3;
+		}
+	}
+	'''
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)

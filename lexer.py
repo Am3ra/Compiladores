@@ -15,9 +15,8 @@ reserved = {
     'return': 'RETURN',
     'lee': 'READ',
     'escribe': 'WRITE',
-    'si': 'IF',
-    'entonces': 'THEN',
-    'sino': 'ELSE',
+    'if': 'IF',
+    'else': 'ELSE',
     'mientras': 'WHILE',
     'hacer': 'DO',
     'desde': 'FROM',
@@ -65,6 +64,15 @@ def t_CTEI(t):
     t.value = int(t.value)
     return t
 
+def t_TRUE(t):
+    r'true'
+    t.value = True
+    return t
+
+def t_FALSE(t):
+    r'false'
+    t.value = False
+    return t
 
 def t_ID(t):
     r'[A-Za-z][A-Za-z0-9]*'
@@ -74,16 +82,6 @@ def t_ID(t):
 
 def t_CTESTRING(t):
     r'\"([^\\\n]|(\\.))*?\"'
-    return t
-
-def t_TRUE(t):
-    r'(true)'
-    t.value = True
-    return t
-
-def t_FALSE(t):
-    r'(false)'
-    t.value = False
     return t
 
 

@@ -93,7 +93,7 @@ Rule 82    variable_op -> empty
 Rule 83    escritura -> WRITE LPAREN expresion op_escritura RPAREN SEMICOLON
 Rule 84    op_escritura -> COMMA expresion op_escritura
 Rule 85    op_escritura -> empty
-Rule 86    decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision
+Rule 86    decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
 Rule 87    op_decision -> ELSE LBRACE estatutos RBRACE
 Rule 88    op_decision -> empty
 Rule 89    repeticion -> condicional
@@ -142,7 +142,6 @@ RPAREN               : 12 22 23 50 70 74 75 83 86 91
 SAME                 : 52
 SEMICOLON            : 3 13 38 40 41 42 47 69 75 83
 STRING               : 31
-THEN                 : 86
 TIMES                : 58
 TO                   : 92
 TRUE                 : 67
@@ -739,7 +738,7 @@ state 44
     (25) var_def -> . type_simple ID op_vardef
     (75) lectura -> . READ LPAREN variable op_lectura RPAREN SEMICOLON
     (83) escritura -> . WRITE LPAREN expresion op_escritura RPAREN SEMICOLON
-    (86) decision -> . IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision
+    (86) decision -> . IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
     (89) repeticion -> . condicional
     (90) repeticion -> . no_condicional
     (78) variable -> . ID variable_op
@@ -929,7 +928,7 @@ state 54
     (25) var_def -> . type_simple ID op_vardef
     (75) lectura -> . READ LPAREN variable op_lectura RPAREN SEMICOLON
     (83) escritura -> . WRITE LPAREN expresion op_escritura RPAREN SEMICOLON
-    (86) decision -> . IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision
+    (86) decision -> . IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
     (89) repeticion -> . condicional
     (90) repeticion -> . no_condicional
     (78) variable -> . ID variable_op
@@ -1390,7 +1389,7 @@ state 73
 
 state 74
 
-    (86) decision -> IF . LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision
+    (86) decision -> IF . LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
 
     LPAREN          shift and go to state 124
 
@@ -2354,7 +2353,7 @@ state 123
 
 state 124
 
-    (86) decision -> IF LPAREN . expresion RPAREN THEN LBRACE estatutos RBRACE op_decision
+    (86) decision -> IF LPAREN . expresion RPAREN LBRACE estatutos RBRACE op_decision
     (48) expresion -> . expresion binop expresion
     (49) expresion -> . plus_minus expresion
     (50) expresion -> . LPAREN expresion RPAREN
@@ -2748,7 +2747,7 @@ state 145
 
 state 146
 
-    (86) decision -> IF LPAREN expresion . RPAREN THEN LBRACE estatutos RBRACE op_decision
+    (86) decision -> IF LPAREN expresion . RPAREN LBRACE estatutos RBRACE op_decision
     (48) expresion -> expresion . binop expresion
     (52) binop -> . SAME
     (53) binop -> . NOTEQ
@@ -3071,9 +3070,9 @@ state 161
 
 state 162
 
-    (86) decision -> IF LPAREN expresion RPAREN . THEN LBRACE estatutos RBRACE op_decision
+    (86) decision -> IF LPAREN expresion RPAREN . LBRACE estatutos RBRACE op_decision
 
-    THEN            shift and go to state 172
+    LBRACE          shift and go to state 172
 
 
 state 163
@@ -3216,10 +3215,96 @@ state 171
 
 state 172
 
-    (86) decision -> IF LPAREN expresion RPAREN THEN . LBRACE estatutos RBRACE op_decision
+    (86) decision -> IF LPAREN expresion RPAREN LBRACE . estatutos RBRACE op_decision
+    (34) estatutos -> . estatuto
+    (35) estatutos -> . estatuto estatutos
+    (36) estatutos -> . empty
+    (37) estatuto -> . asignacion
+    (38) estatuto -> . expresion SEMICOLON
+    (39) estatuto -> . returns
+    (40) estatuto -> . llamada_funcion SEMICOLON
+    (41) estatuto -> . llamada_metodo SEMICOLON
+    (42) estatuto -> . var_def SEMICOLON
+    (43) estatuto -> . lectura
+    (44) estatuto -> . escritura
+    (45) estatuto -> . decision
+    (46) estatuto -> . repeticion
+    (93) empty -> .
+    (47) asignacion -> . variable EQUAL expresion SEMICOLON
+    (48) expresion -> . expresion binop expresion
+    (49) expresion -> . plus_minus expresion
+    (50) expresion -> . LPAREN expresion RPAREN
+    (51) expresion -> . var_cte
+    (69) returns -> . RETURN expresion SEMICOLON
+    (70) llamada_funcion -> . ID LPAREN param_llamada RPAREN
+    (74) llamada_metodo -> . ID DOT ID LPAREN param_llamada RPAREN
+    (24) var_def -> . type_compuesto ID
+    (25) var_def -> . type_simple ID op_vardef
+    (75) lectura -> . READ LPAREN variable op_lectura RPAREN SEMICOLON
+    (83) escritura -> . WRITE LPAREN expresion op_escritura RPAREN SEMICOLON
+    (86) decision -> . IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
+    (89) repeticion -> . condicional
+    (90) repeticion -> . no_condicional
+    (78) variable -> . ID variable_op
+    (60) plus_minus -> . PLUS
+    (61) plus_minus -> . MINUS
+    (62) var_cte -> . variable
+    (63) var_cte -> . boolean
+    (64) var_cte -> . CTEF
+    (65) var_cte -> . CTEI
+    (66) var_cte -> . CTESTRING
+    (33) type_compuesto -> . ID
+    (29) type_simple -> . INT
+    (30) type_simple -> . FLOAT
+    (31) type_simple -> . STRING
+    (32) type_simple -> . BOOL
+    (91) condicional -> . WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE
+    (92) no_condicional -> . FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE
+    (67) boolean -> . TRUE
+    (68) boolean -> . FALSE
 
-    LBRACE          shift and go to state 181
+    RBRACE          reduce using rule 93 (empty -> .)
+    LPAREN          shift and go to state 68
+    RETURN          shift and go to state 70
+    ID              shift and go to state 71
+    READ            shift and go to state 72
+    WRITE           shift and go to state 73
+    IF              shift and go to state 74
+    PLUS            shift and go to state 77
+    MINUS           shift and go to state 78
+    CTEF            shift and go to state 80
+    CTEI            shift and go to state 81
+    CTESTRING       shift and go to state 82
+    INT             shift and go to state 12
+    FLOAT           shift and go to state 13
+    STRING          shift and go to state 14
+    BOOL            shift and go to state 15
+    WHILE           shift and go to state 83
+    FROM            shift and go to state 84
+    TRUE            shift and go to state 85
+    FALSE           shift and go to state 86
 
+    expresion                      shift and go to state 57
+    estatutos                      shift and go to state 181
+    estatuto                       shift and go to state 54
+    empty                          shift and go to state 55
+    asignacion                     shift and go to state 56
+    returns                        shift and go to state 58
+    llamada_funcion                shift and go to state 59
+    llamada_metodo                 shift and go to state 60
+    var_def                        shift and go to state 61
+    lectura                        shift and go to state 62
+    escritura                      shift and go to state 63
+    decision                       shift and go to state 64
+    repeticion                     shift and go to state 65
+    variable                       shift and go to state 66
+    plus_minus                     shift and go to state 67
+    var_cte                        shift and go to state 69
+    type_compuesto                 shift and go to state 7
+    type_simple                    shift and go to state 9
+    condicional                    shift and go to state 75
+    no_condicional                 shift and go to state 76
+    boolean                        shift and go to state 79
 
 state 173
 
@@ -3362,96 +3447,10 @@ state 180
 
 state 181
 
-    (86) decision -> IF LPAREN expresion RPAREN THEN LBRACE . estatutos RBRACE op_decision
-    (34) estatutos -> . estatuto
-    (35) estatutos -> . estatuto estatutos
-    (36) estatutos -> . empty
-    (37) estatuto -> . asignacion
-    (38) estatuto -> . expresion SEMICOLON
-    (39) estatuto -> . returns
-    (40) estatuto -> . llamada_funcion SEMICOLON
-    (41) estatuto -> . llamada_metodo SEMICOLON
-    (42) estatuto -> . var_def SEMICOLON
-    (43) estatuto -> . lectura
-    (44) estatuto -> . escritura
-    (45) estatuto -> . decision
-    (46) estatuto -> . repeticion
-    (93) empty -> .
-    (47) asignacion -> . variable EQUAL expresion SEMICOLON
-    (48) expresion -> . expresion binop expresion
-    (49) expresion -> . plus_minus expresion
-    (50) expresion -> . LPAREN expresion RPAREN
-    (51) expresion -> . var_cte
-    (69) returns -> . RETURN expresion SEMICOLON
-    (70) llamada_funcion -> . ID LPAREN param_llamada RPAREN
-    (74) llamada_metodo -> . ID DOT ID LPAREN param_llamada RPAREN
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
-    (75) lectura -> . READ LPAREN variable op_lectura RPAREN SEMICOLON
-    (83) escritura -> . WRITE LPAREN expresion op_escritura RPAREN SEMICOLON
-    (86) decision -> . IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision
-    (89) repeticion -> . condicional
-    (90) repeticion -> . no_condicional
-    (78) variable -> . ID variable_op
-    (60) plus_minus -> . PLUS
-    (61) plus_minus -> . MINUS
-    (62) var_cte -> . variable
-    (63) var_cte -> . boolean
-    (64) var_cte -> . CTEF
-    (65) var_cte -> . CTEI
-    (66) var_cte -> . CTESTRING
-    (33) type_compuesto -> . ID
-    (29) type_simple -> . INT
-    (30) type_simple -> . FLOAT
-    (31) type_simple -> . STRING
-    (32) type_simple -> . BOOL
-    (91) condicional -> . WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE
-    (92) no_condicional -> . FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE
-    (67) boolean -> . TRUE
-    (68) boolean -> . FALSE
+    (86) decision -> IF LPAREN expresion RPAREN LBRACE estatutos . RBRACE op_decision
 
-    RBRACE          reduce using rule 93 (empty -> .)
-    LPAREN          shift and go to state 68
-    RETURN          shift and go to state 70
-    ID              shift and go to state 71
-    READ            shift and go to state 72
-    WRITE           shift and go to state 73
-    IF              shift and go to state 74
-    PLUS            shift and go to state 77
-    MINUS           shift and go to state 78
-    CTEF            shift and go to state 80
-    CTEI            shift and go to state 81
-    CTESTRING       shift and go to state 82
-    INT             shift and go to state 12
-    FLOAT           shift and go to state 13
-    STRING          shift and go to state 14
-    BOOL            shift and go to state 15
-    WHILE           shift and go to state 83
-    FROM            shift and go to state 84
-    TRUE            shift and go to state 85
-    FALSE           shift and go to state 86
+    RBRACE          shift and go to state 185
 
-    expresion                      shift and go to state 57
-    estatutos                      shift and go to state 185
-    estatuto                       shift and go to state 54
-    empty                          shift and go to state 55
-    asignacion                     shift and go to state 56
-    returns                        shift and go to state 58
-    llamada_funcion                shift and go to state 59
-    llamada_metodo                 shift and go to state 60
-    var_def                        shift and go to state 61
-    lectura                        shift and go to state 62
-    escritura                      shift and go to state 63
-    decision                       shift and go to state 64
-    repeticion                     shift and go to state 65
-    variable                       shift and go to state 66
-    plus_minus                     shift and go to state 67
-    var_cte                        shift and go to state 69
-    type_compuesto                 shift and go to state 7
-    type_simple                    shift and go to state 9
-    condicional                    shift and go to state 75
-    no_condicional                 shift and go to state 76
-    boolean                        shift and go to state 79
 
 state 182
 
@@ -3482,7 +3481,7 @@ state 182
     (25) var_def -> . type_simple ID op_vardef
     (75) lectura -> . READ LPAREN variable op_lectura RPAREN SEMICOLON
     (83) escritura -> . WRITE LPAREN expresion op_escritura RPAREN SEMICOLON
-    (86) decision -> . IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision
+    (86) decision -> . IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
     (89) repeticion -> . condicional
     (90) repeticion -> . no_condicional
     (78) variable -> . ID variable_op
@@ -3594,33 +3593,12 @@ state 184
 
 state 185
 
-    (86) decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos . RBRACE op_decision
-
-    RBRACE          shift and go to state 188
-
-
-state 186
-
-    (91) condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos . RBRACE
-
-    RBRACE          shift and go to state 189
-
-
-state 187
-
-    (92) no_condicional -> FROM variable EQUAL expresion TO expresion DO . LBRACE estatutos RBRACE
-
-    LBRACE          shift and go to state 190
-
-
-state 188
-
-    (86) decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE . op_decision
+    (86) decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE . op_decision
     (87) op_decision -> . ELSE LBRACE estatutos RBRACE
     (88) op_decision -> . empty
     (93) empty -> .
 
-    ELSE            shift and go to state 192
+    ELSE            shift and go to state 189
     LPAREN          reduce using rule 93 (empty -> .)
     RETURN          reduce using rule 93 (empty -> .)
     ID              reduce using rule 93 (empty -> .)
@@ -3642,10 +3620,83 @@ state 188
     FALSE           reduce using rule 93 (empty -> .)
     RBRACE          reduce using rule 93 (empty -> .)
 
-    op_decision                    shift and go to state 191
-    empty                          shift and go to state 193
+    op_decision                    shift and go to state 188
+    empty                          shift and go to state 190
+
+state 186
+
+    (91) condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos . RBRACE
+
+    RBRACE          shift and go to state 191
+
+
+state 187
+
+    (92) no_condicional -> FROM variable EQUAL expresion TO expresion DO . LBRACE estatutos RBRACE
+
+    LBRACE          shift and go to state 192
+
+
+state 188
+
+    (86) decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .
+
+    LPAREN          reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    RETURN          reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    ID              reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    READ            reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    WRITE           reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    IF              reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    PLUS            reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    MINUS           reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    CTEF            reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    CTEI            reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    CTESTRING       reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    INT             reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    FLOAT           reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    STRING          reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    BOOL            reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    WHILE           reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    FROM            reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    TRUE            reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    FALSE           reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    RBRACE          reduce using rule 86 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+
 
 state 189
+
+    (87) op_decision -> ELSE . LBRACE estatutos RBRACE
+
+    LBRACE          shift and go to state 193
+
+
+state 190
+
+    (88) op_decision -> empty .
+
+    LPAREN          reduce using rule 88 (op_decision -> empty .)
+    RETURN          reduce using rule 88 (op_decision -> empty .)
+    ID              reduce using rule 88 (op_decision -> empty .)
+    READ            reduce using rule 88 (op_decision -> empty .)
+    WRITE           reduce using rule 88 (op_decision -> empty .)
+    IF              reduce using rule 88 (op_decision -> empty .)
+    PLUS            reduce using rule 88 (op_decision -> empty .)
+    MINUS           reduce using rule 88 (op_decision -> empty .)
+    CTEF            reduce using rule 88 (op_decision -> empty .)
+    CTEI            reduce using rule 88 (op_decision -> empty .)
+    CTESTRING       reduce using rule 88 (op_decision -> empty .)
+    INT             reduce using rule 88 (op_decision -> empty .)
+    FLOAT           reduce using rule 88 (op_decision -> empty .)
+    STRING          reduce using rule 88 (op_decision -> empty .)
+    BOOL            reduce using rule 88 (op_decision -> empty .)
+    WHILE           reduce using rule 88 (op_decision -> empty .)
+    FROM            reduce using rule 88 (op_decision -> empty .)
+    TRUE            reduce using rule 88 (op_decision -> empty .)
+    FALSE           reduce using rule 88 (op_decision -> empty .)
+    RBRACE          reduce using rule 88 (op_decision -> empty .)
+
+
+state 191
 
     (91) condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .
 
@@ -3671,7 +3722,7 @@ state 189
     RBRACE          reduce using rule 91 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
 
 
-state 190
+state 192
 
     (92) no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE . estatutos RBRACE
     (34) estatutos -> . estatuto
@@ -3700,7 +3751,7 @@ state 190
     (25) var_def -> . type_simple ID op_vardef
     (75) lectura -> . READ LPAREN variable op_lectura RPAREN SEMICOLON
     (83) escritura -> . WRITE LPAREN expresion op_escritura RPAREN SEMICOLON
-    (86) decision -> . IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision
+    (86) decision -> . IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
     (89) repeticion -> . condicional
     (90) repeticion -> . no_condicional
     (78) variable -> . ID variable_op
@@ -3764,73 +3815,7 @@ state 190
     no_condicional                 shift and go to state 76
     boolean                        shift and go to state 79
 
-state 191
-
-    (86) decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .
-
-    LPAREN          reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    RETURN          reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    ID              reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    READ            reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    WRITE           reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    IF              reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    PLUS            reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    MINUS           reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    CTEF            reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    CTEI            reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    CTESTRING       reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    INT             reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    FLOAT           reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    STRING          reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    BOOL            reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    WHILE           reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    FROM            reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    TRUE            reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    FALSE           reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-    RBRACE          reduce using rule 86 (decision -> IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision .)
-
-
-state 192
-
-    (87) op_decision -> ELSE . LBRACE estatutos RBRACE
-
-    LBRACE          shift and go to state 195
-
-
 state 193
-
-    (88) op_decision -> empty .
-
-    LPAREN          reduce using rule 88 (op_decision -> empty .)
-    RETURN          reduce using rule 88 (op_decision -> empty .)
-    ID              reduce using rule 88 (op_decision -> empty .)
-    READ            reduce using rule 88 (op_decision -> empty .)
-    WRITE           reduce using rule 88 (op_decision -> empty .)
-    IF              reduce using rule 88 (op_decision -> empty .)
-    PLUS            reduce using rule 88 (op_decision -> empty .)
-    MINUS           reduce using rule 88 (op_decision -> empty .)
-    CTEF            reduce using rule 88 (op_decision -> empty .)
-    CTEI            reduce using rule 88 (op_decision -> empty .)
-    CTESTRING       reduce using rule 88 (op_decision -> empty .)
-    INT             reduce using rule 88 (op_decision -> empty .)
-    FLOAT           reduce using rule 88 (op_decision -> empty .)
-    STRING          reduce using rule 88 (op_decision -> empty .)
-    BOOL            reduce using rule 88 (op_decision -> empty .)
-    WHILE           reduce using rule 88 (op_decision -> empty .)
-    FROM            reduce using rule 88 (op_decision -> empty .)
-    TRUE            reduce using rule 88 (op_decision -> empty .)
-    FALSE           reduce using rule 88 (op_decision -> empty .)
-    RBRACE          reduce using rule 88 (op_decision -> empty .)
-
-
-state 194
-
-    (92) no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos . RBRACE
-
-    RBRACE          shift and go to state 196
-
-
-state 195
 
     (87) op_decision -> ELSE LBRACE . estatutos RBRACE
     (34) estatutos -> . estatuto
@@ -3859,7 +3844,7 @@ state 195
     (25) var_def -> . type_simple ID op_vardef
     (75) lectura -> . READ LPAREN variable op_lectura RPAREN SEMICOLON
     (83) escritura -> . WRITE LPAREN expresion op_escritura RPAREN SEMICOLON
-    (86) decision -> . IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision
+    (86) decision -> . IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
     (89) repeticion -> . condicional
     (90) repeticion -> . no_condicional
     (78) variable -> . ID variable_op
@@ -3901,7 +3886,7 @@ state 195
     TRUE            shift and go to state 85
     FALSE           shift and go to state 86
 
-    estatutos                      shift and go to state 197
+    estatutos                      shift and go to state 195
     estatuto                       shift and go to state 54
     empty                          shift and go to state 55
     asignacion                     shift and go to state 56
@@ -3922,6 +3907,20 @@ state 195
     condicional                    shift and go to state 75
     no_condicional                 shift and go to state 76
     boolean                        shift and go to state 79
+
+state 194
+
+    (92) no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos . RBRACE
+
+    RBRACE          shift and go to state 196
+
+
+state 195
+
+    (87) op_decision -> ELSE LBRACE estatutos . RBRACE
+
+    RBRACE          shift and go to state 197
+
 
 state 196
 
@@ -3950,13 +3949,6 @@ state 196
 
 
 state 197
-
-    (87) op_decision -> ELSE LBRACE estatutos . RBRACE
-
-    RBRACE          shift and go to state 198
-
-
-state 198
 
     (87) op_decision -> ELSE LBRACE estatutos RBRACE .
 

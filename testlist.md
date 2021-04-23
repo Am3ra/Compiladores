@@ -1,13 +1,13 @@
 - [ ] Analizar expresiones
-	- [ ] Binop
-	- [ ] Comparenode
+	- [x] Binop
+	- [x] Comparenode
 	- [ ] Unop
 - [ ] analizar Funciones
 	- [ ] Parametros
 	- [x] cuerpo
 - [ ] analizar estatutos
 	- [ ] analizar write
-	- [ ] Read
+	- [x] Read
 	- [ ] If	
 		- [ ] Condicion
 		- [ ] cuerpo
@@ -18,4 +18,6 @@
 	- [ ] for raro
 		- [ ] Condicion
 	- [x] ret
-	- [ ] asignaciones
+	- [x] asignaciones
+	- [ ] Method call
+	- [ ] 
