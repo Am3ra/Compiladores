@@ -52,5 +52,15 @@ Se cambio el nombre de llamada objeto a llamada metodo
 
 Se agregaron unit tests
 
-Terminamos 
+ Wrote 60+ tests, finished ReadNode, WriteNode,
+
+IfNode, ForLoopNode.
+
+Added documentation for Declarar Symbol Scopes,  check if declared,
+Assign Node, Var Call node
+IfNode, WhileNode, ForLoopNode,ReadNode,WriteNode
+
+added stricter type checking to BINOPNode and CompareNode
+
+Changed Parser to use If,while and forloop nodes 
 
