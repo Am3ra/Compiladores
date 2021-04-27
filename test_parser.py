@@ -27,7 +27,6 @@ def test_analisis_semantico_declaracion_clase_con_variable_global():
 
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
 
-@pytest.mark.clase
 def test_analisis_semantico_declaracion_clase_error_atributos_dobles():
 	programa_ejemplo = '''
 

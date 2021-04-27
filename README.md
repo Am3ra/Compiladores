@@ -5,6 +5,7 @@ Clase compiladores ITC
 	- [Primera entrega](#primera-entrega)
 	- [Segunda Entrega](#segunda-entrega)
 	- [Tercera entrega](#tercera-entrega)
+	- [Entrega 4](#entrega-4)
 
 ## Primera entrega
 
@@ -64,3 +65,11 @@ added stricter type checking to BINOPNode and CompareNode
 
 Changed Parser to use If,while and forloop nodes 
 
+## Entrega 4
+
+Crear VM, y pruebas VM
+
+Agregar soporte para:
+
+- Nodos constantes
+- variables simples

@@ -61,17 +61,27 @@ def check_if_symbol_declared_scopes(id : str,scopes:[dict]):
 	''' takes a string id, list of dicts\n
 		returns declaration if found.\n
 		returns `False` if not '''
-	for scope in scopes:
+	for scope in reversed(scopes):
 		if (scope.get(id) is not None):
 			return scope.get(id)
 	return False
 	
+def declarar_symbol_scopes_run(dec, scopes, globals):
+	if len(scopes) == 0:
+		globals[dec["id"]] = dec
+	else:
+		scopes[-1][-1]["id"] = dec 
+
 
 # SemanticAnalyzer(text).analisis_semantico()
 
 class Node():
+	'''Generic Class interface'''
 	def analyze(self, analyzer: SemanticAnalyzer):
 		'''Complete Semantic analysis of this node '''
+		pass
+
+	def run(self, vm):
 		pass
 
 
@@ -86,9 +96,20 @@ class MainNode(Node):
 
 		for estatuto in self.main:
 			estatuto.analyze(analyzer)
+	
+	def run(self, vm):
+		for dec  in self.declaraciones:
+			dec.run(vm)
+
+		for estatuto in self.main:
+			estatuto.run(vm)
+	
 
 	def __str__(self):
 		return "{0}".format(("Programa", self.declaraciones, self.main))
+	
+	def __repr__(self):
+		return "{0}\n".format(("Programa", self.declaraciones, self.main))	
 
 
 class VarDecNode(Node):
@@ -99,11 +120,14 @@ class VarDecNode(Node):
 		return "{0}".format(("VARDEC", self.dec))
 
 	def __repr__(self):
-		return "{0}".format(("VARDEC", self.dec))
+		return "{0}\n".format(("VARDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		# print("Symbol list:",analyzer.symbol_table_list)
 		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
+
+	def run(self,vm):
+		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
 
 class FuncDecNode(Node):
 	def __init__(self, dec):
@@ -161,6 +185,9 @@ class FuncDecNode(Node):
 
 		analyzer.symbol_table_list.pop()
 
+	def run(self,vm):
+		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
+
 		# print(analyzer.symbol_table_list)
 
 class SemanticError(Exception):
@@ -174,11 +201,8 @@ class ClassDecNode(Node):
 			[{'id': 'team', 'params': [], 'return_op': None, 
 			'body': {'Estatutos': []}}]}})'''
 
-	def __str__(self):
-		return "{0}".format(("CLASSDEC", self.dec))
-
 	def __repr__(self):
-		return "{0}".format(("CLASSDEC", self.dec))
+		return "{0}\n".format(("CLASSDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		# Checar que si existe la herencia
@@ -208,6 +232,16 @@ class ClassDecNode(Node):
 			else:
 				for attribute in father["attributes"]:
 					analyzer.symbol_table_list[0][dec["id"]]["attributes"].setdefault(attribute,father[attribute])
+
+	def run(self,vm):
+		scope = [{}]
+
+		for attribute in self.dec["attributes"] :
+			declarar_symbol_scopes_run(attribute, scope,None)
+
+		for method in self.dec["methods"] :
+			declarar_symbol_scopes_run(method, scope, None)
+		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
 
 
 # class BloqueNode(Node):
@@ -415,6 +449,9 @@ class ConstantNode(Node):
 
 	def __repr__(self):
 		return "{0}".format(("CONSTANT",  self.value, self.type_name))
+	
+	def run(self, vm):
+		return self.value
 
 
 
@@ -471,6 +508,16 @@ class VarCallNode(Node):
 		else:
 			raise SemanticError("CAN'T CALL UNDECLARED VAR {0}".format(self.id))
 
+	def run(self, vm, assignment = False):
+		var = check_if_symbol_declared_scopes(self.id,[vm.global_symbols]+vm.symbol_scope_list[-1])
+
+		var_space = self.call_type.run(var, vm)
+		if assignment:
+			var_space["value"] = assignment
+		else:
+			return var_space["value"]
+
+
 class SimpleCallNode(Node):
 	def __init__(self,dims):
 		self.dims = dims
@@ -489,11 +536,20 @@ class SimpleCallNode(Node):
 
 		return var["type"]
 
+	def run(self, var, vm):
+		for (dimcall,dimVar) in zip(self.dims,var["dims"]):
+			dimcall = dimcall.run(vm)
+			if dimcall >= dimVar:
+				raise RuntimeError("Index out of bounds! Max index: {0}, recieved: {1}".format(dimVar,dimcall))
+		current_val = var["value"]
+		for dim in current_val:
+			current_val = current_val[dim]
+		return current_val
 
 class MethodCallNode():
 	pass
 
-class AttributeCallNode():
+class AttributeCallNode():	
 	def __init__(self, val):
 		pass
 
