@@ -106,8 +106,12 @@ class MainNode(Node):
 		for dec  in self.declaraciones:
 			dec.run(vm)
 
+		vm.symbol_scope_list+= [{}]		
 		for estatuto in self.main:
+			if isinstance(estatuto, ReturnNode):
+					return estatuto.run(vm)
 			estatuto.run(vm)
+
 	
 
 	def __str__(self):
@@ -689,8 +693,12 @@ class ReadNode(Node):
 			var["defined"] = True
 
 	def run(self, vm):
-		pass
-
+		for var in self.variables:
+			# obtener variable
+			var = check_if_symbol_declared_scopes(var.id,[vm.global_symbols]+vm.symbol_scope_list[-1][-1])
+			# obtener input()
+			# escribir resultado de input() en el valor de la variable
+			var["value"] = input()
 
 class WriteNode(Node):
 	'''
@@ -710,6 +718,10 @@ class WriteNode(Node):
 
 		for expresion in self.expresiones:
 			expresion.analyze(analyzer)
+
+	def run(self, vm):
+		for expresion in self.expresiones:
+			print(expresion.run(vm))
 		
 class IfNode(Node):
 	'''
@@ -818,6 +830,16 @@ class ForLoopNode(Node):
 		
 		for estatuto in self.body:
 			estatuto.analyze(analyzer)
+
+	def run(self,vm):
+		var = check_if_symbol_declared_scopes(var.id,[vm.global_symbols]+vm.symbol_scope_list[-1][-1])
+		var["value"] = self.expresion.run(vm)
+		end = self.end.run(vm)
+		while var["value"] != end:
+			for estatuto in self.body:
+				if isinstance(estatuto, ReturnNode):
+					return estatuto.run(vm)
+				estatuto.run(vm)
 
 def generic_error(type,p):
 	print("Error in {2}  on line {0} \n At index {1}".format(p.lineno(4), p.lexpos(4),type))

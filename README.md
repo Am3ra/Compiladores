@@ -79,3 +79,25 @@ Agregar soporte de VM para:
 	- operaciones binarias
 	- operaciones unarias
 - returns
+- read
+- write
+- forloop
+
+Agregamos funcionalidad de return al main
+
+agregamos la primer prueba de VM
+
+TODO: hacer que bloqueNode sea nodo real
+
+PREGUNTA: SE PUEDE "SOBREDECLARAR" UNA VARIABLE?
+
+main{
+	int a;
+	a = 3;
+	{
+		int a; # Error de sintaxis?, cambiar para que solo revise en el scope en el que se encuentra
+		a = 2
+	}
+
+	return a;
+}

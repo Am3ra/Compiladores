@@ -2,11 +2,9 @@ import ply.lex as lex
 
 # Reserved Words
 reserved = {
-    # 'Programa'  : 'PROGRAM',
     'Clase': 'CLASS',
     'hereda': 'INHERIT',
     'Funcion': 'FUNC',
-    # 'void'      : 'VOID',
     'Main': 'MAIN',
     'var': 'VAR',
     'int': 'INT',

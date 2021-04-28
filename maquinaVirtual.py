@@ -9,7 +9,7 @@ class VirtualMachine():
 		self.symbol_scope_list = []
 
 	def run(self):
-		self.ast.run(self)
+		return self.ast.run(self)
 
 	def loadFile(self,filename):
 		self.ast = pickle.load(filename)
