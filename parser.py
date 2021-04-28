@@ -16,8 +16,8 @@ from enum import Enum
 
 
 class SemanticAnalyzer():
-	def __init__(self, input, debug = False):
-		if not debug:
+	def __init__(self, input=None, debug = False):
+		if input is not None:
 			self.input = input
 			self.parser = yacc.yacc()
 			self.main: MainNode = self.parser.parse(input)
@@ -72,7 +72,12 @@ def declarar_symbol_scopes_run(dec, scopes, globals):
 	else:
 		scopes[-1][-1]["id"] = dec 
 
-
+def run_lista_estatutos(vm,lista_estatutos):
+	for estatuto in lista_estatutos:
+		if isinstance(estatuto, ReturnNode):
+			return estatuto.run(vm)
+		estatuto.run(vm)
+		
 # SemanticAnalyzer(text).analisis_semantico()
 
 class Node():
@@ -342,6 +347,12 @@ class UnopNode(Node):
 			SemanticError("Can only apply unary +/- to int or float")
 		else:
 			return operand_type
+	
+	def run(self,vm):
+		if self.operation == '+':
+			return self.operand.run(vm)
+		else :
+			return - self.operand.run(vm)
 
 #done
 class BinopNode(Node):
@@ -390,12 +401,32 @@ class PlusNode(BinopNode):
 	def __repr__(self):
 		return "{0}".format(("PLUS",self.lhs, self.rhs))
 
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.run(vm)
+
+		return lhs + rhs
+
+	# def compile(self,vm):
+	# 	lhs = self.lhs.run(vm)
+	# 	rhs = self.rhs.run(vm)
+	# 	current_pos = vm.current_pos()
+	# 	print("+ {0} {1} {2}".format(lhs,rhs,current_pos))
+	# 	return current_pos
+	
+
 class MinusNode(BinopNode):
 	def __str__(self):
 		return "{0}".format(("MINUS",  self.lhs,self.rhs))
 
 	def __repr__(self):
 		return "{0}".format(("MINUS",  self.lhs, self.rhs))
+		
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.sun(vm)
+
+		return lhs - rhs
 
 class TimesNode(BinopNode):
 	def __str__(self):
@@ -403,6 +434,12 @@ class TimesNode(BinopNode):
 
 	def __repr__(self):
 		return "{0}".format(("TIMES", self.lhs, self.rhs))
+	
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.sun(vm)
+
+		return lhs * rhs
 
 class DivideNode(BinopNode):
 	def __str__(self):
@@ -410,6 +447,12 @@ class DivideNode(BinopNode):
 
 	def __repr__(self):
 		return "{0}".format(("DIVIDE",  self.lhs, self.rhs))
+		
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.sun(vm)
+
+		return lhs / rhs
 
 class EqualsNode(CompareNode):
 	def __str__(self):
@@ -417,6 +460,12 @@ class EqualsNode(CompareNode):
 
 	def __repr__(self):
 		return "{0}".format(("EQUALS", self.lhs, self.rhs))
+	
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.sun(vm)
+
+		return lhs == rhs
 
 class NotEqualsNode(CompareNode):
 	def __str__(self):
@@ -424,6 +473,12 @@ class NotEqualsNode(CompareNode):
 
 	def __repr__(self):
 		return "{0}".format(("NOTEQ",  self.lhs, self.rhs))
+	
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.sun(vm)
+
+		return lhs != rhs
 
 class GTNode(CompareNode):
 	def __str__(self):
@@ -432,12 +487,24 @@ class GTNode(CompareNode):
 	def __repr__(self):
 		return "{0}".format(("GTHAN",  self.lhs, self.rhs))
 
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.sun(vm)
+
+		return lhs > rhs
+
 class LTNode(CompareNode):
 	def __str__(self):
 		return "{0}".format(("LTHAN", self.lhs,self.rhs))
 
 	def __repr__(self):
 		return "{0}".format(("LTHAN",  self.lhs, self.rhs))
+	
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.sun(vm)
+
+		return lhs < rhs
 
 class ConstantNode(Node):
 
@@ -546,6 +613,7 @@ class SimpleCallNode(Node):
 			current_val = current_val[dim]
 		return current_val
 
+
 class MethodCallNode():
 	pass
 
@@ -567,7 +635,10 @@ class ReturnNode(Node):
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		return self.expr.analyze(analyzer)
-		
+	
+	def run(self,vm):
+		return self.expr.run(vm)
+
 class FuncCallNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
@@ -616,6 +687,9 @@ class ReadNode(Node):
 			if var["type"] is not BaseType.STRING:
 				raise SemanticError("Can only read into String type var")
 			var["defined"] = True
+
+	def run(self, vm):
+
 
 
 class WriteNode(Node):
@@ -667,7 +741,20 @@ class IfNode(Node):
 		
 		for estatuto in self.else_body:
 			estatuto.analyze(analyzer)
-		
+
+	def run(self,vm):
+		if self.condition == True:
+			for estatuto in self.body:
+				if isinstance(estatuto, ReturnNode):
+					return estatuto.run(vm)
+				estatuto.run(vm)
+		else:
+			for estatuto in self.else_body:
+				if isinstance(estatuto, ReturnNode):
+					return estatuto.run(vm)
+				estatuto.run(vm)
+
+
 class WhileNode(Node):
 	'''
 	Takes a condition and a body.\n 
@@ -676,7 +763,8 @@ class WhileNode(Node):
 	
 	'''
 	def __init__(self, condition, body):
-		self.dec = dec
+		self.condition = condition
+		self.body = body
 
 	def __str__(self):
 		return "{0}".format(("WHILE", self.condition, self.body))
@@ -688,9 +776,16 @@ class WhileNode(Node):
 		condition_type = self.condition.analyze(analyzer)
 		if condition_type is not BaseType.BOOL:
 			raise SemanticError("Condition has to return BOOL type")
-			
 		for estatuto in self.body:
 			estatuto.analyze(analyzer)
+	
+	def run(self,vm):
+		while self.condition.run():
+			for estatuto in self.body:
+				if isinstance(estatuto, ReturnNode):
+					return estatuto.run(vm)
+				estatuto.run(vm)
+
 
 class ForLoopNode(Node):
 	'''
@@ -936,22 +1031,37 @@ def p_estatutos(p):
 # Asignacion : VAR EXISTA, y no METODO, Y que el tipo expresion sea correcto
 # returns : cambiar que solo las funciones puedan tener el return
 # 
+
+#! Se elimino expresion de estatutos
 def p_estatuto(p):
-	''' estatuto : asignacion
+	''' estatuto : asignacion SEMICOLON
 				| expresion SEMICOLON
-				| returns
+				| returns SEMICOLON
 				| llamada_funcion SEMICOLON
 				| llamada_metodo SEMICOLON
 				| var_def SEMICOLON
-				| lectura
-				| escritura
-				| decision
-				| repeticion '''
+				| lectura SEMICOLON
+				| escritura SEMICOLON
+				| decision SEMICOLON
+				| repeticion SEMICOLON'''
 	p[0] = p[1]
 
+# def p_estatuto_returns(p):
+# 	''' estatuto : asignacion 
+# 				| expresion 
+# 				| returns 
+# 				| llamada_funcion 
+# 				| llamada_metodo 
+# 				| var_def 
+# 				| lectura 
+# 				| escritura 
+# 				| decision 
+# 				| repeticion '''
+# 	p[0] = ReturnNode(p[1])
+#  se tendria que cambiar el analisis de Return node para aceptar estatutos
 
 def p_asignacion(p):
-	''' asignacion : variable EQUAL expresion SEMICOLON '''
+	''' asignacion : variable EQUAL expresion '''
 	p[0] =  AssignNode(p[1], p[3])
 
 
@@ -1067,7 +1177,7 @@ def p_bool(p):
 	p[0] = p[1]
 
 def p_returns(p):
-	''' returns : RETURN expresion SEMICOLON '''
+	''' returns : RETURN expresion '''
 	p[0] = ReturnNode(p[2])
 
 #! SE QUITO EL SEMICOLON
@@ -1107,7 +1217,7 @@ def p_llamada_metodo(p):
 
 
 def p_lectura(p):
-	''' lectura : READ LPAREN variable op_lectura RPAREN SEMICOLON '''
+	''' lectura : READ LPAREN variable op_lectura RPAREN '''
 	p[0] = ReadNode([p[3]]+p[4])
 
 
@@ -1158,7 +1268,7 @@ matrix : LBRACKET expresion RBRACKET
 
 
 def p_escritura(p):
-	''' escritura : WRITE LPAREN expresion op_escritura RPAREN SEMICOLON '''
+	''' escritura : WRITE LPAREN expresion op_escritura RPAREN '''
 	p[0] = WriteNode([p[3]] + p[4])
 
 
@@ -1216,9 +1326,9 @@ def p_empty(p):
 	p[0] = None
 
 
+
 def p_error(p):
 	raise SyntaxError("Syntax error in input!")
-
 
 precedence = (
 	('left', 'PLUS', 'MINUS'),
