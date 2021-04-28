@@ -689,7 +689,7 @@ class ReadNode(Node):
 			var["defined"] = True
 
 	def run(self, vm):
-
+		pass
 
 
 class WriteNode(Node):

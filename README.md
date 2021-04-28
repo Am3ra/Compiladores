@@ -69,7 +69,13 @@ Changed Parser to use If,while and forloop nodes
 
 Crear VM, y pruebas VM
 
-Agregar soporte para:
+Agregar soporte de VM para:
 
 - Nodos constantes
 - variables simples
+- If
+- while
+- expresiones
+	- operaciones binarias
+	- operaciones unarias
+- returns

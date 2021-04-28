@@ -4,7 +4,7 @@ import itertools
 
 def test_expresion():
 	expr = PlusNode(IntNode(3),IntNode(4))
-	analyzer = SemanticAnalyzer("",debug=True)
+	analyzer = SemanticAnalyzer(debug=False)
 	assert expr.analyze(analyzer) == BaseType.INT
 
 def test_analisis_semantico_declaracion_clase_con_variable_global():
@@ -25,7 +25,7 @@ def test_analisis_semantico_declaracion_clase_con_variable_global():
 	}
 	'''  # FUNCIO}
 
-	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
 def test_analisis_semantico_declaracion_clase_error_atributos_dobles():
 	programa_ejemplo = '''
@@ -45,7 +45,7 @@ def test_analisis_semantico_declaracion_clase_error_atributos_dobles():
 	'''  # FUNCIO
 
 	with pytest.raises(SemanticError):
-		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
 
 def test_analisis_semantico_declaracion_clase_doble_error():
@@ -66,7 +66,7 @@ def test_analisis_semantico_declaracion_clase_doble_error():
 	'''  # FUNCIO
 
 	with pytest.raises(SemanticError):
-		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
 def test_analisis_semantico_declaracion_clase_error_metodos_dobles():
 	programa_ejemplo = '''
@@ -88,7 +88,7 @@ def test_analisis_semantico_declaracion_clase_error_metodos_dobles():
 	'''  # FUNCIO
 
 	with pytest.raises(SemanticError):
-		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
 
 def test_analisis_semantico_declaracion_funcion():
@@ -104,7 +104,7 @@ def test_analisis_semantico_declaracion_funcion():
 	}
 	'''  # FUNCIONO!
 
-	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
 def test_analisis_semantico_declaracion_funcion_returns():
 	programa_ejemplo = '''
@@ -119,7 +119,7 @@ def test_analisis_semantico_declaracion_funcion_returns():
 
 	}
 	'''  # FUNCIONO!
-	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
 
 
@@ -136,7 +136,7 @@ def test_analisis_semantico_declaracion_funcion_returns_error():
 	}
 	'''  # FUNCIONO!
 	with pytest.raises(SemanticError):
-		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
 
 def test_analisis_semantico_declaracion_funcion_returns_wrong_type_error():
@@ -153,7 +153,7 @@ def test_analisis_semantico_declaracion_funcion_returns_wrong_type_error():
 	}
 	'''  # FUNCIONO!
 	with pytest.raises(SemanticError):
-		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
 
 
@@ -176,7 +176,7 @@ def test_analisis_semantico_declaracion_funcion_error():
 	'''  # FUNCIONO!
 
 	with pytest.raises(SemanticError):
-		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
 
 def test_analisis_semantico_declaracion_funcion_error_syntaxis():
@@ -195,7 +195,7 @@ def test_analisis_semantico_declaracion_funcion_error_syntaxis():
 	'''  # FUNCIONO!
 
 	with pytest.raises(SyntaxError):
-		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
 
 
@@ -215,7 +215,7 @@ def test_analisis_semantico_declaracion_variables():
 
 
 
-	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
 def test_analisis_semantico_declaracion_variables_error():
 	programa_ejemplo = '''
