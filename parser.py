@@ -383,9 +383,7 @@ class LTNode(CompareNode):
 
 class ConstantNode(Node):
 
-	def analyze(self, value, type_name,analyzer):
-		self.type_name = type_name
-		self.value = value
+	def analyze(self,  type_name,analyzer):
 		return self.type_name
 		
 	def __str__(self):
