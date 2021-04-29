@@ -4,6 +4,8 @@ Clase compiladores ITC
 - [Compiladores](#compiladores)
 	- [Primera entrega](#primera-entrega)
 	- [Segunda Entrega](#segunda-entrega)
+	- [Tercera entrega](#tercera-entrega)
+	- [Entrega 4](#entrega-4)
 
 ## Primera entrega
 
@@ -51,3 +53,51 @@ Se cambio el nombre de llamada objeto a llamada metodo
 
 Se agregaron unit tests
 
+ Wrote 60+ tests, finished ReadNode, WriteNode,
+
+IfNode, ForLoopNode.
+
+Added documentation for Declarar Symbol Scopes,  check if declared,
+Assign Node, Var Call node
+IfNode, WhileNode, ForLoopNode,ReadNode,WriteNode
+
+added stricter type checking to BINOPNode and CompareNode
+
+Changed Parser to use If,while and forloop nodes 
+
+## Entrega 4
+
+Crear VM, y pruebas VM
+
+Agregar soporte de VM para:
+
+- Nodos constantes
+- variables simples
+- If
+- while
+- expresiones
+	- operaciones binarias
+	- operaciones unarias
+- returns
+- read
+- write
+- forloop
+
+Agregamos funcionalidad de return al main
+
+agregamos la primer prueba de VM
+
+TODO: hacer que bloqueNode sea nodo real
+
+PREGUNTA: SE PUEDE "SOBREDECLARAR" UNA VARIABLE?
+
+main{
+	int a;
+	a = 3;
+	{
+		int a; # Error de sintaxis?, cambiar para que solo revise en el scope en el que se encuentra
+		a = 2
+	}
+
+	return a;
+}

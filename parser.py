@@ -3,7 +3,7 @@ import pickle
 from lexer import lexer
 from lexer import tokens
 from enum import Enum
-# from semanticAnalyzer import SemanticAnalyzer
+# from semanticAnalyzer import 
 
 #! TIPOS DISPONIBLES EN EL LENGUAJE:
 # 1) TIPOS SIMPLES
@@ -16,8 +16,8 @@ from enum import Enum
 
 
 class SemanticAnalyzer():
-	def __init__(self, input, debug = False):
-		if not debug:
+	def __init__(self, input=None, debug = False):
+		if input is not None:
 			self.input = input
 			self.parser = yacc.yacc()
 			self.main: MainNode = self.parser.parse(input)
@@ -48,23 +48,45 @@ class SemanticAnalyzer():
 #		check_if_symbol_declared_scope(dec,self.symbol_table_classes[class_name])
 #		self.symbol_table_classes[class_name][type][dec["id"]] = dec
 
-def declarar_symbol_scopes(dec,scopes):
+def declarar_symbol_scopes(dec,scopes : [dict]):
+	''' takes a declaration of any type (class, varaible, function) and 
+		checks if already declared in current and global scope. \n
+		`raise`s `SemanticError` if already declared \n
+		insert at the end of current `scope` if not declared'''
 	if (check_if_symbol_declared_scopes(dec["id"],scopes)):
 		raise SemanticError("{0} already declared".format(dec["id"]))
 	scopes[-1][dec["id"]] = dec
 
-def check_if_symbol_declared_scopes(id,scopes):
-	for scope in scopes:
+def check_if_symbol_declared_scopes(id : str,scopes:[dict]):
+	''' takes a string id, list of dicts\n
+		returns declaration if found.\n
+		returns `False` if not '''
+	for scope in reversed(scopes):
 		if (scope.get(id) is not None):
 			return scope.get(id)
 	return False
 	
+def declarar_symbol_scopes_run(dec, scopes, globals):
+	if len(scopes) == 0:
+		globals[dec["id"]] = dec
+	else:
+		scopes[-1][-1]["id"] = dec 
 
+def run_lista_estatutos(vm,lista_estatutos):
+	for estatuto in lista_estatutos:
+		if isinstance(estatuto, ReturnNode):
+			return estatuto.run(vm)
+		estatuto.run(vm)
+		
 # SemanticAnalyzer(text).analisis_semantico()
 
 class Node():
+	'''Generic Class interface'''
 	def analyze(self, analyzer: SemanticAnalyzer):
 		'''Complete Semantic analysis of this node '''
+		pass
+
+	def run(self, vm):
 		pass
 
 
@@ -79,9 +101,24 @@ class MainNode(Node):
 
 		for estatuto in self.main:
 			estatuto.analyze(analyzer)
+	
+	def run(self, vm):
+		for dec  in self.declaraciones:
+			dec.run(vm)
+
+		vm.symbol_scope_list+= [{}]		
+		for estatuto in self.main:
+			if isinstance(estatuto, ReturnNode):
+					return estatuto.run(vm)
+			estatuto.run(vm)
+
+	
 
 	def __str__(self):
 		return "{0}".format(("Programa", self.declaraciones, self.main))
+	
+	def __repr__(self):
+		return "{0}\n".format(("Programa", self.declaraciones, self.main))	
 
 
 class VarDecNode(Node):
@@ -92,12 +129,14 @@ class VarDecNode(Node):
 		return "{0}".format(("VARDEC", self.dec))
 
 	def __repr__(self):
-		return "{0}".format(("VARDEC", self.dec))
+		return "{0}\n".format(("VARDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		# print("Symbol list:",analyzer.symbol_table_list)
 		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
 
+	def run(self,vm):
+		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
 
 class FuncDecNode(Node):
 	def __init__(self, dec):
@@ -143,15 +182,20 @@ class FuncDecNode(Node):
 		# if has return type
 		if self.dec["return_op"]:
 			for estatuto in self.dec["body"]:
-				if estatuto is ReturnNode: # PseudoCode
-					if estatuto.type != self.dec["return_op"]:
-						SemanticError("Return of Wrong Type!")
+				if  isinstance(estatuto, ReturnNode): # PseudoCode
+					if estatuto.analyze(analyzer) != self.dec["return_op"]:
+						raise SemanticError("Return of Wrong Type!")
+					else:
+						break
 			else:
-				SemanticError("Function is Missing Return!")
+				raise SemanticError("Function is Missing Return!")
 		
 		# print(analyzer.symbol_table_list)
 
 		analyzer.symbol_table_list.pop()
+
+	def run(self,vm):
+		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
 
 		# print(analyzer.symbol_table_list)
 
@@ -166,32 +210,29 @@ class ClassDecNode(Node):
 			[{'id': 'team', 'params': [], 'return_op': None, 
 			'body': {'Estatutos': []}}]}})'''
 
-	def __str__(self):
-		return "{0}".format(("CLASSDEC", self.dec))
-
 	def __repr__(self):
-		return "{0}".format(("CLASSDEC", self.dec))
+		return "{0}\n".format(("CLASSDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		# Checar que si existe la herencia
 
 		
 		# Checar el id
-		check_if_symbol_declared_scopes(self.dec["id"],analyzer.symbol_table_list)
+		if check_if_symbol_declared_scopes(self.dec["id"],analyzer.symbol_table_list):
+			raise SemanticError("Clase ya declarada")
 		# Checar nombres de funcs y vars
-		analyzer.symbol_table_list[0]["id"] = ({"id": self.dec["id"],"attributes":self.dec["attributes"],"methods":self.dec["methods"]})
+		analyzer.symbol_table_list[0][self.dec["id"]] = ({"id": self.dec["id"],"attributes":self.dec["attributes"],"methods":self.dec["methods"]})
 
-		analyzer.symbol_table_list.append({})
+		scope = [{}]
 
 		for attribute in self.dec["attributes"] :
-			declarar_symbol_scopes(attribute, analyzer.symbol_table_list)
+			declarar_symbol_scopes(attribute, scope)
 
 		for method in self.dec["methods"] :
-			declarar_symbol_scopes(method, analyzer.symbol_table_list)
+			declarar_symbol_scopes(method, scope)
 
 		## Agregar cosas inheritance
 		# print(declarar_symbol_scopes)
-		analyzer.symbol_table_list.pop()
 
 		if (self.dec["inheritance"]):
 			father = analyzer.symbol_table_list[0].get(self.dec["inheritance"])
@@ -200,6 +241,16 @@ class ClassDecNode(Node):
 			else:
 				for attribute in father["attributes"]:
 					analyzer.symbol_table_list[0][self.dec["id"]]["attributes"].setdefault(attribute,father[attribute])
+
+	def run(self,vm):
+		scope = [{}]
+
+		for attribute in self.dec["attributes"] :
+			declarar_symbol_scopes_run(attribute, scope,None)
+
+		for method in self.dec["methods"] :
+			declarar_symbol_scopes_run(method, scope, None)
+		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
 
 
 # class BloqueNode(Node):
@@ -223,6 +274,11 @@ class ClassDecNode(Node):
 # 		analyzer.symbol_table_vars_list.pop() # pop lexical scope
 
 class AssignNode(Node):
+	'''
+	Takes a `VarCallNode` and an `Expression`
+	check that variable exists, and is same type as expression.
+	assignes true to `"defined"` field of var dec
+	'''
 	def __init__(self, var, expresion):
 		self.var = var
 		self.expresion = expresion
@@ -241,19 +297,21 @@ class AssignNode(Node):
 		if var_type is not expr_type:
 			raise SemanticError("Wrong types in assign: Found {1}, expected:{0}".format(var_type,expr_type))
 		
+		check_if_symbol_declared_scopes(self.var.id,analyzer.symbol_table_list)["defined"] = True
+		
 
 # FUNCIONA!
 
 # ''' estatuto : asignacion
-# 			| expresion
-# 			| returns
-# 			| llamada_funcion SEMICOLON
-# 			| llamada_objeto SEMICOLON
-# 			| var_def SEMICOLON
-# 			| lectura
-# 			| escritura
-# 			| decision
-# 			| repeticion '''
+	# 			| expresion
+	# 			| returns
+	# 			| llamada_funcion SEMICOLON
+	# 			| llamada_objeto SEMICOLON
+	# 			| var_def SEMICOLON
+	# 			| lectura
+	# 			| escritura
+	# 			| decision
+	# 			| repeticion '''
 
 class BaseType(Enum):
 	STRING = 1
@@ -293,6 +351,12 @@ class UnopNode(Node):
 			SemanticError("Can only apply unary +/- to int or float")
 		else:
 			return operand_type
+	
+	def run(self,vm):
+		if self.operation == '+':
+			return self.operand.run(vm)
+		else :
+			return - self.operand.run(vm)
 
 #done
 class BinopNode(Node):
@@ -310,18 +374,27 @@ class BinopNode(Node):
 		lh_type = self.lhs.analyze(analyzer)
 		rh_type = self.rhs.analyze(analyzer)
 
+		if lh_type is BaseType.STRING:
+			raise SemanticError("Strings cannot be used in binary operations")
+
+		if lh_type is BaseType.BOOL:
+			raise SemanticError("Booleans cannot be used in binary operations")
+
 		if lh_type != rh_type:
-			SemanticError("Binary operations can only be done with same types")
+			raise SemanticError("Binary operations can only be done with same types")
 		else:
 			return lh_type
 
 class CompareNode(BinopNode):
 	def analyze(self, analyzer):
-		lh_type = self.lhs.analyze()
-		rh_type = self.rhs.analyze()
+		lh_type = self.lhs.analyze(analyzer)
+		rh_type = self.rhs.analyze(analyzer)
+		
+		if lh_type is BaseType.STRING:
+			raise SemanticError("Strings cannot be used in binary operations")
 
 		if lh_type != rh_type:
-			SemanticError("Binary operations can only be done with same types")
+			raise SemanticError("Binary operations can only be done with same types")
 		else:
 			return BaseType.BOOL
 
@@ -332,12 +405,32 @@ class PlusNode(BinopNode):
 	def __repr__(self):
 		return "{0}".format(("PLUS",self.lhs, self.rhs))
 
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.run(vm)
+
+		return lhs + rhs
+
+	# def compile(self,vm):
+	# 	lhs = self.lhs.run(vm)
+	# 	rhs = self.rhs.run(vm)
+	# 	current_pos = vm.current_pos()
+	# 	print("+ {0} {1} {2}".format(lhs,rhs,current_pos))
+	# 	return current_pos
+	
+
 class MinusNode(BinopNode):
 	def __str__(self):
 		return "{0}".format(("MINUS",  self.lhs,self.rhs))
 
 	def __repr__(self):
 		return "{0}".format(("MINUS",  self.lhs, self.rhs))
+		
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.sun(vm)
+
+		return lhs - rhs
 
 class TimesNode(BinopNode):
 	def __str__(self):
@@ -345,6 +438,12 @@ class TimesNode(BinopNode):
 
 	def __repr__(self):
 		return "{0}".format(("TIMES", self.lhs, self.rhs))
+	
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.sun(vm)
+
+		return lhs * rhs
 
 class DivideNode(BinopNode):
 	def __str__(self):
@@ -352,6 +451,12 @@ class DivideNode(BinopNode):
 
 	def __repr__(self):
 		return "{0}".format(("DIVIDE",  self.lhs, self.rhs))
+		
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.sun(vm)
+
+		return lhs / rhs
 
 class EqualsNode(CompareNode):
 	def __str__(self):
@@ -359,6 +464,12 @@ class EqualsNode(CompareNode):
 
 	def __repr__(self):
 		return "{0}".format(("EQUALS", self.lhs, self.rhs))
+	
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.sun(vm)
+
+		return lhs == rhs
 
 class NotEqualsNode(CompareNode):
 	def __str__(self):
@@ -366,6 +477,12 @@ class NotEqualsNode(CompareNode):
 
 	def __repr__(self):
 		return "{0}".format(("NOTEQ",  self.lhs, self.rhs))
+	
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.sun(vm)
+
+		return lhs != rhs
 
 class GTNode(CompareNode):
 	def __str__(self):
@@ -374,12 +491,24 @@ class GTNode(CompareNode):
 	def __repr__(self):
 		return "{0}".format(("GTHAN",  self.lhs, self.rhs))
 
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.sun(vm)
+
+		return lhs > rhs
+
 class LTNode(CompareNode):
 	def __str__(self):
 		return "{0}".format(("LTHAN", self.lhs,self.rhs))
 
 	def __repr__(self):
 		return "{0}".format(("LTHAN",  self.lhs, self.rhs))
+	
+	def run(self,vm):
+		lhs = self.lhs.run(vm)
+		rhs = self.rhs.sun(vm)
+
+		return lhs < rhs
 
 class ConstantNode(Node):
 
@@ -387,10 +516,13 @@ class ConstantNode(Node):
 		return self.type_name
 		
 	def __str__(self):
-		return "{0}".format(("Constant", self.value,self.type_name.name))
+		return "{0}".format(("Constant", self.value,self.type_name))
 
 	def __repr__(self):
-		return "{0}".format(("CONSTANT",  self.value, self.type_name.name))
+		return "{0}".format(("CONSTANT",  self.value, self.type_name))
+	
+	def run(self, vm):
+		return self.value
 
 
 
@@ -415,6 +547,12 @@ class StringNode(ConstantNode):
 		self.type_name = BaseType.STRING
 
 class VarCallNode(Node):
+	'''
+	Takes a `String` id, and a `BaseType` type.\n
+	Checks if variable is declared, and that call is correct.\n
+	Returns `type` of var
+	
+	'''
 	def __init__(self,id,call_type):
 		self.id = id
 		self.call_type = call_type
@@ -434,11 +572,22 @@ class VarCallNode(Node):
 				if var["defined"]:
 					return self.call_type.analyze(var,analyzer)
 				else:
-					SemanticError("CAN'T CALL UNDEFINDED VAR {0}".format(self.id))
+					raise SemanticError("CAN'T CALL UNDEFINDED VAR {0}".format(self.id))
 			else:
+				# var["defined"] == True
 				return self.call_type.analyze(var,analyzer)
 		else:
-			SemanticError("CAN'T CALL UNDECLARED VAR {0}".format(self.id))
+			raise SemanticError("CAN'T CALL UNDECLARED VAR {0}".format(self.id))
+
+	def run(self, vm, assignment = False):
+		var = check_if_symbol_declared_scopes(self.id,[vm.global_symbols]+vm.symbol_scope_list[-1])
+
+		var_space = self.call_type.run(var, vm)
+		if assignment:
+			var_space["value"] = assignment
+		else:
+			return var_space["value"]
+
 
 class SimpleCallNode(Node):
 	def __init__(self,dims):
@@ -458,11 +607,21 @@ class SimpleCallNode(Node):
 
 		return var["type"]
 
+	def run(self, var, vm):
+		for (dimcall,dimVar) in zip(self.dims,var["dims"]):
+			dimcall = dimcall.run(vm)
+			if dimcall >= dimVar:
+				raise RuntimeError("Index out of bounds! Max index: {0}, recieved: {1}".format(dimVar,dimcall))
+		current_val = var["value"]
+		for dim in current_val:
+			current_val = current_val[dim]
+		return current_val
+
 
 class MethodCallNode():
 	pass
 
-class AttributeCallNode():
+class AttributeCallNode():	
 	def __init__(self, val):
 		pass
 
@@ -479,8 +638,11 @@ class ReturnNode(Node):
 		return "{0}".format(("RETURN", self.expr))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		return self.expr.analyze()
-		
+		return self.expr.analyze(analyzer)
+	
+	def run(self,vm):
+		return self.expr.run(vm)
+
 class FuncCallNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
@@ -507,70 +669,177 @@ class ObjectCallNode(Node):
 	def analyze(self, analyzer: SemanticAnalyzer):
 		pass
 
-#!Siguiente entrega		
 class ReadNode(Node):
-	def __init__(self, dec):
-		self.dec = dec
+	''' Readnode takes an array of VarCallNodes names as a parameter.\n
+		Reads series of inputs into vars, makes them defined.\n
+		Returns nothing.\n
+		Raises `SemanticError` if var not declared '''
+	def __init__(self, variables : [VarCallNode]):
+		self.variables = variables
 
 	def __str__(self):
-		return "{0}".format(("VARDEC", self.dec))
+		return "{0}".format(("READ", self.variables))
 
 	def __repr__(self):
-		return "{0}".format(("VARDEC", self.dec))
+		return "{0}".format(("READ", self.variables))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		# Checa que la variable exista, y sea de tipo string
-		pass
+		for var in self.variables:
+			var = check_if_symbol_declared_scopes(var.id,analyzer.symbol_table_list)
+			if not var:
+				raise SemanticError("Can't read into variable that's not declared")
+			if var["type"] is not BaseType.STRING:
+				raise SemanticError("Can only read into String type var")
+			var["defined"] = True
 
+	def run(self, vm):
+		for var in self.variables:
+			# obtener variable
+			var = check_if_symbol_declared_scopes(var.id,[vm.global_symbols]+vm.symbol_scope_list[-1][-1])
+			# obtener input()
+			# escribir resultado de input() en el valor de la variable
+			var["value"] = input()
 
 class WriteNode(Node):
+	'''
+	Takes a list of expresions, writes them to console.
+	
+	'''
 	def __init__(self, expresiones):
 		self.expresiones = expresiones 
 
 	def __str__(self):
-		return "{0}".format(("VARDEC", self.expresiones))
+		return "{0}".format(("WRITE", self.expresiones))
 
 	def __repr__(self):
-		return "{0}".format(("VARDEC", self.expresiones))
+		return "{0}".format(("WRITE", self.expresiones))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 
 		for expresion in self.expresiones:
 			expresion.analyze(analyzer)
-		
-class ConditionNode(Node):
-	def __init__(self, dec):
-		self.dec = dec
 
+	def run(self, vm):
+		for expresion in self.expresiones:
+			print(expresion.run(vm))
+		
+class IfNode(Node):
+	'''
+	Takes a condition, a body and sometimes and else_body \n
+	Evaluates condition and checks if evaluation is `BaseType.BOOL` and if not `raises` `SemanticError`,
+	Then analyzes `estatutos` in `body`,
+	Then analyzes `estatutos` in `else_body`
+	'''
+	def __init__(self, condition, body, else_body):
+		self.condition = condition
+		self.body = body
+		self.else_body = else_body
+		
 	def __str__(self):
-		return "{0}".format(("VARDEC", self.dec))
+		return "{0}".format(("IfNode", self.condition,self.body,self.else_body))
 
 	def __repr__(self):
-		return "{0}".format(("VARDEC", self.dec))
+		return "{0}".format(("IfNode", self.condition, self.body, self.else_body))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		# print("Symbol list:",analyzer.symbol_table_list)
 		# Checar que expresion condicion sea bool
+		condition_type = self.condition.analyze(analyzer)
+		if condition_type is not BaseType.BOOL:
+			raise SemanticError("Condition has to return BOOL type")
+		
+		for estatuto in self.body:
+			estatuto.analyze(analyzer)
+		
+		for estatuto in self.else_body:
+			estatuto.analyze(analyzer)
 
-		# Checar estatutos internos.
-		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
+	def run(self,vm):
+		if self.condition == True:
+			for estatuto in self.body:
+				if isinstance(estatuto, ReturnNode):
+					return estatuto.run(vm)
+				estatuto.run(vm)
+		else:
+			for estatuto in self.else_body:
+				if isinstance(estatuto, ReturnNode):
+					return estatuto.run(vm)
+				estatuto.run(vm)
 
-class LoopNode(Node):
-	def __init__(self, dec):
-		self.dec = dec
+
+class WhileNode(Node):
+	'''
+	Takes a condition and a body.\n 
+	evaluates condition and checks if evaluation is `BaseType.BOOL` and if not `raises` `SemanticError`,
+	then analyzes `estatutos` in `body`,
+	
+	'''
+	def __init__(self, condition, body):
+		self.condition = condition
+		self.body = body
 
 	def __str__(self):
-		return "{0}".format(("VARDEC", self.dec))
+		return "{0}".format(("WHILE", self.condition, self.body))
 
 	def __repr__(self):
-		return "{0}".format(("VARDEC", self.dec))
+		return "{0}".format(("WHILE", self.condition, self.body))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		# print("Symbol list:",analyzer.symbol_table_list)
-		#Checar Condicion es bool
+		condition_type = self.condition.analyze(analyzer)
+		if condition_type is not BaseType.BOOL:
+			raise SemanticError("Condition has to return BOOL type")
+		for estatuto in self.body:
+			estatuto.analyze(analyzer)
+	
+	def run(self,vm):
+		while self.condition.run():
+			for estatuto in self.body:
+				if isinstance(estatuto, ReturnNode):
+					return estatuto.run(vm)
+				estatuto.run(vm)
 
-		#Checar estatutos internos
-		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
+
+class ForLoopNode(Node):
+	'''
+	`ForLoopNode` takes a control var, an assignment, a end point, and a body.\n
+	Runs body while condition is true.
+	'''
+	def __init__(self, variable, expresion, end, body):
+		self.variable = variable
+		self.expresion = expresion
+		self.end = end
+		self.body = body
+
+	def __str__(self):
+		return "{0}".format(("FOR_LOOP", self.dec))
+
+	def __repr__(self):
+		return "{0}".format(("FOR_LOOP", self.dec))
+
+	def analyze(self, analyzer: SemanticAnalyzer):
+
+		AssignNode(self.variable,self.expresion).analyze(analyzer)
+
+		var_type = check_if_symbol_declared_scopes(self.variable.id,analyzer.symbol_table_list)["type"]
+		if var_type is not BaseType.INT:
+			raise SemanticError("Can only use ints in for loop")
+		end_type = self.end.analyze(analyzer)
+		
+		if end_type is not BaseType.INT:
+			raise SemanticError("Can only use type INT in for loop")
+		
+		for estatuto in self.body:
+			estatuto.analyze(analyzer)
+
+	def run(self,vm):
+		var = check_if_symbol_declared_scopes(var.id,[vm.global_symbols]+vm.symbol_scope_list[-1][-1])
+		var["value"] = self.expresion.run(vm)
+		end = self.end.run(vm)
+		while var["value"] != end:
+			for estatuto in self.body:
+				if isinstance(estatuto, ReturnNode):
+					return estatuto.run(vm)
+				estatuto.run(vm)
 
 def generic_error(type,p):
 	print("Error in {2}  on line {0} \n At index {1}".format(p.lineno(4), p.lexpos(4),type))
@@ -647,8 +916,8 @@ def p_funcion_def(p):
 def p_op_var(p):
 	''' op_var : var_def SEMICOLON op_var
 			   | empty'''
-	if (len(p)==3):
-		p[0] = [p[1]] + p[2]
+	if (len(p)==4):
+		p[0] = [p[1]] + p[3]
 	else:
 		p[0] = []
 		
@@ -784,22 +1053,37 @@ def p_estatutos(p):
 # Asignacion : VAR EXISTA, y no METODO, Y que el tipo expresion sea correcto
 # returns : cambiar que solo las funciones puedan tener el return
 # 
+
+#! Se elimino expresion de estatutos
 def p_estatuto(p):
-	''' estatuto : asignacion
+	''' estatuto : asignacion SEMICOLON
 				| expresion SEMICOLON
-				| returns
+				| returns SEMICOLON
 				| llamada_funcion SEMICOLON
 				| llamada_metodo SEMICOLON
 				| var_def SEMICOLON
-				| lectura
-				| escritura
-				| decision
-				| repeticion '''
+				| lectura SEMICOLON
+				| escritura SEMICOLON
+				| decision SEMICOLON
+				| repeticion SEMICOLON'''
 	p[0] = p[1]
 
+# def p_estatuto_returns(p):
+# 	''' estatuto : asignacion 
+# 				| expresion 
+# 				| returns 
+# 				| llamada_funcion 
+# 				| llamada_metodo 
+# 				| var_def 
+# 				| lectura 
+# 				| escritura 
+# 				| decision 
+# 				| repeticion '''
+# 	p[0] = ReturnNode(p[1])
+#  se tendria que cambiar el analisis de Return node para aceptar estatutos
 
 def p_asignacion(p):
-	''' asignacion : variable EQUAL expresion SEMICOLON '''
+	''' asignacion : variable EQUAL expresion '''
 	p[0] =  AssignNode(p[1], p[3])
 
 
@@ -915,8 +1199,8 @@ def p_bool(p):
 	p[0] = p[1]
 
 def p_returns(p):
-	''' returns : RETURN expresion SEMICOLON '''
-	p[0] = ("RETURNS", p[2])
+	''' returns : RETURN expresion '''
+	p[0] = ReturnNode(p[2])
 
 #! SE QUITO EL SEMICOLON
 
@@ -955,8 +1239,8 @@ def p_llamada_metodo(p):
 
 
 def p_lectura(p):
-	''' lectura : READ LPAREN variable op_lectura RPAREN SEMICOLON '''
-	p[0] = ("READ", [p[3]]+p[4])
+	''' lectura : READ LPAREN variable op_lectura RPAREN '''
+	p[0] = ReadNode([p[3]]+p[4])
 
 
 def p_op_lectura(p):
@@ -1006,7 +1290,7 @@ matrix : LBRACKET expresion RBRACKET
 
 
 def p_escritura(p):
-	''' escritura : WRITE LPAREN expresion op_escritura RPAREN SEMICOLON '''
+	''' escritura : WRITE LPAREN expresion op_escritura RPAREN '''
 	p[0] = WriteNode([p[3]] + p[4])
 
 
@@ -1020,8 +1304,8 @@ def p_op_escritura(p):
 
 
 def p_decision(p):
-	''' decision : IF LPAREN expresion RPAREN THEN LBRACE estatutos RBRACE op_decision '''
-	p[0] = ("IF_STMT", {"condition": p[3], "estatutos": p[7], "else": p[9]})
+	''' decision : IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision '''
+	p[0] = IfNode(p[3],p[6], p[8])
 
 
 def p_op_decision(p):
@@ -1035,18 +1319,18 @@ def p_op_decision(p):
 
 def p_repeticion(p):
 	''' repeticion : condicional 
-							   | no_condicional '''
+					| no_condicional '''
 	p[0] = p[1]
 
 
 def p_condicional(p):
 	''' condicional : WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE '''
-	p[0] = ("WHILE", {"condition": p[3], "estatutos": p[7]})
+	p[0] = WhileNode(p[3], p[7])
 
 
 def p_no_condicional(p):
 	''' no_condicional : FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE '''
-	p[0] = ("FOR", {"VAR": p[2], "ASSIGN": p[4], "END": p[6], "BODY": p[9]})
+	p[0] = ForLoopNode(  p[2], p[4],  p[6], p[9])
 
 
 """
@@ -1064,9 +1348,9 @@ def p_empty(p):
 	p[0] = None
 
 
+
 def p_error(p):
 	raise SyntaxError("Syntax error in input!")
-
 
 precedence = (
 	('left', 'PLUS', 'MINUS'),
