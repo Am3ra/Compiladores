@@ -86,7 +86,7 @@ Rule 75    lectura -> READ LPAREN variable op_lectura RPAREN
 Rule 76    op_lectura -> COMMA variable op_lectura
 Rule 77    op_lectura -> empty
 Rule 78    variable -> ID variable_op
-Rule 79    variable_op -> DOT ID
+Rule 79    variable_op -> DOT variable
 Rule 80    variable_op -> LBRACKET expresion RBRACKET
 Rule 81    variable_op -> LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET
 Rule 82    variable_op -> empty
@@ -121,7 +121,7 @@ FLOAT                : 30
 FROM                 : 92
 FUNC                 : 12
 GTHAN                : 54
-ID                   : 6 7 12 24 25 33 70 74 74 78 79
+ID                   : 6 7 12 24 25 33 70 74 74 78
 IF                   : 86
 INHERIT              : 7
 INT                  : 29
@@ -191,7 +191,7 @@ type_compuesto       : 24
 type_simple          : 15 25
 var_cte              : 51
 var_def              : 3 13 17 19 42
-variable             : 47 62 75 76 92
+variable             : 47 62 75 76 79 92
 variable_op          : 78
 
 Parsing method: LALR
@@ -1235,7 +1235,7 @@ state 71
     (74) llamada_metodo -> ID . DOT ID LPAREN param_llamada RPAREN
     (78) variable -> ID . variable_op
     (33) type_compuesto -> ID .
-    (79) variable_op -> . DOT ID
+    (79) variable_op -> . DOT variable
     (80) variable_op -> . LBRACKET expresion RBRACKET
     (81) variable_op -> . LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET
     (82) variable_op -> . empty
@@ -2109,7 +2109,7 @@ state 119
 state 120
 
     (78) variable -> ID . variable_op
-    (79) variable_op -> . DOT ID
+    (79) variable_op -> . DOT variable
     (80) variable_op -> . LBRACKET expresion RBRACKET
     (81) variable_op -> . LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET
     (82) variable_op -> . empty
@@ -2230,10 +2230,12 @@ state 123
 state 124
 
     (74) llamada_metodo -> ID DOT . ID LPAREN param_llamada RPAREN
-    (79) variable_op -> DOT . ID
+    (79) variable_op -> DOT . variable
+    (78) variable -> . ID variable_op
 
     ID              shift and go to state 147
 
+    variable                       shift and go to state 148
 
 state 125
 
@@ -2285,7 +2287,7 @@ state 126
     TRUE            shift and go to state 85
     FALSE           shift and go to state 86
 
-    expresion                      shift and go to state 148
+    expresion                      shift and go to state 149
     plus_minus                     shift and go to state 67
     var_cte                        shift and go to state 69
     variable                       shift and go to state 119
@@ -2319,7 +2321,7 @@ state 128
 
     ID              shift and go to state 120
 
-    variable                       shift and go to state 149
+    variable                       shift and go to state 150
 
 state 129
 
@@ -2349,7 +2351,7 @@ state 129
     TRUE            shift and go to state 85
     FALSE           shift and go to state 86
 
-    expresion                      shift and go to state 150
+    expresion                      shift and go to state 151
     plus_minus                     shift and go to state 67
     var_cte                        shift and go to state 69
     variable                       shift and go to state 119
@@ -2383,7 +2385,7 @@ state 130
     TRUE            shift and go to state 85
     FALSE           shift and go to state 86
 
-    expresion                      shift and go to state 151
+    expresion                      shift and go to state 152
     plus_minus                     shift and go to state 67
     var_cte                        shift and go to state 69
     variable                       shift and go to state 119
@@ -2417,7 +2419,7 @@ state 131
     TRUE            shift and go to state 85
     FALSE           shift and go to state 86
 
-    expresion                      shift and go to state 152
+    expresion                      shift and go to state 153
     plus_minus                     shift and go to state 67
     var_cte                        shift and go to state 69
     variable                       shift and go to state 119
@@ -2427,14 +2429,14 @@ state 132
 
     (92) no_condicional -> FROM variable . EQUAL expresion TO expresion DO LBRACE estatutos RBRACE
 
-    EQUAL           shift and go to state 153
+    EQUAL           shift and go to state 154
 
 
 state 133
 
     (27) op_vardef -> LBRACKET CTEI RBRACKET LBRACKET CTEI . RBRACKET
 
-    RBRACKET        shift and go to state 154
+    RBRACKET        shift and go to state 155
 
 
 state 134
@@ -2569,10 +2571,12 @@ state 141
 
 state 142
 
-    (79) variable_op -> DOT . ID
+    (79) variable_op -> DOT . variable
+    (78) variable -> . ID variable_op
 
-    ID              shift and go to state 155
+    ID              shift and go to state 120
 
+    variable                       shift and go to state 148
 
 state 143
 
@@ -2638,22 +2642,52 @@ state 146
 state 147
 
     (74) llamada_metodo -> ID DOT ID . LPAREN param_llamada RPAREN
-    (79) variable_op -> DOT ID .
+    (78) variable -> ID . variable_op
+    (79) variable_op -> . DOT variable
+    (80) variable_op -> . LBRACKET expresion RBRACKET
+    (81) variable_op -> . LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET
+    (82) variable_op -> . empty
+    (93) empty -> .
 
     LPAREN          shift and go to state 158
-    EQUAL           reduce using rule 79 (variable_op -> DOT ID .)
-    SEMICOLON       reduce using rule 79 (variable_op -> DOT ID .)
-    SAME            reduce using rule 79 (variable_op -> DOT ID .)
-    NOTEQ           reduce using rule 79 (variable_op -> DOT ID .)
-    GTHAN           reduce using rule 79 (variable_op -> DOT ID .)
-    LTHAN           reduce using rule 79 (variable_op -> DOT ID .)
-    PLUS            reduce using rule 79 (variable_op -> DOT ID .)
-    MINUS           reduce using rule 79 (variable_op -> DOT ID .)
-    TIMES           reduce using rule 79 (variable_op -> DOT ID .)
-    DIVIDE          reduce using rule 79 (variable_op -> DOT ID .)
+    DOT             shift and go to state 142
+    LBRACKET        shift and go to state 126
+    EQUAL           reduce using rule 93 (empty -> .)
+    SEMICOLON       reduce using rule 93 (empty -> .)
+    SAME            reduce using rule 93 (empty -> .)
+    NOTEQ           reduce using rule 93 (empty -> .)
+    GTHAN           reduce using rule 93 (empty -> .)
+    LTHAN           reduce using rule 93 (empty -> .)
+    PLUS            reduce using rule 93 (empty -> .)
+    MINUS           reduce using rule 93 (empty -> .)
+    TIMES           reduce using rule 93 (empty -> .)
+    DIVIDE          reduce using rule 93 (empty -> .)
 
+    variable_op                    shift and go to state 125
+    empty                          shift and go to state 127
 
 state 148
+
+    (79) variable_op -> DOT variable .
+
+    EQUAL           reduce using rule 79 (variable_op -> DOT variable .)
+    SEMICOLON       reduce using rule 79 (variable_op -> DOT variable .)
+    SAME            reduce using rule 79 (variable_op -> DOT variable .)
+    NOTEQ           reduce using rule 79 (variable_op -> DOT variable .)
+    GTHAN           reduce using rule 79 (variable_op -> DOT variable .)
+    LTHAN           reduce using rule 79 (variable_op -> DOT variable .)
+    PLUS            reduce using rule 79 (variable_op -> DOT variable .)
+    MINUS           reduce using rule 79 (variable_op -> DOT variable .)
+    TIMES           reduce using rule 79 (variable_op -> DOT variable .)
+    DIVIDE          reduce using rule 79 (variable_op -> DOT variable .)
+    RPAREN          reduce using rule 79 (variable_op -> DOT variable .)
+    COMMA           reduce using rule 79 (variable_op -> DOT variable .)
+    RBRACKET        reduce using rule 79 (variable_op -> DOT variable .)
+    TO              reduce using rule 79 (variable_op -> DOT variable .)
+    DO              reduce using rule 79 (variable_op -> DOT variable .)
+
+
+state 149
 
     (80) variable_op -> LBRACKET expresion . RBRACKET
     (81) variable_op -> LBRACKET expresion . RBRACKET LBRACKET expresion RBRACKET
@@ -2679,7 +2713,7 @@ state 148
 
     binop                          shift and go to state 100
 
-state 149
+state 150
 
     (75) lectura -> READ LPAREN variable . op_lectura RPAREN
     (76) op_lectura -> . COMMA variable op_lectura
@@ -2692,7 +2726,7 @@ state 149
     op_lectura                     shift and go to state 160
     empty                          shift and go to state 162
 
-state 150
+state 151
 
     (83) escritura -> WRITE LPAREN expresion . op_escritura RPAREN
     (48) expresion -> expresion . binop expresion
@@ -2723,7 +2757,7 @@ state 150
     binop                          shift and go to state 100
     empty                          shift and go to state 165
 
-state 151
+state 152
 
     (86) decision -> IF LPAREN expresion . RPAREN LBRACE estatutos RBRACE op_decision
     (48) expresion -> expresion . binop expresion
@@ -2748,7 +2782,7 @@ state 151
 
     binop                          shift and go to state 100
 
-state 152
+state 153
 
     (91) condicional -> WHILE LPAREN expresion . RPAREN DO LBRACE estatutos RBRACE
     (48) expresion -> expresion . binop expresion
@@ -2773,7 +2807,7 @@ state 152
 
     binop                          shift and go to state 100
 
-state 153
+state 154
 
     (92) no_condicional -> FROM variable EQUAL . expresion TO expresion DO LBRACE estatutos RBRACE
     (48) expresion -> . expresion binop expresion
@@ -2807,34 +2841,13 @@ state 153
     var_cte                        shift and go to state 69
     boolean                        shift and go to state 79
 
-state 154
+state 155
 
     (27) op_vardef -> LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET .
 
     SEMICOLON       reduce using rule 27 (op_vardef -> LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET .)
     COMMA           reduce using rule 27 (op_vardef -> LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET .)
     RPAREN          reduce using rule 27 (op_vardef -> LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET .)
-
-
-state 155
-
-    (79) variable_op -> DOT ID .
-
-    SAME            reduce using rule 79 (variable_op -> DOT ID .)
-    NOTEQ           reduce using rule 79 (variable_op -> DOT ID .)
-    GTHAN           reduce using rule 79 (variable_op -> DOT ID .)
-    LTHAN           reduce using rule 79 (variable_op -> DOT ID .)
-    PLUS            reduce using rule 79 (variable_op -> DOT ID .)
-    MINUS           reduce using rule 79 (variable_op -> DOT ID .)
-    TIMES           reduce using rule 79 (variable_op -> DOT ID .)
-    DIVIDE          reduce using rule 79 (variable_op -> DOT ID .)
-    SEMICOLON       reduce using rule 79 (variable_op -> DOT ID .)
-    RPAREN          reduce using rule 79 (variable_op -> DOT ID .)
-    COMMA           reduce using rule 79 (variable_op -> DOT ID .)
-    RBRACKET        reduce using rule 79 (variable_op -> DOT ID .)
-    TO              reduce using rule 79 (variable_op -> DOT ID .)
-    DO              reduce using rule 79 (variable_op -> DOT ID .)
-    EQUAL           reduce using rule 79 (variable_op -> DOT ID .)
 
 
 state 156

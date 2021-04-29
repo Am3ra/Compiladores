@@ -1,0 +1,18 @@
+hacer que dec de variable como estatuto jale
+
+hacer que bloqueNode sea nodo real
+
+que sea estatuto????? :D
+
+PREGUNTA: SE PUEDE "SOBREDECLARAR" UNA VARIABLE?
+
+main{
+	int a;
+	a = 3;
+	{
+		int a; # Error de sintaxis?, cambiar para que solo revise en el scope en el que se encuentra
+		a = 2
+	}
+
+	return a;
+}

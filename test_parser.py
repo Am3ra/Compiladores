@@ -21,7 +21,18 @@ def test_analisis_semantico_declaracion_clase_con_variable_global():
 
 	Main ()
 	{
+	
+	}
+	'''  # FUNCIO}
 
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
+
+def test_analisis_semantico_declaracion_variable_en_main():
+	programa_ejemplo = '''
+
+	Main ()
+	{
+		int cool;
 	}
 	'''  # FUNCIO}
 
@@ -100,7 +111,7 @@ def test_analisis_semantico_declaracion_funcion():
 
 	Main ()
 	{
-
+		int cool;
 	}
 	'''  # FUNCIONO!
 

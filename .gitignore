@@ -6,3 +6,4 @@ __pycache__/*
 __pycache__/*.pyc
 .gitignore
 __pycache__/parser.cpython-38.pyc
+parsetab.py

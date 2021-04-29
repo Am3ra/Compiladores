@@ -563,19 +563,27 @@ class VarCallNode(Node):
 	def __repr__(self):
 		return "{0}".format(("VAR_CALL", self.id, self.call_type))
 		
-	def analyze(self, analyzer, assignment=False):
+	def analyze(self, analyzer, assignment=False, var = None):
+		if var is None:
+			scope = analyzer.symbol_table_list
+		else:
+			scope = [var["scope"]] # revisar el padre 
 		# Checar que existe
-		var = check_if_symbol_declared_scopes(self.id,analyzer.symbol_table_list)
+		var = check_if_symbol_declared_scopes(self.id,scope)
 		## CHECK CALL TYPE IS THE SAME AS VAR DIMS
 		if var:
 			if not assignment:
 				if var["defined"]:
-					return self.call_type.analyze(var,analyzer)
+					if self.call_type is None:
+						return var["type"]
+					return self.call_type.analyze(analyzer,var = var)
 				else:
 					raise SemanticError("CAN'T CALL UNDEFINDED VAR {0}".format(self.id))
 			else:
-				# var["defined"] == True
-				return self.call_type.analyze(var,analyzer)
+				var["defined"] == True
+				if self.call_type is None:
+					return var["type"]
+				return self.call_type.analyze(analyzer, var = var)
 		else:
 			raise SemanticError("CAN'T CALL UNDECLARED VAR {0}".format(self.id))
 
@@ -593,7 +601,7 @@ class SimpleCallNode(Node):
 	def __init__(self,dims):
 		self.dims = dims
 
-	def analyze(self,var,analyzer : SemanticAnalyzer):
+	def analyze(self,analyzer : SemanticAnalyzer,var):
 		if var["symbol_type"] != "simple":
 			raise SemanticError("Expected simple var.\n Recieved: {0}".format(var["symbol_type"]))
 
@@ -622,12 +630,37 @@ class MethodCallNode():
 	pass
 
 class AttributeCallNode():	
-	def __init__(self, val):
-		pass
+	'''Attribute call node analyzes and executes attribute calls.\n
+	Take a var and an attribute name'''
+	def __init__(self, attributeName):
+		self.attributeName = attributeName
+	
+	def __repr__(self):
+		return "{0}".format(("ATTRIBUTE CALL", self.var, self.attributeName))
+
+	def analyze(self,var,analyzer:SemanticAnalyzer):
+		# Does attribute exist?
+		if var["symbol_type"] != "object":
+			raise SemanticError("Expected object var.\n Recieved: {0}".format(var["symbol_type"]))
+
+		if len(var["scope"][self.attributeName]["dims"]) != len(self.dims):
+			return SemanticError("Wrong number of Dimensions! \n Expected: {0}".format(var["dims"]))
+		for dim in self.dims:
+			dimtype = dim.analyze()
+
+			if dimtype is not BaseType.INT:
+				return SemanticError("Index has to be int, found  {0}".format(dimtype))
+
+		return var["type"]
 
 
-#DONE
+
+#hDONE
 class ReturnNode(Node):
+	'''
+	Return node analyzes an expresion recieved and executes it\n 
+	takes an expresion
+	'''
 	def __init__(self, expr):
 		self.expr = expr
 
@@ -1065,7 +1098,8 @@ def p_estatuto(p):
 				| lectura SEMICOLON
 				| escritura SEMICOLON
 				| decision SEMICOLON
-				| repeticion SEMICOLON'''
+				| repeticion SEMICOLON
+				 '''
 	p[0] = p[1]
 
 # def p_estatuto_returns(p):
@@ -1260,7 +1294,7 @@ def p_variable(p):
 
 
 def p_variable_op(p):
-	''' variable_op : DOT ID 
+	''' variable_op : DOT variable
 					| LBRACKET expresion RBRACKET 
 					| LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET
 					| empty
@@ -1268,7 +1302,7 @@ def p_variable_op(p):
 	if(len(p) == 2):
 		p[0] =	SimpleCallNode([])
 	elif (len(p) == 3):
-		p[0] = AttributeCallNode(p[2])
+		p[0] = p[2]
 	elif (len(p) == 4):
 		p[0] = SimpleCallNode([p[2]])
 	else:
