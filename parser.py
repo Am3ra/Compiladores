@@ -99,20 +99,14 @@ class MainNode(Node):
 		for dec  in self.declaraciones:
 			dec.analyze(analyzer)
 
-		for estatuto in self.main:
-			estatuto.analyze(analyzer)
+		return self.main.analyze(analyzer)
 	
 	def run(self, vm):
 		for dec  in self.declaraciones:
 			dec.run(vm)
 
-		vm.symbol_scope_list+= [{}]		
-		for estatuto in self.main:
-			if isinstance(estatuto, ReturnNode):
-					return estatuto.run(vm)
-			estatuto.run(vm)
-
-	
+		
+		return self.main.run(vm)
 
 	def __str__(self):
 		return "{0}".format(("Programa", self.declaraciones, self.main))
@@ -176,23 +170,22 @@ class FuncDecNode(Node):
 		## DECLARAR PARAMETROS
 		for param in self.dec["params"]:
 			declarar_symbol_scopes(param,analyzer.symbol_table_list)
-		for estatuto in self.dec["body"]:
-			estatuto.analyze(analyzer)
-		## Analyzar CUERPO
+		
+		var = self.dec["body"].analyze(analyzer)
+		# for estatuto in self.dec["body"]:
+		# 	estatuto.analyze(analyzer)
+		# ## Analyzar CUERPO
 		# if has return type
-		if self.dec["return_op"]:
-			for estatuto in self.dec["body"]:
-				if  isinstance(estatuto, ReturnNode): # PseudoCode
-					if estatuto.analyze(analyzer) != self.dec["return_op"]:
-						raise SemanticError("Return of Wrong Type!")
-					else:
-						break
-			else:
-				raise SemanticError("Function is Missing Return!")
+
+			
+		if var != self.dec["return_op"]:
+			raise SemanticError("Return of Wrong Type! \nExpected:{0}\nRecieved:{1}".format(self.dec["return_op"],var))
+				
+
 		
 		# print(analyzer.symbol_table_list)
 
-		analyzer.symbol_table_list.pop()
+
 
 	def run(self,vm):
 		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
@@ -253,25 +246,38 @@ class ClassDecNode(Node):
 		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
 
 
-# class BloqueNode(Node):
-# 	def __init__(self, vars, estatutos):
-# 		self.vars = vars
-# 		self.estatutos = estatutos
+class BloqueNode(Node):
+	def __init__(self,  estatutos):
+		self.estatutos = estatutos
 
-# 	def __str__(self):
-# 		return "{0}".format(("BLOQUE CODE", self.dec))
+	def __str__(self):
+		return "{0}".format(("BLOQUE CODE", self.estatutos))
 
-# 	def __repr__(self):
-# 		return "{0}".format(("BLOQUE CODE", self.dec))
+	def __repr__(self):
+		return "{0}".format(("BLOQUE CODE", self.estatutos))
 
-# 	def analyze(self, analyzer: SemanticAnalyzer):
-# 		analyzer.symbol_table_vars_list+{} # Push new lexical scope
+	def analyze(self, analyzer: SemanticAnalyzer):
+		analyzer.symbol_table_list+={} # Push new lexical scope
 
 
-# 		for estatuto in self.estatutos:
-# 			estatuto.analyze()
+		for estatuto in self.estatutos:
+			if isinstance(estatuto, ReturnNode):
+				return estatuto.analyze(analyzer)
+			estatuto.analyze(analyzer)
 
-# 		analyzer.symbol_table_vars_list.pop() # pop lexical scope
+
+		analyzer.symbol_table_list.pop() # pop lexical scope
+
+	def run(self,vm):
+		vm.symbol_scope_list[-1].append({}) 
+
+		for estatuto in self.estatutos:
+			if isinstance(estatuto, ReturnNode):
+				return estatuto.run(vm)
+			estatuto.run(vm)
+
+
+		vm.symbol_scope_list[-1].pop()
 
 class AssignNode(Node):
 	'''
@@ -960,7 +966,7 @@ def p_params_op(p):
 
 def p_bloque_func(p):
 	''' bloque_func : LBRACE estatutos RBRACE'''
-	p[0] =  p[2]
+	p[0] = BloqueNode( p[2])
 
 
 def p_main(p):
@@ -1064,8 +1070,9 @@ def p_estatuto(p):
 				| var_def SEMICOLON
 				| lectura SEMICOLON
 				| escritura SEMICOLON
-				| decision SEMICOLON
-				| repeticion SEMICOLON'''
+				| decision
+				| repeticion
+				| bloque_func SEMICOLON'''
 	p[0] = p[1]
 
 # def p_estatuto_returns(p):

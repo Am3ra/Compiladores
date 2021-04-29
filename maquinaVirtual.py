@@ -6,7 +6,7 @@ class VirtualMachine():
 		if fileInput is not None:
 			self.ast = self.loadFile(fileInput)
 		self.global_symbols = {}
-		self.symbol_scope_list = []
+		self.symbol_scope_list = [[]]
 
 	def run(self):
 		return self.ast.run(self)

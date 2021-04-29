@@ -384,7 +384,7 @@ def test_analisis_semantico_if():
 	{
 		if (true){
 			2+3;
-		};
+		}
 	}
 	'''
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
@@ -398,7 +398,7 @@ def test_analisis_semantico_if_error_condicion():
 	{
 		if (alan){
 			2+3;
-		};
+		}
 	}
 	'''
 	with pytest.raises(SemanticError):
@@ -418,7 +418,7 @@ def test_analisis_semantico_if_else():
 		else
 		{
 			alan = 3 + 3;
-		};
+		}
 	}
 	'''
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
