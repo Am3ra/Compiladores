@@ -257,7 +257,7 @@ class BloqueNode(Node):
 		return "{0}".format(("BLOQUE CODE", self.estatutos))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		analyzer.symbol_table_list+={} # Push new lexical scope
+		analyzer.symbol_table_list.append({})# Push new lexical scope
 
 
 		for estatuto in self.estatutos:
