@@ -52,8 +52,8 @@ Rule 41    estatuto -> llamada_metodo SEMICOLON
 Rule 42    estatuto -> var_def SEMICOLON
 Rule 43    estatuto -> lectura SEMICOLON
 Rule 44    estatuto -> escritura SEMICOLON
-Rule 45    estatuto -> decision
-Rule 46    estatuto -> repeticion
+Rule 45    estatuto -> decision SEMICOLON
+Rule 46    estatuto -> repeticion SEMICOLON
 Rule 47    estatuto -> bloque_func SEMICOLON
 Rule 48    asignacion -> variable EQUAL expresion
 Rule 49    expresion -> expresion binop expresion
@@ -141,7 +141,7 @@ RET                  : 15
 RETURN               : 70
 RPAREN               : 12 22 23 51 71 75 76 84 87 92
 SAME                 : 53
-SEMICOLON            : 3 13 37 38 39 40 41 42 43 44 47
+SEMICOLON            : 3 13 37 38 39 40 41 42 43 44 45 46 47
 STRING               : 31
 TIMES                : 59
 TO                   : 93
@@ -724,8 +724,8 @@ state 44
     (42) estatuto -> . var_def SEMICOLON
     (43) estatuto -> . lectura SEMICOLON
     (44) estatuto -> . escritura SEMICOLON
-    (45) estatuto -> . decision
-    (46) estatuto -> . repeticion
+    (45) estatuto -> . decision SEMICOLON
+    (46) estatuto -> . repeticion SEMICOLON
     (47) estatuto -> . bloque_func SEMICOLON
     (94) empty -> .
     (48) asignacion -> . variable EQUAL expresion
@@ -918,8 +918,8 @@ state 54
     (42) estatuto -> . var_def SEMICOLON
     (43) estatuto -> . lectura SEMICOLON
     (44) estatuto -> . escritura SEMICOLON
-    (45) estatuto -> . decision
-    (46) estatuto -> . repeticion
+    (45) estatuto -> . decision SEMICOLON
+    (46) estatuto -> . repeticion SEMICOLON
     (47) estatuto -> . bloque_func SEMICOLON
     (94) empty -> .
     (48) asignacion -> . variable EQUAL expresion
@@ -1087,63 +1087,23 @@ state 63
 
 state 64
 
-    (45) estatuto -> decision .
+    (45) estatuto -> decision . SEMICOLON
 
-    LPAREN          reduce using rule 45 (estatuto -> decision .)
-    RETURN          reduce using rule 45 (estatuto -> decision .)
-    ID              reduce using rule 45 (estatuto -> decision .)
-    READ            reduce using rule 45 (estatuto -> decision .)
-    WRITE           reduce using rule 45 (estatuto -> decision .)
-    IF              reduce using rule 45 (estatuto -> decision .)
-    LBRACE          reduce using rule 45 (estatuto -> decision .)
-    PLUS            reduce using rule 45 (estatuto -> decision .)
-    MINUS           reduce using rule 45 (estatuto -> decision .)
-    CTEF            reduce using rule 45 (estatuto -> decision .)
-    CTEI            reduce using rule 45 (estatuto -> decision .)
-    CTESTRING       reduce using rule 45 (estatuto -> decision .)
-    INT             reduce using rule 45 (estatuto -> decision .)
-    FLOAT           reduce using rule 45 (estatuto -> decision .)
-    STRING          reduce using rule 45 (estatuto -> decision .)
-    BOOL            reduce using rule 45 (estatuto -> decision .)
-    WHILE           reduce using rule 45 (estatuto -> decision .)
-    FROM            reduce using rule 45 (estatuto -> decision .)
-    TRUE            reduce using rule 45 (estatuto -> decision .)
-    FALSE           reduce using rule 45 (estatuto -> decision .)
-    RBRACE          reduce using rule 45 (estatuto -> decision .)
+    SEMICOLON       shift and go to state 116
 
 
 state 65
 
-    (46) estatuto -> repeticion .
+    (46) estatuto -> repeticion . SEMICOLON
 
-    LPAREN          reduce using rule 46 (estatuto -> repeticion .)
-    RETURN          reduce using rule 46 (estatuto -> repeticion .)
-    ID              reduce using rule 46 (estatuto -> repeticion .)
-    READ            reduce using rule 46 (estatuto -> repeticion .)
-    WRITE           reduce using rule 46 (estatuto -> repeticion .)
-    IF              reduce using rule 46 (estatuto -> repeticion .)
-    LBRACE          reduce using rule 46 (estatuto -> repeticion .)
-    PLUS            reduce using rule 46 (estatuto -> repeticion .)
-    MINUS           reduce using rule 46 (estatuto -> repeticion .)
-    CTEF            reduce using rule 46 (estatuto -> repeticion .)
-    CTEI            reduce using rule 46 (estatuto -> repeticion .)
-    CTESTRING       reduce using rule 46 (estatuto -> repeticion .)
-    INT             reduce using rule 46 (estatuto -> repeticion .)
-    FLOAT           reduce using rule 46 (estatuto -> repeticion .)
-    STRING          reduce using rule 46 (estatuto -> repeticion .)
-    BOOL            reduce using rule 46 (estatuto -> repeticion .)
-    WHILE           reduce using rule 46 (estatuto -> repeticion .)
-    FROM            reduce using rule 46 (estatuto -> repeticion .)
-    TRUE            reduce using rule 46 (estatuto -> repeticion .)
-    FALSE           reduce using rule 46 (estatuto -> repeticion .)
-    RBRACE          reduce using rule 46 (estatuto -> repeticion .)
+    SEMICOLON       shift and go to state 117
 
 
 state 66
 
     (47) estatuto -> bloque_func . SEMICOLON
 
-    SEMICOLON       shift and go to state 116
+    SEMICOLON       shift and go to state 118
 
 
 state 67
@@ -1151,7 +1111,7 @@ state 67
     (48) asignacion -> variable . EQUAL expresion
     (63) var_cte -> variable .
 
-    EQUAL           shift and go to state 117
+    EQUAL           shift and go to state 119
     SEMICOLON       reduce using rule 63 (var_cte -> variable .)
     SAME            reduce using rule 63 (var_cte -> variable .)
     NOTEQ           reduce using rule 63 (var_cte -> variable .)
@@ -1187,14 +1147,14 @@ state 68
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
     plus_minus                     shift and go to state 68
-    expresion                      shift and go to state 118
+    expresion                      shift and go to state 120
     var_cte                        shift and go to state 70
-    variable                       shift and go to state 119
+    variable                       shift and go to state 121
     boolean                        shift and go to state 80
 
 state 69
@@ -1221,14 +1181,14 @@ state 69
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    expresion                      shift and go to state 121
+    expresion                      shift and go to state 123
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
-    variable                       shift and go to state 119
+    variable                       shift and go to state 121
     boolean                        shift and go to state 80
 
 state 70
@@ -1275,14 +1235,14 @@ state 71
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    expresion                      shift and go to state 122
+    expresion                      shift and go to state 124
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
-    variable                       shift and go to state 119
+    variable                       shift and go to state 121
     boolean                        shift and go to state 80
 
 state 72
@@ -1297,10 +1257,10 @@ state 72
     (83) variable_op -> . empty
     (94) empty -> .
 
-    LPAREN          shift and go to state 123
-    DOT             shift and go to state 124
+    LPAREN          shift and go to state 125
+    DOT             shift and go to state 126
     ID              reduce using rule 33 (type_compuesto -> ID .)
-    LBRACKET        shift and go to state 126
+    LBRACKET        shift and go to state 128
     EQUAL           reduce using rule 94 (empty -> .)
     SEMICOLON       reduce using rule 94 (empty -> .)
     SAME            reduce using rule 94 (empty -> .)
@@ -1312,82 +1272,42 @@ state 72
     TIMES           reduce using rule 94 (empty -> .)
     DIVIDE          reduce using rule 94 (empty -> .)
 
-    variable_op                    shift and go to state 125
-    empty                          shift and go to state 127
+    variable_op                    shift and go to state 127
+    empty                          shift and go to state 129
 
 state 73
 
     (76) lectura -> READ . LPAREN variable op_lectura RPAREN
 
-    LPAREN          shift and go to state 128
+    LPAREN          shift and go to state 130
 
 
 state 74
 
     (84) escritura -> WRITE . LPAREN expresion op_escritura RPAREN
 
-    LPAREN          shift and go to state 129
+    LPAREN          shift and go to state 131
 
 
 state 75
 
     (87) decision -> IF . LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
 
-    LPAREN          shift and go to state 130
+    LPAREN          shift and go to state 132
 
 
 state 76
 
     (90) repeticion -> condicional .
 
-    LPAREN          reduce using rule 90 (repeticion -> condicional .)
-    RETURN          reduce using rule 90 (repeticion -> condicional .)
-    ID              reduce using rule 90 (repeticion -> condicional .)
-    READ            reduce using rule 90 (repeticion -> condicional .)
-    WRITE           reduce using rule 90 (repeticion -> condicional .)
-    IF              reduce using rule 90 (repeticion -> condicional .)
-    LBRACE          reduce using rule 90 (repeticion -> condicional .)
-    PLUS            reduce using rule 90 (repeticion -> condicional .)
-    MINUS           reduce using rule 90 (repeticion -> condicional .)
-    CTEF            reduce using rule 90 (repeticion -> condicional .)
-    CTEI            reduce using rule 90 (repeticion -> condicional .)
-    CTESTRING       reduce using rule 90 (repeticion -> condicional .)
-    INT             reduce using rule 90 (repeticion -> condicional .)
-    FLOAT           reduce using rule 90 (repeticion -> condicional .)
-    STRING          reduce using rule 90 (repeticion -> condicional .)
-    BOOL            reduce using rule 90 (repeticion -> condicional .)
-    WHILE           reduce using rule 90 (repeticion -> condicional .)
-    FROM            reduce using rule 90 (repeticion -> condicional .)
-    TRUE            reduce using rule 90 (repeticion -> condicional .)
-    FALSE           reduce using rule 90 (repeticion -> condicional .)
-    RBRACE          reduce using rule 90 (repeticion -> condicional .)
+    SEMICOLON       reduce using rule 90 (repeticion -> condicional .)
 
 
 state 77
 
     (91) repeticion -> no_condicional .
 
-    LPAREN          reduce using rule 91 (repeticion -> no_condicional .)
-    RETURN          reduce using rule 91 (repeticion -> no_condicional .)
-    ID              reduce using rule 91 (repeticion -> no_condicional .)
-    READ            reduce using rule 91 (repeticion -> no_condicional .)
-    WRITE           reduce using rule 91 (repeticion -> no_condicional .)
-    IF              reduce using rule 91 (repeticion -> no_condicional .)
-    LBRACE          reduce using rule 91 (repeticion -> no_condicional .)
-    PLUS            reduce using rule 91 (repeticion -> no_condicional .)
-    MINUS           reduce using rule 91 (repeticion -> no_condicional .)
-    CTEF            reduce using rule 91 (repeticion -> no_condicional .)
-    CTEI            reduce using rule 91 (repeticion -> no_condicional .)
-    CTESTRING       reduce using rule 91 (repeticion -> no_condicional .)
-    INT             reduce using rule 91 (repeticion -> no_condicional .)
-    FLOAT           reduce using rule 91 (repeticion -> no_condicional .)
-    STRING          reduce using rule 91 (repeticion -> no_condicional .)
-    BOOL            reduce using rule 91 (repeticion -> no_condicional .)
-    WHILE           reduce using rule 91 (repeticion -> no_condicional .)
-    FROM            reduce using rule 91 (repeticion -> no_condicional .)
-    TRUE            reduce using rule 91 (repeticion -> no_condicional .)
-    FALSE           reduce using rule 91 (repeticion -> no_condicional .)
-    RBRACE          reduce using rule 91 (repeticion -> no_condicional .)
+    SEMICOLON       reduce using rule 91 (repeticion -> no_condicional .)
 
 
 state 78
@@ -1504,7 +1424,7 @@ state 84
 
     (92) condicional -> WHILE . LPAREN expresion RPAREN DO LBRACE estatutos RBRACE
 
-    LPAREN          shift and go to state 131
+    LPAREN          shift and go to state 133
 
 
 state 85
@@ -1512,9 +1432,9 @@ state 85
     (93) no_condicional -> FROM . variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE
     (79) variable -> . ID variable_op
 
-    ID              shift and go to state 120
+    ID              shift and go to state 122
 
-    variable                       shift and go to state 132
+    variable                       shift and go to state 134
 
 state 86
 
@@ -1560,7 +1480,7 @@ state 88
 
     (27) op_vardef -> LBRACKET CTEI RBRACKET LBRACKET . CTEI RBRACKET
 
-    CTEI            shift and go to state 133
+    CTEI            shift and go to state 135
 
 
 state 89
@@ -1570,7 +1490,7 @@ state 89
 
     LBRACE          shift and go to state 44
 
-    bloque_func                    shift and go to state 134
+    bloque_func                    shift and go to state 136
 
 state 90
 
@@ -1585,7 +1505,7 @@ state 90
     STRING          shift and go to state 14
     BOOL            shift and go to state 15
 
-    type_simple                    shift and go to state 135
+    type_simple                    shift and go to state 137
 
 state 91
 
@@ -1604,14 +1524,14 @@ state 92
     COMMA           shift and go to state 48
     RPAREN          reduce using rule 94 (empty -> .)
 
-    params_op                      shift and go to state 136
+    params_op                      shift and go to state 138
     empty                          shift and go to state 49
 
 state 93
 
     (9) bloque_clase -> LBRACE op_var op_func . RBRACE
 
-    RBRACE          shift and go to state 137
+    RBRACE          shift and go to state 139
 
 
 state 94
@@ -1626,7 +1546,7 @@ state 94
     RBRACE          reduce using rule 94 (empty -> .)
 
     funcion_def                    shift and go to state 94
-    op_func                        shift and go to state 138
+    op_func                        shift and go to state 140
     empty                          shift and go to state 95
 
 state 95
@@ -1659,7 +1579,7 @@ state 96
     BOOL            shift and go to state 15
 
     var_def                        shift and go to state 51
-    op_var                         shift and go to state 139
+    op_var                         shift and go to state 141
     empty                          shift and go to state 52
     type_compuesto                 shift and go to state 7
     type_simple                    shift and go to state 9
@@ -1766,14 +1686,14 @@ state 101
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    expresion                      shift and go to state 140
+    expresion                      shift and go to state 142
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
-    variable                       shift and go to state 119
+    variable                       shift and go to state 121
     boolean                        shift and go to state 80
 
 state 102
@@ -2060,6 +1980,60 @@ state 115
 
 state 116
 
+    (45) estatuto -> decision SEMICOLON .
+
+    LPAREN          reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    RETURN          reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    ID              reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    READ            reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    WRITE           reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    IF              reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    LBRACE          reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    PLUS            reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    MINUS           reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    CTEF            reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    CTEI            reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    CTESTRING       reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    INT             reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    FLOAT           reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    STRING          reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    BOOL            reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    WHILE           reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    FROM            reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    TRUE            reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    FALSE           reduce using rule 45 (estatuto -> decision SEMICOLON .)
+    RBRACE          reduce using rule 45 (estatuto -> decision SEMICOLON .)
+
+
+state 117
+
+    (46) estatuto -> repeticion SEMICOLON .
+
+    LPAREN          reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    RETURN          reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    ID              reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    READ            reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    WRITE           reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    IF              reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    LBRACE          reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    PLUS            reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    MINUS           reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    CTEF            reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    CTEI            reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    CTESTRING       reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    INT             reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    FLOAT           reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    STRING          reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    BOOL            reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    WHILE           reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    FROM            reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    TRUE            reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    FALSE           reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+    RBRACE          reduce using rule 46 (estatuto -> repeticion SEMICOLON .)
+
+
+state 118
+
     (47) estatuto -> bloque_func SEMICOLON .
 
     LPAREN          reduce using rule 47 (estatuto -> bloque_func SEMICOLON .)
@@ -2085,7 +2059,7 @@ state 116
     RBRACE          reduce using rule 47 (estatuto -> bloque_func SEMICOLON .)
 
 
-state 117
+state 119
 
     (48) asignacion -> variable EQUAL . expresion
     (49) expresion -> . expresion binop expresion
@@ -2109,17 +2083,17 @@ state 117
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    variable                       shift and go to state 119
-    expresion                      shift and go to state 141
+    variable                       shift and go to state 121
+    expresion                      shift and go to state 143
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
     boolean                        shift and go to state 80
 
-state 118
+state 120
 
     (50) expresion -> plus_minus expresion .
     (49) expresion -> expresion . binop expresion
@@ -2166,7 +2140,7 @@ state 118
 
     binop                          shift and go to state 101
 
-state 119
+state 121
 
     (63) var_cte -> variable .
 
@@ -2186,7 +2160,7 @@ state 119
     DO              reduce using rule 63 (var_cte -> variable .)
 
 
-state 120
+state 122
 
     (79) variable -> ID . variable_op
     (80) variable_op -> . DOT ID
@@ -2195,8 +2169,8 @@ state 120
     (83) variable_op -> . empty
     (94) empty -> .
 
-    DOT             shift and go to state 142
-    LBRACKET        shift and go to state 126
+    DOT             shift and go to state 144
+    LBRACKET        shift and go to state 128
     SAME            reduce using rule 94 (empty -> .)
     NOTEQ           reduce using rule 94 (empty -> .)
     GTHAN           reduce using rule 94 (empty -> .)
@@ -2213,10 +2187,10 @@ state 120
     DO              reduce using rule 94 (empty -> .)
     EQUAL           reduce using rule 94 (empty -> .)
 
-    variable_op                    shift and go to state 125
-    empty                          shift and go to state 127
+    variable_op                    shift and go to state 127
+    empty                          shift and go to state 129
 
-state 121
+state 123
 
     (51) expresion -> LPAREN expresion . RPAREN
     (49) expresion -> expresion . binop expresion
@@ -2229,7 +2203,7 @@ state 121
     (59) binop -> . TIMES
     (60) binop -> . DIVIDE
 
-    RPAREN          shift and go to state 143
+    RPAREN          shift and go to state 145
     SAME            shift and go to state 102
     NOTEQ           shift and go to state 103
     GTHAN           shift and go to state 104
@@ -2241,7 +2215,7 @@ state 121
 
     binop                          shift and go to state 101
 
-state 122
+state 124
 
     (70) returns -> RETURN expresion .
     (49) expresion -> expresion . binop expresion
@@ -2266,7 +2240,7 @@ state 122
 
     binop                          shift and go to state 101
 
-state 123
+state 125
 
     (71) llamada_funcion -> ID LPAREN . param_llamada RPAREN
     (72) param_llamada -> . expresion
@@ -2295,27 +2269,27 @@ state 123
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    param_llamada                  shift and go to state 144
-    expresion                      shift and go to state 145
-    empty                          shift and go to state 146
+    param_llamada                  shift and go to state 146
+    expresion                      shift and go to state 147
+    empty                          shift and go to state 148
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
-    variable                       shift and go to state 119
+    variable                       shift and go to state 121
     boolean                        shift and go to state 80
 
-state 124
+state 126
 
     (75) llamada_metodo -> ID DOT . ID LPAREN param_llamada RPAREN
     (80) variable_op -> DOT . ID
 
-    ID              shift and go to state 147
+    ID              shift and go to state 149
 
 
-state 125
+state 127
 
     (79) variable -> ID variable_op .
 
@@ -2336,7 +2310,7 @@ state 125
     DO              reduce using rule 79 (variable -> ID variable_op .)
 
 
-state 126
+state 128
 
     (81) variable_op -> LBRACKET . expresion RBRACKET
     (82) variable_op -> LBRACKET . expresion RBRACKET LBRACKET expresion RBRACKET
@@ -2361,17 +2335,17 @@ state 126
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    expresion                      shift and go to state 148
+    expresion                      shift and go to state 150
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
-    variable                       shift and go to state 119
+    variable                       shift and go to state 121
     boolean                        shift and go to state 80
 
-state 127
+state 129
 
     (83) variable_op -> empty .
 
@@ -2392,16 +2366,16 @@ state 127
     DO              reduce using rule 83 (variable_op -> empty .)
 
 
-state 128
+state 130
 
     (76) lectura -> READ LPAREN . variable op_lectura RPAREN
     (79) variable -> . ID variable_op
 
-    ID              shift and go to state 120
+    ID              shift and go to state 122
 
-    variable                       shift and go to state 149
+    variable                       shift and go to state 151
 
-state 129
+state 131
 
     (84) escritura -> WRITE LPAREN . expresion op_escritura RPAREN
     (49) expresion -> . expresion binop expresion
@@ -2425,17 +2399,17 @@ state 129
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    expresion                      shift and go to state 150
+    expresion                      shift and go to state 152
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
-    variable                       shift and go to state 119
+    variable                       shift and go to state 121
     boolean                        shift and go to state 80
 
-state 130
+state 132
 
     (87) decision -> IF LPAREN . expresion RPAREN LBRACE estatutos RBRACE op_decision
     (49) expresion -> . expresion binop expresion
@@ -2459,17 +2433,17 @@ state 130
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    expresion                      shift and go to state 151
+    expresion                      shift and go to state 153
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
-    variable                       shift and go to state 119
+    variable                       shift and go to state 121
     boolean                        shift and go to state 80
 
-state 131
+state 133
 
     (92) condicional -> WHILE LPAREN . expresion RPAREN DO LBRACE estatutos RBRACE
     (49) expresion -> . expresion binop expresion
@@ -2493,31 +2467,31 @@ state 131
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    expresion                      shift and go to state 152
+    expresion                      shift and go to state 154
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
-    variable                       shift and go to state 119
+    variable                       shift and go to state 121
     boolean                        shift and go to state 80
 
-state 132
+state 134
 
     (93) no_condicional -> FROM variable . EQUAL expresion TO expresion DO LBRACE estatutos RBRACE
 
-    EQUAL           shift and go to state 153
+    EQUAL           shift and go to state 155
 
 
-state 133
+state 135
 
     (27) op_vardef -> LBRACKET CTEI RBRACKET LBRACKET CTEI . RBRACKET
 
-    RBRACKET        shift and go to state 154
+    RBRACKET        shift and go to state 156
 
 
-state 134
+state 136
 
     (12) funcion_def -> FUNC ID LPAREN params RPAREN return_option bloque_func .
 
@@ -2532,21 +2506,21 @@ state 134
     RBRACE          reduce using rule 12 (funcion_def -> FUNC ID LPAREN params RPAREN return_option bloque_func .)
 
 
-state 135
+state 137
 
     (15) return_option -> RET type_simple .
 
     LBRACE          reduce using rule 15 (return_option -> RET type_simple .)
 
 
-state 136
+state 138
 
     (19) params_op -> COMMA var_def params_op .
 
     RPAREN          reduce using rule 19 (params_op -> COMMA var_def params_op .)
 
 
-state 137
+state 139
 
     (9) bloque_clase -> LBRACE op_var op_func RBRACE .
 
@@ -2560,14 +2534,14 @@ state 137
     MAIN            reduce using rule 9 (bloque_clase -> LBRACE op_var op_func RBRACE .)
 
 
-state 138
+state 140
 
     (10) op_func -> funcion_def op_func .
 
     RBRACE          reduce using rule 10 (op_func -> funcion_def op_func .)
 
 
-state 139
+state 141
 
     (13) op_var -> var_def SEMICOLON op_var .
 
@@ -2575,7 +2549,7 @@ state 139
     RBRACE          reduce using rule 13 (op_var -> var_def SEMICOLON op_var .)
 
 
-state 140
+state 142
 
     (49) expresion -> expresion binop expresion .
     (49) expresion -> expresion . binop expresion
@@ -2622,7 +2596,7 @@ state 140
 
     binop                          shift and go to state 101
 
-state 141
+state 143
 
     (48) asignacion -> variable EQUAL expresion .
     (49) expresion -> expresion . binop expresion
@@ -2647,14 +2621,14 @@ state 141
 
     binop                          shift and go to state 101
 
-state 142
+state 144
 
     (80) variable_op -> DOT . ID
 
-    ID              shift and go to state 155
+    ID              shift and go to state 157
 
 
-state 143
+state 145
 
     (51) expresion -> LPAREN expresion RPAREN .
 
@@ -2674,14 +2648,14 @@ state 143
     DO              reduce using rule 51 (expresion -> LPAREN expresion RPAREN .)
 
 
-state 144
+state 146
 
     (71) llamada_funcion -> ID LPAREN param_llamada . RPAREN
 
-    RPAREN          shift and go to state 156
+    RPAREN          shift and go to state 158
 
 
-state 145
+state 147
 
     (72) param_llamada -> expresion .
     (73) param_llamada -> expresion . COMMA param_llamada
@@ -2696,7 +2670,7 @@ state 145
     (60) binop -> . DIVIDE
 
     RPAREN          reduce using rule 72 (param_llamada -> expresion .)
-    COMMA           shift and go to state 157
+    COMMA           shift and go to state 159
     SAME            shift and go to state 102
     NOTEQ           shift and go to state 103
     GTHAN           shift and go to state 104
@@ -2708,19 +2682,19 @@ state 145
 
     binop                          shift and go to state 101
 
-state 146
+state 148
 
     (74) param_llamada -> empty .
 
     RPAREN          reduce using rule 74 (param_llamada -> empty .)
 
 
-state 147
+state 149
 
     (75) llamada_metodo -> ID DOT ID . LPAREN param_llamada RPAREN
     (80) variable_op -> DOT ID .
 
-    LPAREN          shift and go to state 158
+    LPAREN          shift and go to state 160
     EQUAL           reduce using rule 80 (variable_op -> DOT ID .)
     SEMICOLON       reduce using rule 80 (variable_op -> DOT ID .)
     SAME            reduce using rule 80 (variable_op -> DOT ID .)
@@ -2733,7 +2707,7 @@ state 147
     DIVIDE          reduce using rule 80 (variable_op -> DOT ID .)
 
 
-state 148
+state 150
 
     (81) variable_op -> LBRACKET expresion . RBRACKET
     (82) variable_op -> LBRACKET expresion . RBRACKET LBRACKET expresion RBRACKET
@@ -2747,7 +2721,7 @@ state 148
     (59) binop -> . TIMES
     (60) binop -> . DIVIDE
 
-    RBRACKET        shift and go to state 159
+    RBRACKET        shift and go to state 161
     SAME            shift and go to state 102
     NOTEQ           shift and go to state 103
     GTHAN           shift and go to state 104
@@ -2759,20 +2733,20 @@ state 148
 
     binop                          shift and go to state 101
 
-state 149
+state 151
 
     (76) lectura -> READ LPAREN variable . op_lectura RPAREN
     (77) op_lectura -> . COMMA variable op_lectura
     (78) op_lectura -> . empty
     (94) empty -> .
 
-    COMMA           shift and go to state 161
+    COMMA           shift and go to state 163
     RPAREN          reduce using rule 94 (empty -> .)
 
-    op_lectura                     shift and go to state 160
-    empty                          shift and go to state 162
+    op_lectura                     shift and go to state 162
+    empty                          shift and go to state 164
 
-state 150
+state 152
 
     (84) escritura -> WRITE LPAREN expresion . op_escritura RPAREN
     (49) expresion -> expresion . binop expresion
@@ -2788,7 +2762,7 @@ state 150
     (60) binop -> . DIVIDE
     (94) empty -> .
 
-    COMMA           shift and go to state 164
+    COMMA           shift and go to state 166
     SAME            shift and go to state 102
     NOTEQ           shift and go to state 103
     GTHAN           shift and go to state 104
@@ -2799,11 +2773,11 @@ state 150
     DIVIDE          shift and go to state 109
     RPAREN          reduce using rule 94 (empty -> .)
 
-    op_escritura                   shift and go to state 163
+    op_escritura                   shift and go to state 165
     binop                          shift and go to state 101
-    empty                          shift and go to state 165
+    empty                          shift and go to state 167
 
-state 151
+state 153
 
     (87) decision -> IF LPAREN expresion . RPAREN LBRACE estatutos RBRACE op_decision
     (49) expresion -> expresion . binop expresion
@@ -2816,7 +2790,7 @@ state 151
     (59) binop -> . TIMES
     (60) binop -> . DIVIDE
 
-    RPAREN          shift and go to state 166
+    RPAREN          shift and go to state 168
     SAME            shift and go to state 102
     NOTEQ           shift and go to state 103
     GTHAN           shift and go to state 104
@@ -2828,7 +2802,7 @@ state 151
 
     binop                          shift and go to state 101
 
-state 152
+state 154
 
     (92) condicional -> WHILE LPAREN expresion . RPAREN DO LBRACE estatutos RBRACE
     (49) expresion -> expresion . binop expresion
@@ -2841,7 +2815,7 @@ state 152
     (59) binop -> . TIMES
     (60) binop -> . DIVIDE
 
-    RPAREN          shift and go to state 167
+    RPAREN          shift and go to state 169
     SAME            shift and go to state 102
     NOTEQ           shift and go to state 103
     GTHAN           shift and go to state 104
@@ -2853,7 +2827,7 @@ state 152
 
     binop                          shift and go to state 101
 
-state 153
+state 155
 
     (93) no_condicional -> FROM variable EQUAL . expresion TO expresion DO LBRACE estatutos RBRACE
     (49) expresion -> . expresion binop expresion
@@ -2877,17 +2851,17 @@ state 153
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    variable                       shift and go to state 119
-    expresion                      shift and go to state 168
+    variable                       shift and go to state 121
+    expresion                      shift and go to state 170
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
     boolean                        shift and go to state 80
 
-state 154
+state 156
 
     (27) op_vardef -> LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET .
 
@@ -2896,7 +2870,7 @@ state 154
     RPAREN          reduce using rule 27 (op_vardef -> LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET .)
 
 
-state 155
+state 157
 
     (80) variable_op -> DOT ID .
 
@@ -2917,14 +2891,14 @@ state 155
     EQUAL           reduce using rule 80 (variable_op -> DOT ID .)
 
 
-state 156
+state 158
 
     (71) llamada_funcion -> ID LPAREN param_llamada RPAREN .
 
     SEMICOLON       reduce using rule 71 (llamada_funcion -> ID LPAREN param_llamada RPAREN .)
 
 
-state 157
+state 159
 
     (73) param_llamada -> expresion COMMA . param_llamada
     (72) param_llamada -> . expresion
@@ -2953,19 +2927,19 @@ state 157
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    expresion                      shift and go to state 145
-    param_llamada                  shift and go to state 169
-    empty                          shift and go to state 146
+    expresion                      shift and go to state 147
+    param_llamada                  shift and go to state 171
+    empty                          shift and go to state 148
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
-    variable                       shift and go to state 119
+    variable                       shift and go to state 121
     boolean                        shift and go to state 80
 
-state 158
+state 160
 
     (75) llamada_metodo -> ID DOT ID LPAREN . param_llamada RPAREN
     (72) param_llamada -> . expresion
@@ -2994,19 +2968,19 @@ state 158
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    param_llamada                  shift and go to state 170
-    expresion                      shift and go to state 145
-    empty                          shift and go to state 146
+    param_llamada                  shift and go to state 172
+    expresion                      shift and go to state 147
+    empty                          shift and go to state 148
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
-    variable                       shift and go to state 119
+    variable                       shift and go to state 121
     boolean                        shift and go to state 80
 
-state 159
+state 161
 
     (81) variable_op -> LBRACKET expresion RBRACKET .
     (82) variable_op -> LBRACKET expresion RBRACKET . LBRACKET expresion RBRACKET
@@ -3026,40 +3000,40 @@ state 159
     RBRACKET        reduce using rule 81 (variable_op -> LBRACKET expresion RBRACKET .)
     TO              reduce using rule 81 (variable_op -> LBRACKET expresion RBRACKET .)
     DO              reduce using rule 81 (variable_op -> LBRACKET expresion RBRACKET .)
-    LBRACKET        shift and go to state 171
+    LBRACKET        shift and go to state 173
 
 
-state 160
+state 162
 
     (76) lectura -> READ LPAREN variable op_lectura . RPAREN
 
-    RPAREN          shift and go to state 172
+    RPAREN          shift and go to state 174
 
 
-state 161
+state 163
 
     (77) op_lectura -> COMMA . variable op_lectura
     (79) variable -> . ID variable_op
 
-    ID              shift and go to state 120
+    ID              shift and go to state 122
 
-    variable                       shift and go to state 173
+    variable                       shift and go to state 175
 
-state 162
+state 164
 
     (78) op_lectura -> empty .
 
     RPAREN          reduce using rule 78 (op_lectura -> empty .)
 
 
-state 163
+state 165
 
     (84) escritura -> WRITE LPAREN expresion op_escritura . RPAREN
 
-    RPAREN          shift and go to state 174
+    RPAREN          shift and go to state 176
 
 
-state 164
+state 166
 
     (85) op_escritura -> COMMA . expresion op_escritura
     (49) expresion -> . expresion binop expresion
@@ -3083,38 +3057,38 @@ state 164
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    expresion                      shift and go to state 175
+    expresion                      shift and go to state 177
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
-    variable                       shift and go to state 119
+    variable                       shift and go to state 121
     boolean                        shift and go to state 80
 
-state 165
+state 167
 
     (86) op_escritura -> empty .
 
     RPAREN          reduce using rule 86 (op_escritura -> empty .)
 
 
-state 166
+state 168
 
     (87) decision -> IF LPAREN expresion RPAREN . LBRACE estatutos RBRACE op_decision
 
-    LBRACE          shift and go to state 176
+    LBRACE          shift and go to state 178
 
 
-state 167
+state 169
 
     (92) condicional -> WHILE LPAREN expresion RPAREN . DO LBRACE estatutos RBRACE
 
-    DO              shift and go to state 177
+    DO              shift and go to state 179
 
 
-state 168
+state 170
 
     (93) no_condicional -> FROM variable EQUAL expresion . TO expresion DO LBRACE estatutos RBRACE
     (49) expresion -> expresion . binop expresion
@@ -3127,7 +3101,7 @@ state 168
     (59) binop -> . TIMES
     (60) binop -> . DIVIDE
 
-    TO              shift and go to state 178
+    TO              shift and go to state 180
     SAME            shift and go to state 102
     NOTEQ           shift and go to state 103
     GTHAN           shift and go to state 104
@@ -3139,21 +3113,21 @@ state 168
 
     binop                          shift and go to state 101
 
-state 169
+state 171
 
     (73) param_llamada -> expresion COMMA param_llamada .
 
     RPAREN          reduce using rule 73 (param_llamada -> expresion COMMA param_llamada .)
 
 
-state 170
+state 172
 
     (75) llamada_metodo -> ID DOT ID LPAREN param_llamada . RPAREN
 
-    RPAREN          shift and go to state 179
+    RPAREN          shift and go to state 181
 
 
-state 171
+state 173
 
     (82) variable_op -> LBRACKET expresion RBRACKET LBRACKET . expresion RBRACKET
     (49) expresion -> . expresion binop expresion
@@ -3177,44 +3151,44 @@ state 171
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    expresion                      shift and go to state 180
+    expresion                      shift and go to state 182
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
-    variable                       shift and go to state 119
+    variable                       shift and go to state 121
     boolean                        shift and go to state 80
 
-state 172
+state 174
 
     (76) lectura -> READ LPAREN variable op_lectura RPAREN .
 
     SEMICOLON       reduce using rule 76 (lectura -> READ LPAREN variable op_lectura RPAREN .)
 
 
-state 173
+state 175
 
     (77) op_lectura -> COMMA variable . op_lectura
     (77) op_lectura -> . COMMA variable op_lectura
     (78) op_lectura -> . empty
     (94) empty -> .
 
-    COMMA           shift and go to state 161
+    COMMA           shift and go to state 163
     RPAREN          reduce using rule 94 (empty -> .)
 
-    op_lectura                     shift and go to state 181
-    empty                          shift and go to state 162
+    op_lectura                     shift and go to state 183
+    empty                          shift and go to state 164
 
-state 174
+state 176
 
     (84) escritura -> WRITE LPAREN expresion op_escritura RPAREN .
 
     SEMICOLON       reduce using rule 84 (escritura -> WRITE LPAREN expresion op_escritura RPAREN .)
 
 
-state 175
+state 177
 
     (85) op_escritura -> COMMA expresion . op_escritura
     (49) expresion -> expresion . binop expresion
@@ -3230,7 +3204,7 @@ state 175
     (60) binop -> . DIVIDE
     (94) empty -> .
 
-    COMMA           shift and go to state 164
+    COMMA           shift and go to state 166
     SAME            shift and go to state 102
     NOTEQ           shift and go to state 103
     GTHAN           shift and go to state 104
@@ -3241,11 +3215,11 @@ state 175
     DIVIDE          shift and go to state 109
     RPAREN          reduce using rule 94 (empty -> .)
 
-    op_escritura                   shift and go to state 182
+    op_escritura                   shift and go to state 184
     binop                          shift and go to state 101
-    empty                          shift and go to state 165
+    empty                          shift and go to state 167
 
-state 176
+state 178
 
     (87) decision -> IF LPAREN expresion RPAREN LBRACE . estatutos RBRACE op_decision
     (34) estatutos -> . estatuto
@@ -3259,8 +3233,8 @@ state 176
     (42) estatuto -> . var_def SEMICOLON
     (43) estatuto -> . lectura SEMICOLON
     (44) estatuto -> . escritura SEMICOLON
-    (45) estatuto -> . decision
-    (46) estatuto -> . repeticion
+    (45) estatuto -> . decision SEMICOLON
+    (46) estatuto -> . repeticion SEMICOLON
     (47) estatuto -> . bloque_func SEMICOLON
     (94) empty -> .
     (48) asignacion -> . variable EQUAL expresion
@@ -3320,7 +3294,7 @@ state 176
     FALSE           shift and go to state 87
 
     expresion                      shift and go to state 57
-    estatutos                      shift and go to state 183
+    estatutos                      shift and go to state 185
     estatuto                       shift and go to state 54
     empty                          shift and go to state 55
     asignacion                     shift and go to state 56
@@ -3342,14 +3316,14 @@ state 176
     no_condicional                 shift and go to state 77
     boolean                        shift and go to state 80
 
-state 177
+state 179
 
     (92) condicional -> WHILE LPAREN expresion RPAREN DO . LBRACE estatutos RBRACE
 
-    LBRACE          shift and go to state 184
+    LBRACE          shift and go to state 186
 
 
-state 178
+state 180
 
     (93) no_condicional -> FROM variable EQUAL expresion TO . expresion DO LBRACE estatutos RBRACE
     (49) expresion -> . expresion binop expresion
@@ -3373,24 +3347,24 @@ state 178
     CTEF            shift and go to state 81
     CTEI            shift and go to state 82
     CTESTRING       shift and go to state 83
-    ID              shift and go to state 120
+    ID              shift and go to state 122
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    variable                       shift and go to state 119
-    expresion                      shift and go to state 185
+    variable                       shift and go to state 121
+    expresion                      shift and go to state 187
     plus_minus                     shift and go to state 68
     var_cte                        shift and go to state 70
     boolean                        shift and go to state 80
 
-state 179
+state 181
 
     (75) llamada_metodo -> ID DOT ID LPAREN param_llamada RPAREN .
 
     SEMICOLON       reduce using rule 75 (llamada_metodo -> ID DOT ID LPAREN param_llamada RPAREN .)
 
 
-state 180
+state 182
 
     (82) variable_op -> LBRACKET expresion RBRACKET LBRACKET expresion . RBRACKET
     (49) expresion -> expresion . binop expresion
@@ -3403,7 +3377,7 @@ state 180
     (59) binop -> . TIMES
     (60) binop -> . DIVIDE
 
-    RBRACKET        shift and go to state 186
+    RBRACKET        shift and go to state 188
     SAME            shift and go to state 102
     NOTEQ           shift and go to state 103
     GTHAN           shift and go to state 104
@@ -3415,28 +3389,28 @@ state 180
 
     binop                          shift and go to state 101
 
-state 181
+state 183
 
     (77) op_lectura -> COMMA variable op_lectura .
 
     RPAREN          reduce using rule 77 (op_lectura -> COMMA variable op_lectura .)
 
 
-state 182
+state 184
 
     (85) op_escritura -> COMMA expresion op_escritura .
 
     RPAREN          reduce using rule 85 (op_escritura -> COMMA expresion op_escritura .)
 
 
-state 183
+state 185
 
     (87) decision -> IF LPAREN expresion RPAREN LBRACE estatutos . RBRACE op_decision
 
-    RBRACE          shift and go to state 187
+    RBRACE          shift and go to state 189
 
 
-state 184
+state 186
 
     (92) condicional -> WHILE LPAREN expresion RPAREN DO LBRACE . estatutos RBRACE
     (34) estatutos -> . estatuto
@@ -3450,8 +3424,8 @@ state 184
     (42) estatuto -> . var_def SEMICOLON
     (43) estatuto -> . lectura SEMICOLON
     (44) estatuto -> . escritura SEMICOLON
-    (45) estatuto -> . decision
-    (46) estatuto -> . repeticion
+    (45) estatuto -> . decision SEMICOLON
+    (46) estatuto -> . repeticion SEMICOLON
     (47) estatuto -> . bloque_func SEMICOLON
     (94) empty -> .
     (48) asignacion -> . variable EQUAL expresion
@@ -3511,7 +3485,7 @@ state 184
     FALSE           shift and go to state 87
 
     expresion                      shift and go to state 57
-    estatutos                      shift and go to state 188
+    estatutos                      shift and go to state 190
     estatuto                       shift and go to state 54
     empty                          shift and go to state 55
     asignacion                     shift and go to state 56
@@ -3533,7 +3507,7 @@ state 184
     no_condicional                 shift and go to state 77
     boolean                        shift and go to state 80
 
-state 185
+state 187
 
     (93) no_condicional -> FROM variable EQUAL expresion TO expresion . DO LBRACE estatutos RBRACE
     (49) expresion -> expresion . binop expresion
@@ -3546,7 +3520,7 @@ state 185
     (59) binop -> . TIMES
     (60) binop -> . DIVIDE
 
-    DO              shift and go to state 189
+    DO              shift and go to state 191
     SAME            shift and go to state 102
     NOTEQ           shift and go to state 103
     GTHAN           shift and go to state 104
@@ -3558,7 +3532,7 @@ state 185
 
     binop                          shift and go to state 101
 
-state 186
+state 188
 
     (82) variable_op -> LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET .
 
@@ -3579,142 +3553,62 @@ state 186
     DO              reduce using rule 82 (variable_op -> LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET .)
 
 
-state 187
+state 189
 
     (87) decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE . op_decision
     (88) op_decision -> . ELSE LBRACE estatutos RBRACE
     (89) op_decision -> . empty
     (94) empty -> .
 
-    ELSE            shift and go to state 191
-    LPAREN          reduce using rule 94 (empty -> .)
-    RETURN          reduce using rule 94 (empty -> .)
-    ID              reduce using rule 94 (empty -> .)
-    READ            reduce using rule 94 (empty -> .)
-    WRITE           reduce using rule 94 (empty -> .)
-    IF              reduce using rule 94 (empty -> .)
-    LBRACE          reduce using rule 94 (empty -> .)
-    PLUS            reduce using rule 94 (empty -> .)
-    MINUS           reduce using rule 94 (empty -> .)
-    CTEF            reduce using rule 94 (empty -> .)
-    CTEI            reduce using rule 94 (empty -> .)
-    CTESTRING       reduce using rule 94 (empty -> .)
-    INT             reduce using rule 94 (empty -> .)
-    FLOAT           reduce using rule 94 (empty -> .)
-    STRING          reduce using rule 94 (empty -> .)
-    BOOL            reduce using rule 94 (empty -> .)
-    WHILE           reduce using rule 94 (empty -> .)
-    FROM            reduce using rule 94 (empty -> .)
-    TRUE            reduce using rule 94 (empty -> .)
-    FALSE           reduce using rule 94 (empty -> .)
-    RBRACE          reduce using rule 94 (empty -> .)
+    ELSE            shift and go to state 193
+    SEMICOLON       reduce using rule 94 (empty -> .)
 
-    op_decision                    shift and go to state 190
-    empty                          shift and go to state 192
-
-state 188
-
-    (92) condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos . RBRACE
-
-    RBRACE          shift and go to state 193
-
-
-state 189
-
-    (93) no_condicional -> FROM variable EQUAL expresion TO expresion DO . LBRACE estatutos RBRACE
-
-    LBRACE          shift and go to state 194
-
+    op_decision                    shift and go to state 192
+    empty                          shift and go to state 194
 
 state 190
 
-    (87) decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .
+    (92) condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos . RBRACE
 
-    LPAREN          reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    RETURN          reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    ID              reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    READ            reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    WRITE           reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    IF              reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    LBRACE          reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    PLUS            reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    MINUS           reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    CTEF            reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    CTEI            reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    CTESTRING       reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    INT             reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    FLOAT           reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    STRING          reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    BOOL            reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    WHILE           reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    FROM            reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    TRUE            reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    FALSE           reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
-    RBRACE          reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
+    RBRACE          shift and go to state 195
 
 
 state 191
 
-    (88) op_decision -> ELSE . LBRACE estatutos RBRACE
+    (93) no_condicional -> FROM variable EQUAL expresion TO expresion DO . LBRACE estatutos RBRACE
 
-    LBRACE          shift and go to state 195
+    LBRACE          shift and go to state 196
 
 
 state 192
 
-    (89) op_decision -> empty .
+    (87) decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .
 
-    LPAREN          reduce using rule 89 (op_decision -> empty .)
-    RETURN          reduce using rule 89 (op_decision -> empty .)
-    ID              reduce using rule 89 (op_decision -> empty .)
-    READ            reduce using rule 89 (op_decision -> empty .)
-    WRITE           reduce using rule 89 (op_decision -> empty .)
-    IF              reduce using rule 89 (op_decision -> empty .)
-    LBRACE          reduce using rule 89 (op_decision -> empty .)
-    PLUS            reduce using rule 89 (op_decision -> empty .)
-    MINUS           reduce using rule 89 (op_decision -> empty .)
-    CTEF            reduce using rule 89 (op_decision -> empty .)
-    CTEI            reduce using rule 89 (op_decision -> empty .)
-    CTESTRING       reduce using rule 89 (op_decision -> empty .)
-    INT             reduce using rule 89 (op_decision -> empty .)
-    FLOAT           reduce using rule 89 (op_decision -> empty .)
-    STRING          reduce using rule 89 (op_decision -> empty .)
-    BOOL            reduce using rule 89 (op_decision -> empty .)
-    WHILE           reduce using rule 89 (op_decision -> empty .)
-    FROM            reduce using rule 89 (op_decision -> empty .)
-    TRUE            reduce using rule 89 (op_decision -> empty .)
-    FALSE           reduce using rule 89 (op_decision -> empty .)
-    RBRACE          reduce using rule 89 (op_decision -> empty .)
+    SEMICOLON       reduce using rule 87 (decision -> IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision .)
 
 
 state 193
 
-    (92) condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .
+    (88) op_decision -> ELSE . LBRACE estatutos RBRACE
 
-    LPAREN          reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    RETURN          reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    ID              reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    READ            reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    WRITE           reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    IF              reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    LBRACE          reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    PLUS            reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    MINUS           reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    CTEF            reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    CTEI            reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    CTESTRING       reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    INT             reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    FLOAT           reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    STRING          reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    BOOL            reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    WHILE           reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    FROM            reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    TRUE            reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    FALSE           reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
-    RBRACE          reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
+    LBRACE          shift and go to state 197
 
 
 state 194
+
+    (89) op_decision -> empty .
+
+    SEMICOLON       reduce using rule 89 (op_decision -> empty .)
+
+
+state 195
+
+    (92) condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .
+
+    SEMICOLON       reduce using rule 92 (condicional -> WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE .)
+
+
+state 196
 
     (93) no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE . estatutos RBRACE
     (34) estatutos -> . estatuto
@@ -3728,8 +3622,8 @@ state 194
     (42) estatuto -> . var_def SEMICOLON
     (43) estatuto -> . lectura SEMICOLON
     (44) estatuto -> . escritura SEMICOLON
-    (45) estatuto -> . decision
-    (46) estatuto -> . repeticion
+    (45) estatuto -> . decision SEMICOLON
+    (46) estatuto -> . repeticion SEMICOLON
     (47) estatuto -> . bloque_func SEMICOLON
     (94) empty -> .
     (48) asignacion -> . variable EQUAL expresion
@@ -3790,7 +3684,7 @@ state 194
 
     variable                       shift and go to state 67
     expresion                      shift and go to state 57
-    estatutos                      shift and go to state 196
+    estatutos                      shift and go to state 198
     estatuto                       shift and go to state 54
     empty                          shift and go to state 55
     asignacion                     shift and go to state 56
@@ -3811,7 +3705,7 @@ state 194
     no_condicional                 shift and go to state 77
     boolean                        shift and go to state 80
 
-state 195
+state 197
 
     (88) op_decision -> ELSE LBRACE . estatutos RBRACE
     (34) estatutos -> . estatuto
@@ -3825,8 +3719,8 @@ state 195
     (42) estatuto -> . var_def SEMICOLON
     (43) estatuto -> . lectura SEMICOLON
     (44) estatuto -> . escritura SEMICOLON
-    (45) estatuto -> . decision
-    (46) estatuto -> . repeticion
+    (45) estatuto -> . decision SEMICOLON
+    (46) estatuto -> . repeticion SEMICOLON
     (47) estatuto -> . bloque_func SEMICOLON
     (94) empty -> .
     (48) asignacion -> . variable EQUAL expresion
@@ -3885,7 +3779,7 @@ state 195
     TRUE            shift and go to state 86
     FALSE           shift and go to state 87
 
-    estatutos                      shift and go to state 197
+    estatutos                      shift and go to state 199
     estatuto                       shift and go to state 54
     empty                          shift and go to state 55
     asignacion                     shift and go to state 56
@@ -3908,91 +3802,51 @@ state 195
     no_condicional                 shift and go to state 77
     boolean                        shift and go to state 80
 
-state 196
+state 198
 
     (93) no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos . RBRACE
 
-    RBRACE          shift and go to state 198
-
-
-state 197
-
-    (88) op_decision -> ELSE LBRACE estatutos . RBRACE
-
-    RBRACE          shift and go to state 199
-
-
-state 198
-
-    (93) no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .
-
-    LPAREN          reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    RETURN          reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    ID              reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    READ            reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    WRITE           reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    IF              reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    LBRACE          reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    PLUS            reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    MINUS           reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    CTEF            reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    CTEI            reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    CTESTRING       reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    INT             reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    FLOAT           reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    STRING          reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    BOOL            reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    WHILE           reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    FROM            reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    TRUE            reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    FALSE           reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
-    RBRACE          reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
+    RBRACE          shift and go to state 200
 
 
 state 199
 
+    (88) op_decision -> ELSE LBRACE estatutos . RBRACE
+
+    RBRACE          shift and go to state 201
+
+
+state 200
+
+    (93) no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .
+
+    SEMICOLON       reduce using rule 93 (no_condicional -> FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE .)
+
+
+state 201
+
     (88) op_decision -> ELSE LBRACE estatutos RBRACE .
 
-    LPAREN          reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    RETURN          reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    ID              reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    READ            reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    WRITE           reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    IF              reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    LBRACE          reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    PLUS            reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    MINUS           reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    CTEF            reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    CTEI            reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    CTESTRING       reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    INT             reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    FLOAT           reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    STRING          reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    BOOL            reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    WHILE           reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    FROM            reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    TRUE            reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    FALSE           reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
-    RBRACE          reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
+    SEMICOLON       reduce using rule 88 (op_decision -> ELSE LBRACE estatutos RBRACE .)
 
 WARNING: 
 WARNING: Conflicts:
 WARNING: 
-WARNING: shift/reduce conflict for SAME in state 118 resolved as shift
-WARNING: shift/reduce conflict for NOTEQ in state 118 resolved as shift
-WARNING: shift/reduce conflict for GTHAN in state 118 resolved as shift
-WARNING: shift/reduce conflict for LTHAN in state 118 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 118 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 118 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 118 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 118 resolved as shift
-WARNING: shift/reduce conflict for SAME in state 140 resolved as shift
-WARNING: shift/reduce conflict for NOTEQ in state 140 resolved as shift
-WARNING: shift/reduce conflict for GTHAN in state 140 resolved as shift
-WARNING: shift/reduce conflict for LTHAN in state 140 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 140 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 140 resolved as shift
-WARNING: shift/reduce conflict for TIMES in state 140 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 140 resolved as shift
+WARNING: shift/reduce conflict for SAME in state 120 resolved as shift
+WARNING: shift/reduce conflict for NOTEQ in state 120 resolved as shift
+WARNING: shift/reduce conflict for GTHAN in state 120 resolved as shift
+WARNING: shift/reduce conflict for LTHAN in state 120 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 120 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 120 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 120 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 120 resolved as shift
+WARNING: shift/reduce conflict for SAME in state 142 resolved as shift
+WARNING: shift/reduce conflict for NOTEQ in state 142 resolved as shift
+WARNING: shift/reduce conflict for GTHAN in state 142 resolved as shift
+WARNING: shift/reduce conflict for LTHAN in state 142 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 142 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 142 resolved as shift
+WARNING: shift/reduce conflict for TIMES in state 142 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 142 resolved as shift
 WARNING: reduce/reduce conflict in state 54 resolved using rule (estatutos -> estatuto)
 WARNING: rejected rule (empty -> <empty>) in state 54

@@ -1070,8 +1070,8 @@ def p_estatuto(p):
 				| var_def SEMICOLON
 				| lectura SEMICOLON
 				| escritura SEMICOLON
-				| decision
-				| repeticion
+				| decision SEMICOLON
+				| repeticion SEMICOLON
 				| bloque_func SEMICOLON'''
 	p[0] = p[1]
 
