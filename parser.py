@@ -38,15 +38,15 @@ class SemanticAnalyzer():
 			pickle.dump(self.main,f) # Se serializa el AST
 			f.close()
 
-#	def declarar_class(self, dec):
-#		self.check_if_declared_global(dec, "CLASS")
-#		self.symbol_table_classes[dec["id"]] = dec
+	def declarar_class(self, dec):
+		self.check_if_declared_global(dec, "CLASS")
+		self.symbol_table_classes[dec["id"]] = dec
 
 	
-#	def declare_symbol_class(self, dec, class_name, type):
-#		# self.check_if_declared_class(self,dec,class_name)
-#		check_if_symbol_declared_scope(dec,self.symbol_table_classes[class_name])
-#		self.symbol_table_classes[class_name][type][dec["id"]] = dec
+	def declare_symbol_class(self, dec, class_name, type):
+		# self.check_if_declared_class(self,dec,class_name)
+		check_if_symbol_declared_scope(dec,self.symbol_table_classes[class_name])
+		self.symbol_table_classes[class_name][type][dec["id"]] = dec
 
 def declarar_symbol_scopes(dec,scopes : [dict]):
 	''' takes a declaration of any type (class, varaible, function) and 
@@ -512,7 +512,7 @@ class LTNode(CompareNode):
 
 class ConstantNode(Node):
 
-	def analyze(self,  type_name,analyzer):
+	def analyze(self,  analyzer):
 		return self.type_name
 		
 	def __str__(self):
