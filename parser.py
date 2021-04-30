@@ -888,7 +888,7 @@ def p_declaraciones(p):
 
 
 def p_declaraciones_variables(p):
-	'''declaraciones : var_def SEMICOLON declaraciones '''
+	'''declaraciones : var_dec SEMICOLON declaraciones '''
 	p[0] = [VarDecNode(p[1])] + p[3]
 
 
@@ -947,7 +947,7 @@ def p_funcion_def(p):
 
 
 def p_op_var(p):
-	''' op_var : var_def SEMICOLON op_var
+	''' op_var : var_dec SEMICOLON op_var
 			   | empty'''
 	if (len(p)==4):
 		p[0] = [p[1]] + p[3]
@@ -973,7 +973,7 @@ params_op : COMMA ID COLON type_simple params_op
 '''
 
 def p_params(p):
-	''' params : var_def params_op
+	''' params : var_dec params_op
 				| empty'''
 	if(len(p) == 3):
 		p[0] = [p[1]] + p[2]
@@ -982,7 +982,7 @@ def p_params(p):
 
 
 def p_params_op(p):
-	''' params_op : COMMA var_def params_op
+	''' params_op : COMMA var_dec params_op
 					| empty '''
 	if (len(p) == 4):
 		p[0] = [p[2]] + p[3]
@@ -1019,8 +1019,8 @@ def p_main_error(p):
 """
 
 
-def p_var_def(p):
-	''' var_def :  type_compuesto    ID           
+def p_var_dec(p):
+	''' var_dec :  type_compuesto    ID           
 				|  type_simple       ID op_vardef   '''
 	# VAR TYPE_COMP VAR1,VAR2... ;
 	# VAR TYPE_SIMPLE VAR1;
@@ -1094,7 +1094,7 @@ def p_estatuto(p):
 				| returns SEMICOLON
 				| llamada_funcion SEMICOLON
 				| llamada_metodo SEMICOLON
-				| var_def SEMICOLON
+				| var_dec SEMICOLON
 				| lectura SEMICOLON
 				| escritura SEMICOLON
 				| decision SEMICOLON

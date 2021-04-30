@@ -10,7 +10,7 @@ Grammar
 Rule 0     S' -> programa
 Rule 1     programa -> declaraciones main
 Rule 2     declaraciones -> empty
-Rule 3     declaraciones -> var_def SEMICOLON declaraciones
+Rule 3     declaraciones -> var_dec SEMICOLON declaraciones
 Rule 4     declaraciones -> funcion_def declaraciones
 Rule 5     declaraciones -> clase_def declaraciones
 Rule 6     clase_def -> CLASS ID clase_op bloque_clase
@@ -20,19 +20,19 @@ Rule 9     bloque_clase -> LBRACE op_var op_func RBRACE
 Rule 10    op_func -> funcion_def op_func
 Rule 11    op_func -> empty
 Rule 12    funcion_def -> FUNC ID LPAREN params RPAREN return_option bloque_func
-Rule 13    op_var -> var_def SEMICOLON op_var
+Rule 13    op_var -> var_dec SEMICOLON op_var
 Rule 14    op_var -> empty
 Rule 15    return_option -> RET type_simple
 Rule 16    return_option -> empty
-Rule 17    params -> var_def params_op
+Rule 17    params -> var_dec params_op
 Rule 18    params -> empty
-Rule 19    params_op -> COMMA var_def params_op
+Rule 19    params_op -> COMMA var_dec params_op
 Rule 20    params_op -> empty
 Rule 21    bloque_func -> LBRACE estatutos RBRACE
 Rule 22    main -> MAIN LPAREN RPAREN bloque_func
 Rule 23    main -> MAIN LPAREN RPAREN error
-Rule 24    var_def -> type_compuesto ID
-Rule 25    var_def -> type_simple ID op_vardef
+Rule 24    var_dec -> type_compuesto ID
+Rule 25    var_dec -> type_simple ID op_vardef
 Rule 26    op_vardef -> LBRACKET CTEI RBRACKET
 Rule 27    op_vardef -> LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET
 Rule 28    op_vardef -> empty
@@ -49,7 +49,7 @@ Rule 38    estatuto -> expresion SEMICOLON
 Rule 39    estatuto -> returns SEMICOLON
 Rule 40    estatuto -> llamada_funcion SEMICOLON
 Rule 41    estatuto -> llamada_metodo SEMICOLON
-Rule 42    estatuto -> var_def SEMICOLON
+Rule 42    estatuto -> var_dec SEMICOLON
 Rule 43    estatuto -> lectura SEMICOLON
 Rule 44    estatuto -> escritura SEMICOLON
 Rule 45    estatuto -> decision SEMICOLON
@@ -190,7 +190,7 @@ returns              : 39
 type_compuesto       : 24
 type_simple          : 15 25
 var_cte              : 51
-var_def              : 3 13 17 19 42
+var_dec              : 3 13 17 19 42
 variable             : 47 62 75 76 79 92
 variable_op          : 78
 
@@ -201,12 +201,12 @@ state 0
     (0) S' -> . programa
     (1) programa -> . declaraciones main
     (2) declaraciones -> . empty
-    (3) declaraciones -> . var_def SEMICOLON declaraciones
+    (3) declaraciones -> . var_dec SEMICOLON declaraciones
     (4) declaraciones -> . funcion_def declaraciones
     (5) declaraciones -> . clase_def declaraciones
     (93) empty -> .
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
+    (24) var_dec -> . type_compuesto ID
+    (25) var_dec -> . type_simple ID op_vardef
     (12) funcion_def -> . FUNC ID LPAREN params RPAREN return_option bloque_func
     (6) clase_def -> . CLASS ID clase_op bloque_clase
     (33) type_compuesto -> . ID
@@ -227,7 +227,7 @@ state 0
     programa                       shift and go to state 1
     declaraciones                  shift and go to state 2
     empty                          shift and go to state 3
-    var_def                        shift and go to state 4
+    var_dec                        shift and go to state 4
     funcion_def                    shift and go to state 5
     clase_def                      shift and go to state 6
     type_compuesto                 shift and go to state 7
@@ -258,7 +258,7 @@ state 3
 
 state 4
 
-    (3) declaraciones -> var_def . SEMICOLON declaraciones
+    (3) declaraciones -> var_dec . SEMICOLON declaraciones
 
     SEMICOLON       shift and go to state 18
 
@@ -267,12 +267,12 @@ state 5
 
     (4) declaraciones -> funcion_def . declaraciones
     (2) declaraciones -> . empty
-    (3) declaraciones -> . var_def SEMICOLON declaraciones
+    (3) declaraciones -> . var_dec SEMICOLON declaraciones
     (4) declaraciones -> . funcion_def declaraciones
     (5) declaraciones -> . clase_def declaraciones
     (93) empty -> .
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
+    (24) var_dec -> . type_compuesto ID
+    (25) var_dec -> . type_simple ID op_vardef
     (12) funcion_def -> . FUNC ID LPAREN params RPAREN return_option bloque_func
     (6) clase_def -> . CLASS ID clase_op bloque_clase
     (33) type_compuesto -> . ID
@@ -293,7 +293,7 @@ state 5
     funcion_def                    shift and go to state 5
     declaraciones                  shift and go to state 19
     empty                          shift and go to state 3
-    var_def                        shift and go to state 4
+    var_dec                        shift and go to state 4
     clase_def                      shift and go to state 6
     type_compuesto                 shift and go to state 7
     type_simple                    shift and go to state 9
@@ -302,12 +302,12 @@ state 6
 
     (5) declaraciones -> clase_def . declaraciones
     (2) declaraciones -> . empty
-    (3) declaraciones -> . var_def SEMICOLON declaraciones
+    (3) declaraciones -> . var_dec SEMICOLON declaraciones
     (4) declaraciones -> . funcion_def declaraciones
     (5) declaraciones -> . clase_def declaraciones
     (93) empty -> .
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
+    (24) var_dec -> . type_compuesto ID
+    (25) var_dec -> . type_simple ID op_vardef
     (12) funcion_def -> . FUNC ID LPAREN params RPAREN return_option bloque_func
     (6) clase_def -> . CLASS ID clase_op bloque_clase
     (33) type_compuesto -> . ID
@@ -328,14 +328,14 @@ state 6
     clase_def                      shift and go to state 6
     declaraciones                  shift and go to state 20
     empty                          shift and go to state 3
-    var_def                        shift and go to state 4
+    var_dec                        shift and go to state 4
     funcion_def                    shift and go to state 5
     type_compuesto                 shift and go to state 7
     type_simple                    shift and go to state 9
 
 state 7
 
-    (24) var_def -> type_compuesto . ID
+    (24) var_dec -> type_compuesto . ID
 
     ID              shift and go to state 21
 
@@ -349,7 +349,7 @@ state 8
 
 state 9
 
-    (25) var_def -> type_simple . ID op_vardef
+    (25) var_dec -> type_simple . ID op_vardef
 
     ID              shift and go to state 22
 
@@ -417,14 +417,14 @@ state 17
 
 state 18
 
-    (3) declaraciones -> var_def SEMICOLON . declaraciones
+    (3) declaraciones -> var_dec SEMICOLON . declaraciones
     (2) declaraciones -> . empty
-    (3) declaraciones -> . var_def SEMICOLON declaraciones
+    (3) declaraciones -> . var_dec SEMICOLON declaraciones
     (4) declaraciones -> . funcion_def declaraciones
     (5) declaraciones -> . clase_def declaraciones
     (93) empty -> .
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
+    (24) var_dec -> . type_compuesto ID
+    (25) var_dec -> . type_simple ID op_vardef
     (12) funcion_def -> . FUNC ID LPAREN params RPAREN return_option bloque_func
     (6) clase_def -> . CLASS ID clase_op bloque_clase
     (33) type_compuesto -> . ID
@@ -442,7 +442,7 @@ state 18
     STRING          shift and go to state 14
     BOOL            shift and go to state 15
 
-    var_def                        shift and go to state 4
+    var_dec                        shift and go to state 4
     declaraciones                  shift and go to state 26
     empty                          shift and go to state 3
     funcion_def                    shift and go to state 5
@@ -466,16 +466,16 @@ state 20
 
 state 21
 
-    (24) var_def -> type_compuesto ID .
+    (24) var_dec -> type_compuesto ID .
 
-    SEMICOLON       reduce using rule 24 (var_def -> type_compuesto ID .)
-    COMMA           reduce using rule 24 (var_def -> type_compuesto ID .)
-    RPAREN          reduce using rule 24 (var_def -> type_compuesto ID .)
+    SEMICOLON       reduce using rule 24 (var_dec -> type_compuesto ID .)
+    COMMA           reduce using rule 24 (var_dec -> type_compuesto ID .)
+    RPAREN          reduce using rule 24 (var_dec -> type_compuesto ID .)
 
 
 state 22
 
-    (25) var_def -> type_simple ID . op_vardef
+    (25) var_dec -> type_simple ID . op_vardef
     (26) op_vardef -> . LBRACKET CTEI RBRACKET
     (27) op_vardef -> . LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET
     (28) op_vardef -> . empty
@@ -519,18 +519,18 @@ state 25
 
 state 26
 
-    (3) declaraciones -> var_def SEMICOLON declaraciones .
+    (3) declaraciones -> var_dec SEMICOLON declaraciones .
 
-    MAIN            reduce using rule 3 (declaraciones -> var_def SEMICOLON declaraciones .)
+    MAIN            reduce using rule 3 (declaraciones -> var_dec SEMICOLON declaraciones .)
 
 
 state 27
 
-    (25) var_def -> type_simple ID op_vardef .
+    (25) var_dec -> type_simple ID op_vardef .
 
-    SEMICOLON       reduce using rule 25 (var_def -> type_simple ID op_vardef .)
-    COMMA           reduce using rule 25 (var_def -> type_simple ID op_vardef .)
-    RPAREN          reduce using rule 25 (var_def -> type_simple ID op_vardef .)
+    SEMICOLON       reduce using rule 25 (var_dec -> type_simple ID op_vardef .)
+    COMMA           reduce using rule 25 (var_dec -> type_simple ID op_vardef .)
+    RPAREN          reduce using rule 25 (var_dec -> type_simple ID op_vardef .)
 
 
 state 28
@@ -553,10 +553,10 @@ state 29
 state 30
 
     (12) funcion_def -> FUNC ID LPAREN . params RPAREN return_option bloque_func
-    (17) params -> . var_def params_op
+    (17) params -> . var_dec params_op
     (18) params -> . empty
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
+    (24) var_dec -> . type_compuesto ID
+    (25) var_dec -> . type_simple ID op_vardef
     (93) empty -> .
     (33) type_compuesto -> . ID
     (29) type_simple -> . INT
@@ -572,7 +572,7 @@ state 30
     BOOL            shift and go to state 15
 
     params                         shift and go to state 36
-    var_def                        shift and go to state 37
+    var_dec                        shift and go to state 37
     empty                          shift and go to state 38
     type_compuesto                 shift and go to state 7
     type_simple                    shift and go to state 9
@@ -628,8 +628,8 @@ state 36
 
 state 37
 
-    (17) params -> var_def . params_op
-    (19) params_op -> . COMMA var_def params_op
+    (17) params -> var_dec . params_op
+    (19) params_op -> . COMMA var_dec params_op
     (20) params_op -> . empty
     (93) empty -> .
 
@@ -663,10 +663,10 @@ state 39
 state 40
 
     (9) bloque_clase -> LBRACE . op_var op_func RBRACE
-    (13) op_var -> . var_def SEMICOLON op_var
+    (13) op_var -> . var_dec SEMICOLON op_var
     (14) op_var -> . empty
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
+    (24) var_dec -> . type_compuesto ID
+    (25) var_dec -> . type_simple ID op_vardef
     (93) empty -> .
     (33) type_compuesto -> . ID
     (29) type_simple -> . INT
@@ -683,7 +683,7 @@ state 40
     BOOL            shift and go to state 15
 
     op_var                         shift and go to state 50
-    var_def                        shift and go to state 51
+    var_dec                        shift and go to state 51
     empty                          shift and go to state 52
     type_compuesto                 shift and go to state 7
     type_simple                    shift and go to state 9
@@ -720,7 +720,7 @@ state 44
     (39) estatuto -> . returns SEMICOLON
     (40) estatuto -> . llamada_funcion SEMICOLON
     (41) estatuto -> . llamada_metodo SEMICOLON
-    (42) estatuto -> . var_def SEMICOLON
+    (42) estatuto -> . var_dec SEMICOLON
     (43) estatuto -> . lectura SEMICOLON
     (44) estatuto -> . escritura SEMICOLON
     (45) estatuto -> . decision SEMICOLON
@@ -734,8 +734,8 @@ state 44
     (69) returns -> . RETURN expresion
     (70) llamada_funcion -> . ID LPAREN param_llamada RPAREN
     (74) llamada_metodo -> . ID DOT ID LPAREN param_llamada RPAREN
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
+    (24) var_dec -> . type_compuesto ID
+    (25) var_dec -> . type_simple ID op_vardef
     (75) lectura -> . READ LPAREN variable op_lectura RPAREN
     (83) escritura -> . WRITE LPAREN expresion op_escritura RPAREN
     (86) decision -> . IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
@@ -788,7 +788,7 @@ state 44
     returns                        shift and go to state 58
     llamada_funcion                shift and go to state 59
     llamada_metodo                 shift and go to state 60
-    var_def                        shift and go to state 61
+    var_dec                        shift and go to state 61
     lectura                        shift and go to state 62
     escritura                      shift and go to state 63
     decision                       shift and go to state 64
@@ -828,16 +828,16 @@ state 46
 
 state 47
 
-    (17) params -> var_def params_op .
+    (17) params -> var_dec params_op .
 
-    RPAREN          reduce using rule 17 (params -> var_def params_op .)
+    RPAREN          reduce using rule 17 (params -> var_dec params_op .)
 
 
 state 48
 
-    (19) params_op -> COMMA . var_def params_op
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
+    (19) params_op -> COMMA . var_dec params_op
+    (24) var_dec -> . type_compuesto ID
+    (25) var_dec -> . type_simple ID op_vardef
     (33) type_compuesto -> . ID
     (29) type_simple -> . INT
     (30) type_simple -> . FLOAT
@@ -850,7 +850,7 @@ state 48
     STRING          shift and go to state 14
     BOOL            shift and go to state 15
 
-    var_def                        shift and go to state 91
+    var_dec                        shift and go to state 91
     type_compuesto                 shift and go to state 7
     type_simple                    shift and go to state 9
 
@@ -878,7 +878,7 @@ state 50
 
 state 51
 
-    (13) op_var -> var_def . SEMICOLON op_var
+    (13) op_var -> var_dec . SEMICOLON op_var
 
     SEMICOLON       shift and go to state 95
 
@@ -910,7 +910,7 @@ state 54
     (39) estatuto -> . returns SEMICOLON
     (40) estatuto -> . llamada_funcion SEMICOLON
     (41) estatuto -> . llamada_metodo SEMICOLON
-    (42) estatuto -> . var_def SEMICOLON
+    (42) estatuto -> . var_dec SEMICOLON
     (43) estatuto -> . lectura SEMICOLON
     (44) estatuto -> . escritura SEMICOLON
     (45) estatuto -> . decision SEMICOLON
@@ -924,8 +924,8 @@ state 54
     (69) returns -> . RETURN expresion
     (70) llamada_funcion -> . ID LPAREN param_llamada RPAREN
     (74) llamada_metodo -> . ID DOT ID LPAREN param_llamada RPAREN
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
+    (24) var_dec -> . type_compuesto ID
+    (25) var_dec -> . type_simple ID op_vardef
     (75) lectura -> . READ LPAREN variable op_lectura RPAREN
     (83) escritura -> . WRITE LPAREN expresion op_escritura RPAREN
     (86) decision -> . IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
@@ -981,7 +981,7 @@ state 54
     returns                        shift and go to state 58
     llamada_funcion                shift and go to state 59
     llamada_metodo                 shift and go to state 60
-    var_def                        shift and go to state 61
+    var_dec                        shift and go to state 61
     lectura                        shift and go to state 62
     escritura                      shift and go to state 63
     decision                       shift and go to state 64
@@ -1057,7 +1057,7 @@ state 60
 
 state 61
 
-    (42) estatuto -> var_def . SEMICOLON
+    (42) estatuto -> var_dec . SEMICOLON
 
     SEMICOLON       shift and go to state 112
 
@@ -1500,8 +1500,8 @@ state 90
 
 state 91
 
-    (19) params_op -> COMMA var_def . params_op
-    (19) params_op -> . COMMA var_def params_op
+    (19) params_op -> COMMA var_dec . params_op
+    (19) params_op -> . COMMA var_dec params_op
     (20) params_op -> . empty
     (93) empty -> .
 
@@ -1542,11 +1542,11 @@ state 94
 
 state 95
 
-    (13) op_var -> var_def SEMICOLON . op_var
-    (13) op_var -> . var_def SEMICOLON op_var
+    (13) op_var -> var_dec SEMICOLON . op_var
+    (13) op_var -> . var_dec SEMICOLON op_var
     (14) op_var -> . empty
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
+    (24) var_dec -> . type_compuesto ID
+    (25) var_dec -> . type_simple ID op_vardef
     (93) empty -> .
     (33) type_compuesto -> . ID
     (29) type_simple -> . INT
@@ -1562,7 +1562,7 @@ state 95
     STRING          shift and go to state 14
     BOOL            shift and go to state 15
 
-    var_def                        shift and go to state 51
+    var_dec                        shift and go to state 51
     op_var                         shift and go to state 139
     empty                          shift and go to state 52
     type_compuesto                 shift and go to state 7
@@ -1877,28 +1877,28 @@ state 111
 
 state 112
 
-    (42) estatuto -> var_def SEMICOLON .
+    (42) estatuto -> var_dec SEMICOLON .
 
-    LPAREN          reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    RETURN          reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    ID              reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    READ            reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    WRITE           reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    IF              reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    PLUS            reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    MINUS           reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    CTEF            reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    CTEI            reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    CTESTRING       reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    INT             reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    FLOAT           reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    STRING          reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    BOOL            reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    WHILE           reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    FROM            reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    TRUE            reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    FALSE           reduce using rule 42 (estatuto -> var_def SEMICOLON .)
-    RBRACE          reduce using rule 42 (estatuto -> var_def SEMICOLON .)
+    LPAREN          reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    RETURN          reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    ID              reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    READ            reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    WRITE           reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    IF              reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    PLUS            reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    MINUS           reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    CTEF            reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    CTEI            reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    CTESTRING       reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    INT             reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    FLOAT           reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    STRING          reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    BOOL            reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    WHILE           reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    FROM            reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    TRUE            reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    FALSE           reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
+    RBRACE          reduce using rule 42 (estatuto -> var_dec SEMICOLON .)
 
 
 state 113
@@ -2463,9 +2463,9 @@ state 135
 
 state 136
 
-    (19) params_op -> COMMA var_def params_op .
+    (19) params_op -> COMMA var_dec params_op .
 
-    RPAREN          reduce using rule 19 (params_op -> COMMA var_def params_op .)
+    RPAREN          reduce using rule 19 (params_op -> COMMA var_dec params_op .)
 
 
 state 137
@@ -2491,10 +2491,10 @@ state 138
 
 state 139
 
-    (13) op_var -> var_def SEMICOLON op_var .
+    (13) op_var -> var_dec SEMICOLON op_var .
 
-    FUNC            reduce using rule 13 (op_var -> var_def SEMICOLON op_var .)
-    RBRACE          reduce using rule 13 (op_var -> var_def SEMICOLON op_var .)
+    FUNC            reduce using rule 13 (op_var -> var_dec SEMICOLON op_var .)
+    RBRACE          reduce using rule 13 (op_var -> var_dec SEMICOLON op_var .)
 
 
 state 140
@@ -3189,7 +3189,7 @@ state 176
     (39) estatuto -> . returns SEMICOLON
     (40) estatuto -> . llamada_funcion SEMICOLON
     (41) estatuto -> . llamada_metodo SEMICOLON
-    (42) estatuto -> . var_def SEMICOLON
+    (42) estatuto -> . var_dec SEMICOLON
     (43) estatuto -> . lectura SEMICOLON
     (44) estatuto -> . escritura SEMICOLON
     (45) estatuto -> . decision SEMICOLON
@@ -3203,8 +3203,8 @@ state 176
     (69) returns -> . RETURN expresion
     (70) llamada_funcion -> . ID LPAREN param_llamada RPAREN
     (74) llamada_metodo -> . ID DOT ID LPAREN param_llamada RPAREN
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
+    (24) var_dec -> . type_compuesto ID
+    (25) var_dec -> . type_simple ID op_vardef
     (75) lectura -> . READ LPAREN variable op_lectura RPAREN
     (83) escritura -> . WRITE LPAREN expresion op_escritura RPAREN
     (86) decision -> . IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
@@ -3257,7 +3257,7 @@ state 176
     returns                        shift and go to state 58
     llamada_funcion                shift and go to state 59
     llamada_metodo                 shift and go to state 60
-    var_def                        shift and go to state 61
+    var_dec                        shift and go to state 61
     lectura                        shift and go to state 62
     escritura                      shift and go to state 63
     decision                       shift and go to state 64
@@ -3376,7 +3376,7 @@ state 184
     (39) estatuto -> . returns SEMICOLON
     (40) estatuto -> . llamada_funcion SEMICOLON
     (41) estatuto -> . llamada_metodo SEMICOLON
-    (42) estatuto -> . var_def SEMICOLON
+    (42) estatuto -> . var_dec SEMICOLON
     (43) estatuto -> . lectura SEMICOLON
     (44) estatuto -> . escritura SEMICOLON
     (45) estatuto -> . decision SEMICOLON
@@ -3390,8 +3390,8 @@ state 184
     (69) returns -> . RETURN expresion
     (70) llamada_funcion -> . ID LPAREN param_llamada RPAREN
     (74) llamada_metodo -> . ID DOT ID LPAREN param_llamada RPAREN
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
+    (24) var_dec -> . type_compuesto ID
+    (25) var_dec -> . type_simple ID op_vardef
     (75) lectura -> . READ LPAREN variable op_lectura RPAREN
     (83) escritura -> . WRITE LPAREN expresion op_escritura RPAREN
     (86) decision -> . IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
@@ -3444,7 +3444,7 @@ state 184
     returns                        shift and go to state 58
     llamada_funcion                shift and go to state 59
     llamada_metodo                 shift and go to state 60
-    var_def                        shift and go to state 61
+    var_dec                        shift and go to state 61
     lectura                        shift and go to state 62
     escritura                      shift and go to state 63
     decision                       shift and go to state 64
@@ -3570,7 +3570,7 @@ state 194
     (39) estatuto -> . returns SEMICOLON
     (40) estatuto -> . llamada_funcion SEMICOLON
     (41) estatuto -> . llamada_metodo SEMICOLON
-    (42) estatuto -> . var_def SEMICOLON
+    (42) estatuto -> . var_dec SEMICOLON
     (43) estatuto -> . lectura SEMICOLON
     (44) estatuto -> . escritura SEMICOLON
     (45) estatuto -> . decision SEMICOLON
@@ -3584,8 +3584,8 @@ state 194
     (69) returns -> . RETURN expresion
     (70) llamada_funcion -> . ID LPAREN param_llamada RPAREN
     (74) llamada_metodo -> . ID DOT ID LPAREN param_llamada RPAREN
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
+    (24) var_dec -> . type_compuesto ID
+    (25) var_dec -> . type_simple ID op_vardef
     (75) lectura -> . READ LPAREN variable op_lectura RPAREN
     (83) escritura -> . WRITE LPAREN expresion op_escritura RPAREN
     (86) decision -> . IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
@@ -3639,7 +3639,7 @@ state 194
     returns                        shift and go to state 58
     llamada_funcion                shift and go to state 59
     llamada_metodo                 shift and go to state 60
-    var_def                        shift and go to state 61
+    var_dec                        shift and go to state 61
     lectura                        shift and go to state 62
     escritura                      shift and go to state 63
     decision                       shift and go to state 64
@@ -3663,7 +3663,7 @@ state 195
     (39) estatuto -> . returns SEMICOLON
     (40) estatuto -> . llamada_funcion SEMICOLON
     (41) estatuto -> . llamada_metodo SEMICOLON
-    (42) estatuto -> . var_def SEMICOLON
+    (42) estatuto -> . var_dec SEMICOLON
     (43) estatuto -> . lectura SEMICOLON
     (44) estatuto -> . escritura SEMICOLON
     (45) estatuto -> . decision SEMICOLON
@@ -3677,8 +3677,8 @@ state 195
     (69) returns -> . RETURN expresion
     (70) llamada_funcion -> . ID LPAREN param_llamada RPAREN
     (74) llamada_metodo -> . ID DOT ID LPAREN param_llamada RPAREN
-    (24) var_def -> . type_compuesto ID
-    (25) var_def -> . type_simple ID op_vardef
+    (24) var_dec -> . type_compuesto ID
+    (25) var_dec -> . type_simple ID op_vardef
     (75) lectura -> . READ LPAREN variable op_lectura RPAREN
     (83) escritura -> . WRITE LPAREN expresion op_escritura RPAREN
     (86) decision -> . IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision
@@ -3731,7 +3731,7 @@ state 195
     returns                        shift and go to state 58
     llamada_funcion                shift and go to state 59
     llamada_metodo                 shift and go to state 60
-    var_def                        shift and go to state 61
+    var_dec                        shift and go to state 61
     lectura                        shift and go to state 62
     escritura                      shift and go to state 63
     decision                       shift and go to state 64
