@@ -889,7 +889,7 @@ def p_declaraciones(p):
 
 def p_declaraciones_variables(p):
 	'''declaraciones : var_dec SEMICOLON declaraciones '''
-	p[0] = [VarDecNode(p[1])] + p[3]
+	p[0] = [p[1]] + p[3]
 
 
 def p_declaraciones_funciones(p):
@@ -1025,9 +1025,9 @@ def p_var_dec(p):
 	# VAR TYPE_COMP VAR1,VAR2... ;
 	# VAR TYPE_SIMPLE VAR1;
 	if (len(p) == 3):
-		p[0] = {"type": p[1], "id": p[2], "defined": False}
+		p[0] = ({"type": p[1], "id": p[2], "defined": False,"symbol_type":"compound"})
 	else:
-		p[0] = {"type": p[1], "id": p[2], "dims": p[3] , "defined":False, "symbol_type":"simple"}
+		p[0] = VarDecNode({"type": p[1], "id": p[2], "dims": p[3] , "defined":False, "symbol_type":"simple"})
 
 
 def p_op_vardef(p):
