@@ -115,7 +115,7 @@ class MainNode(Node):
 
 	
 	def __repr__(self):
-		return pprint.pformat(("Programa", self.declaraciones, self.main),indent=4)	
+		return pprint.pformat(("Programa", self.declaraciones, self.main),indent=1)	
 
 
 class VarDecNode(Node):
@@ -124,7 +124,7 @@ class VarDecNode(Node):
 
 
 	def __repr__(self):
-		return "{0}\n".format(("VARDEC", self.dec))
+		return pprint.pformat(("VARDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		# print("Symbol list:",analyzer.symbol_table_list)
@@ -139,11 +139,8 @@ class FuncDecNode(Node):
 		#{"name": p[2], "params": p[4], "return_op": p[6],
 		# ""estatutos": p[7]}
 
-	def __str__(self):
-		return "{0}".format(("FUNCDEC", self.dec))
-
 	def __repr__(self):
-		return "{0}".format(("FUNCDEC", self.dec))
+		return pprint.pformat(("FUNCDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		## CHECAR ID GLOBAL
@@ -206,7 +203,7 @@ class ClassDecNode(Node):
 			'body': {'Estatutos': []}}]}})'''
 
 	def __repr__(self):
-		return "{0}\n".format(("CLASSDEC", self.dec))
+		return pprint.pformat(("CLASSDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		# Checar que si existe la herencia
@@ -281,7 +278,7 @@ class AssignNode(Node):
 
 
 	def __repr__(self):
-		return "{0}".format(("ASSIGN", self.var, self.expresion))
+		return pprint.pformat(("ASSIGN", self.var, self.expresion))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		
@@ -334,7 +331,7 @@ class UnopNode(Node):
 
 
 	def __repr__(self):
-		return "{0}".format(("UNOP", self.operation, self.operand))
+		return pprint.pformat(("UNOP", self.operation, self.operand))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		operand_type = self.operand.analyze()
@@ -357,7 +354,7 @@ class BinopNode(Node):
 		self.rhs = rhs
 
 	def __repr__(self):
-		return "{0}".format(("BINOP", self.lhs, self.rhs))
+		return pprint.pformat(("BINOP", self.lhs, self.rhs))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		lh_type = self.lhs.analyze(analyzer)
@@ -411,7 +408,7 @@ class MinusNode(BinopNode):
 
 
 	def __repr__(self):
-		return "{0}".format(("MINUS",  self.lhs, self.rhs))
+		return pprint.pformat(("MINUS",  self.lhs, self.rhs))
 		
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -423,7 +420,7 @@ class TimesNode(BinopNode):
 	
 
 	def __repr__(self):
-		return "{0}".format(("TIMES", self.lhs, self.rhs))
+		return pprint.pformat(("TIMES", self.lhs, self.rhs))
 	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -434,7 +431,7 @@ class TimesNode(BinopNode):
 class DivideNode(BinopNode):
 
 	def __repr__(self):
-		return "{0}".format(("DIVIDE",  self.lhs, self.rhs))
+		return pprint.pformat(("DIVIDE",  self.lhs, self.rhs))
 		
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -445,7 +442,7 @@ class DivideNode(BinopNode):
 class EqualsNode(CompareNode):
 	
 	def __repr__(self):
-		return "{0}".format(("EQUALS", self.lhs, self.rhs))
+		return pprint.pformat(("EQUALS", self.lhs, self.rhs))
 	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -457,7 +454,7 @@ class NotEqualsNode(CompareNode):
 	
 
 	def __repr__(self):
-		return "{0}".format(("NOTEQ",  self.lhs, self.rhs))
+		return pprint.pformat(("NOTEQ",  self.lhs, self.rhs))
 	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -469,7 +466,7 @@ class GTNode(CompareNode):
 	
 
 	def __repr__(self):
-		return "{0}".format(("GTHAN",  self.lhs, self.rhs))
+		return pprint.pformat(("GTHAN",  self.lhs, self.rhs))
 
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -481,7 +478,7 @@ class LTNode(CompareNode):
 
 
 	def __repr__(self):
-		return "{0}".format(("LTHAN",  self.lhs, self.rhs))
+		return pprint.pformat(("LTHAN",  self.lhs, self.rhs))
 	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -497,7 +494,7 @@ class ConstantNode(Node):
 
 
 	def __repr__(self):
-		return "{0}".format(("CONSTANT",  self.value, self.type_name))
+		return pprint.pformat(("CONSTANT",  self.value, self.type_name))
 	
 	def run(self, vm):
 		return self.value
@@ -536,7 +533,7 @@ class VarCallNode(Node):
 		self.call_type = call_type
 	
 	def __repr__(self):
-		return "{0}".format(("VAR_CALL", self.id, self.call_type))
+		return pprint.pformat(("VAR_CALL", self.id, self.call_type))
 		
 	def analyze(self, analyzer, assignment=False, var = None):
 		if var is None:
@@ -611,7 +608,7 @@ class AttributeCallNode():
 		self.attributeName = attributeName
 	
 	def __repr__(self):
-		return "{0}".format(("ATTRIBUTE CALL", self.var, self.attributeName))
+		return pprint.pformat(("ATTRIBUTE CALL", self.var, self.attributeName))
 
 	def analyze(self,var,analyzer:SemanticAnalyzer):
 		# Does attribute exist?
@@ -641,7 +638,7 @@ class ReturnNode(Node):
 
 
 	def __repr__(self):
-		return "{0}".format(("RETURN", self.expr))
+		return pprint.pformat(("RETURN", self.expr))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		return self.expr.analyze(analyzer)
@@ -655,7 +652,7 @@ class FuncCallNode(Node):
 
 
 	def __repr__(self):
-		return "{0}".format(("VARDEC", self.dec))
+		return pprint.pformat(("VARDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		pass
@@ -666,7 +663,7 @@ class ObjectCallNode(Node):
 
 
 	def __repr__(self):
-		return "{0}".format(("VARDEC", self.dec))
+		return pprint.pformat(("VARDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		pass
@@ -681,7 +678,7 @@ class ReadNode(Node):
 
 
 	def __repr__(self):
-		return "{0}".format(("READ", self.variables))
+		return pprint.pformat(("READ", self.variables))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		for var in self.variables:
@@ -710,7 +707,7 @@ class WriteNode(Node):
 
 
 	def __repr__(self):
-		return "{0}".format(("WRITE", self.expresiones))
+		return pprint.pformat(("WRITE", self.expresiones))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 
@@ -735,7 +732,7 @@ class IfNode(Node):
 		
 
 	def __repr__(self):
-		return "{0}".format(("IfNode", self.condition, self.body, self.else_body))
+		return pprint.pformat(("IfNode", self.condition, self.body, self.else_body))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		# print("Symbol list:",analyzer.symbol_table_list)
@@ -776,7 +773,7 @@ class WhileNode(Node):
 
 
 	def __repr__(self):
-		return "{0}".format(("WHILE", self.condition, self.body))
+		return pprint.pformat(("WHILE", self.condition, self.body))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		condition_type = self.condition.analyze(analyzer)
@@ -806,7 +803,7 @@ class ForLoopNode(Node):
 
 
 	def __repr__(self):
-		return "{0}".format(("FOR_LOOP", self.dec))
+		return pprint.pformat(("FOR_LOOP", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 
