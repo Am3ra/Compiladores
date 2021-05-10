@@ -226,7 +226,7 @@ class ClassDecNode(Node):
 		scope = [{}]
 
 		for attribute in self.dec["attributes"] :
-			declarar_symbol_scopes(attribute, scope)
+			declarar_symbol_scopes(attribute.dec, scope)
 
 		for method in self.dec["methods"] :
 			declarar_symbol_scopes(method, scope)
