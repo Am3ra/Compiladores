@@ -3,6 +3,7 @@ import pickle
 from lexer import lexer
 from lexer import tokens
 from enum import Enum
+import pprint
 # from semanticAnalyzer import 
 
 #! TIPOS DISPONIBLES EN EL LENGUAJE:
@@ -113,20 +114,14 @@ class MainNode(Node):
 			estatuto.run(vm)
 
 	
-
-	def __str__(self):
-		return "{0}".format(("Programa", self.declaraciones, self.main))
-	
 	def __repr__(self):
-		return "{0}\n".format(("Programa", self.declaraciones, self.main))	
+		return pprint.pformat(("Programa", self.declaraciones, self.main),indent=4)	
 
 
 class VarDecNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
 
-	def __str__(self):
-		return "{0}".format(("VARDEC", self.dec))
 
 	def __repr__(self):
 		return "{0}\n".format(("VARDEC", self.dec))
@@ -283,8 +278,7 @@ class AssignNode(Node):
 		self.var = var
 		self.expresion = expresion
 
-	def __str__(self):
-		return "{0}".format(("ASSIGN", self.var, self.expresion))
+
 
 	def __repr__(self):
 		return "{0}".format(("ASSIGN", self.var, self.expresion))
@@ -338,8 +332,6 @@ class UnopNode(Node):
 		self.operation = operation
 		self.operand = operand
 
-	def __str__(self):
-		return "{0}".format(("UNOP", self.operation, self.operand))
 
 	def __repr__(self):
 		return "{0}".format(("UNOP", self.operation, self.operand))
@@ -363,9 +355,6 @@ class BinopNode(Node):
 	def __init__(self, lhs, rhs):
 		self.lhs = lhs
 		self.rhs = rhs
-
-	def __str__(self):
-		return "{0}".format(("BINOP",self.lhs,self.rhs))
 
 	def __repr__(self):
 		return "{0}".format(("BINOP", self.lhs, self.rhs))
@@ -399,8 +388,7 @@ class CompareNode(BinopNode):
 			return BaseType.BOOL
 
 class PlusNode(BinopNode):
-	def __str__(self):
-		return "{0}".format(("PLUS", self.lhs,self.rhs))
+	
 
 	def __repr__(self):
 		return "{0}".format(("PLUS",self.lhs, self.rhs))
@@ -420,8 +408,7 @@ class PlusNode(BinopNode):
 	
 
 class MinusNode(BinopNode):
-	def __str__(self):
-		return "{0}".format(("MINUS",  self.lhs,self.rhs))
+
 
 	def __repr__(self):
 		return "{0}".format(("MINUS",  self.lhs, self.rhs))
@@ -433,8 +420,7 @@ class MinusNode(BinopNode):
 		return lhs - rhs
 
 class TimesNode(BinopNode):
-	def __str__(self):
-		return "{0}".format(("TIMES",  self.lhs,self.rhs))
+	
 
 	def __repr__(self):
 		return "{0}".format(("TIMES", self.lhs, self.rhs))
@@ -446,8 +432,6 @@ class TimesNode(BinopNode):
 		return lhs * rhs
 
 class DivideNode(BinopNode):
-	def __str__(self):
-		return "{0}".format(("DIVIDE", self.lhs,self.rhs))
 
 	def __repr__(self):
 		return "{0}".format(("DIVIDE",  self.lhs, self.rhs))
@@ -459,9 +443,7 @@ class DivideNode(BinopNode):
 		return lhs / rhs
 
 class EqualsNode(CompareNode):
-	def __str__(self):
-		return "{0}".format(("EQUALS", self.lhs,self.rhs))
-
+	
 	def __repr__(self):
 		return "{0}".format(("EQUALS", self.lhs, self.rhs))
 	
@@ -472,8 +454,7 @@ class EqualsNode(CompareNode):
 		return lhs == rhs
 
 class NotEqualsNode(CompareNode):
-	def __str__(self):
-		return "{0}".format(("NOTEQ",  self.lhs,self.rhs))
+	
 
 	def __repr__(self):
 		return "{0}".format(("NOTEQ",  self.lhs, self.rhs))
@@ -485,8 +466,7 @@ class NotEqualsNode(CompareNode):
 		return lhs != rhs
 
 class GTNode(CompareNode):
-	def __str__(self):
-		return "{0}".format(("GTHAN", self.lhs,self.rhs))
+	
 
 	def __repr__(self):
 		return "{0}".format(("GTHAN",  self.lhs, self.rhs))
@@ -498,8 +478,7 @@ class GTNode(CompareNode):
 		return lhs > rhs
 
 class LTNode(CompareNode):
-	def __str__(self):
-		return "{0}".format(("LTHAN", self.lhs,self.rhs))
+
 
 	def __repr__(self):
 		return "{0}".format(("LTHAN",  self.lhs, self.rhs))
@@ -515,8 +494,7 @@ class ConstantNode(Node):
 	def analyze(self,  analyzer):
 		return self.type_name
 		
-	def __str__(self):
-		return "{0}".format(("Constant", self.value,self.type_name))
+
 
 	def __repr__(self):
 		return "{0}".format(("CONSTANT",  self.value, self.type_name))
@@ -557,9 +535,6 @@ class VarCallNode(Node):
 		self.id = id
 		self.call_type = call_type
 	
-	def __str__(self):
-		return "{0}".format(("VAR_CALL", self.id, self.call_type))
-
 	def __repr__(self):
 		return "{0}".format(("VAR_CALL", self.id, self.call_type))
 		
@@ -664,8 +639,6 @@ class ReturnNode(Node):
 	def __init__(self, expr):
 		self.expr = expr
 
-	def __str__(self):
-		return "{0}".format(("RETURN", self.expr))
 
 	def __repr__(self):
 		return "{0}".format(("RETURN", self.expr))
@@ -680,8 +653,6 @@ class FuncCallNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
 
-	def __str__(self):
-		return "{0}".format(("VARDEC", self.dec))
 
 	def __repr__(self):
 		return "{0}".format(("VARDEC", self.dec))
@@ -693,8 +664,6 @@ class ObjectCallNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
 
-	def __str__(self):
-		return "{0}".format(("VARDEC", self.dec))
 
 	def __repr__(self):
 		return "{0}".format(("VARDEC", self.dec))
@@ -710,8 +679,6 @@ class ReadNode(Node):
 	def __init__(self, variables : [VarCallNode]):
 		self.variables = variables
 
-	def __str__(self):
-		return "{0}".format(("READ", self.variables))
 
 	def __repr__(self):
 		return "{0}".format(("READ", self.variables))
@@ -741,8 +708,6 @@ class WriteNode(Node):
 	def __init__(self, expresiones):
 		self.expresiones = expresiones 
 
-	def __str__(self):
-		return "{0}".format(("WRITE", self.expresiones))
 
 	def __repr__(self):
 		return "{0}".format(("WRITE", self.expresiones))
@@ -768,8 +733,6 @@ class IfNode(Node):
 		self.body = body
 		self.else_body = else_body
 		
-	def __str__(self):
-		return "{0}".format(("IfNode", self.condition,self.body,self.else_body))
 
 	def __repr__(self):
 		return "{0}".format(("IfNode", self.condition, self.body, self.else_body))
@@ -811,8 +774,6 @@ class WhileNode(Node):
 		self.condition = condition
 		self.body = body
 
-	def __str__(self):
-		return "{0}".format(("WHILE", self.condition, self.body))
 
 	def __repr__(self):
 		return "{0}".format(("WHILE", self.condition, self.body))
@@ -843,8 +804,6 @@ class ForLoopNode(Node):
 		self.end = end
 		self.body = body
 
-	def __str__(self):
-		return "{0}".format(("FOR_LOOP", self.dec))
 
 	def __repr__(self):
 		return "{0}".format(("FOR_LOOP", self.dec))
