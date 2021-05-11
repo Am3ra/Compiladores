@@ -21,10 +21,7 @@ def test_analisis_semantico_declaracion_clase_con_variable_global():
 
 	Main ()
 	{
-		{
-			
-		};
-	
+		
 	}
 	'''  # FUNCIO}
 
