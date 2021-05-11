@@ -15,7 +15,10 @@ import pprint
 
 #! Juntar simbolos?
 
-
+''' 
+El manejo de memoria es de maner dinamica, por lo cual no se especificaran 
+registros en memoria de manera estática
+'''
 class SemanticAnalyzer():
 	def __init__(self, input=None, debug = False):
 		if input is not None:
@@ -354,7 +357,7 @@ class BinopNode(Node):
 		self.rhs = rhs
 
 	def __repr__(self):
-		return pprint.pformat(("BINOP", self.lhs, self.rhs))
+		return pprint.pformat((self.__class__.__name__, self.lhs, self.rhs))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		lh_type = self.lhs.analyze(analyzer)
@@ -372,6 +375,7 @@ class BinopNode(Node):
 			return lh_type
 
 class CompareNode(BinopNode):
+
 	def analyze(self, analyzer):
 		lh_type = self.lhs.analyze(analyzer)
 		rh_type = self.rhs.analyze(analyzer)
@@ -386,10 +390,6 @@ class CompareNode(BinopNode):
 
 class PlusNode(BinopNode):
 	
-
-	def __repr__(self):
-		return "{0}".format(("PLUS",self.lhs, self.rhs))
-
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.run(vm)
@@ -405,10 +405,6 @@ class PlusNode(BinopNode):
 	
 
 class MinusNode(BinopNode):
-
-
-	def __repr__(self):
-		return pprint.pformat(("MINUS",  self.lhs, self.rhs))
 		
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -418,10 +414,6 @@ class MinusNode(BinopNode):
 
 class TimesNode(BinopNode):
 	
-
-	def __repr__(self):
-		return pprint.pformat(("TIMES", self.lhs, self.rhs))
-	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.sun(vm)
@@ -429,10 +421,6 @@ class TimesNode(BinopNode):
 		return lhs * rhs
 
 class DivideNode(BinopNode):
-
-	def __repr__(self):
-		return pprint.pformat(("DIVIDE",  self.lhs, self.rhs))
-		
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.sun(vm)
@@ -440,10 +428,7 @@ class DivideNode(BinopNode):
 		return lhs / rhs
 
 class EqualsNode(CompareNode):
-	
-	def __repr__(self):
-		return pprint.pformat(("EQUALS", self.lhs, self.rhs))
-	
+
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.sun(vm)
@@ -451,10 +436,6 @@ class EqualsNode(CompareNode):
 		return lhs == rhs
 
 class NotEqualsNode(CompareNode):
-	
-
-	def __repr__(self):
-		return pprint.pformat(("NOTEQ",  self.lhs, self.rhs))
 	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -464,10 +445,6 @@ class NotEqualsNode(CompareNode):
 
 class GTNode(CompareNode):
 	
-
-	def __repr__(self):
-		return pprint.pformat(("GTHAN",  self.lhs, self.rhs))
-
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.sun(vm)
@@ -476,9 +453,6 @@ class GTNode(CompareNode):
 
 class LTNode(CompareNode):
 
-
-	def __repr__(self):
-		return pprint.pformat(("LTHAN",  self.lhs, self.rhs))
 	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -491,10 +465,8 @@ class ConstantNode(Node):
 	def analyze(self,  analyzer):
 		return self.type_name
 		
-
-
 	def __repr__(self):
-		return pprint.pformat(("CONSTANT",  self.value, self.type_name))
+		return pprint.pformat((self.__class__.__name__,  self.value, self.type_name.name))
 	
 	def run(self, vm):
 		return self.value
@@ -572,6 +544,9 @@ class VarCallNode(Node):
 class SimpleCallNode(Node):
 	def __init__(self,dims):
 		self.dims = dims
+
+	def __repr__(self):
+		return pprint.pformat(("Simple Var Call", self.dims ))
 
 	def analyze(self,analyzer : SemanticAnalyzer,var):
 		if var["symbol_type"] != "simple":
