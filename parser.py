@@ -208,9 +208,9 @@ class ClassDecNode(Node):
 		if check_if_symbol_declared_scopes(self.dec["id"],analyzer.symbol_table_list):
 			raise SemanticError("Clase ya declarada")
 		# Checar nombres de funcs y vars
-		analyzer.symbol_table_list[0][self.dec["id"]] = ({"id": self.dec["id"],"attributes":self.dec["attributes"],"methods":self.dec["methods"]})
-
-		scope = [{}]
+		analyzer.symbol_table_list[0][self.dec["id"]] = ({"id": self.dec["id"],"attributes":self.dec["attributes"],"methods":self.dec["methods"],"symbol_type": "class"})
+		analyzer.symbol_table_list[0][self.dec["id"]]["scope"] = [{}]
+		scope = analyzer.symbol_table_list[0][self.dec["id"]]["scope"] 
 
 		for attribute in self.dec["attributes"] :
 			declarar_symbol_scopes(attribute.dec, scope)
