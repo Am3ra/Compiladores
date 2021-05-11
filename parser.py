@@ -3,6 +3,7 @@ import pickle
 from lexer import lexer
 from lexer import tokens
 from enum import Enum
+import pprint
 # from semanticAnalyzer import 
 
 #! TIPOS DISPONIBLES EN EL LENGUAJE:
@@ -14,7 +15,10 @@ from enum import Enum
 
 #! Juntar simbolos?
 
-
+''' 
+El manejo de memoria es de maner dinamica, por lo cual no se especificaran 
+registros en memoria de manera estática
+'''
 class SemanticAnalyzer():
 	def __init__(self, input=None, debug = False):
 		if input is not None:
@@ -108,22 +112,18 @@ class MainNode(Node):
 		
 		return self.main.run(vm)
 
-	def __str__(self):
-		return "{0}".format(("Programa", self.declaraciones, self.main))
 	
 	def __repr__(self):
-		return "{0}\n".format(("Programa", self.declaraciones, self.main))	
+		return pprint.pformat(("Programa", self.declaraciones, self.main),indent=1)	
 
 
 class VarDecNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
 
-	def __str__(self):
-		return "{0}".format(("VARDEC", self.dec))
 
 	def __repr__(self):
-		return "{0}\n".format(("VARDEC", self.dec))
+		return pprint.pformat(("VARDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		# print("Symbol list:",analyzer.symbol_table_list)
@@ -138,11 +138,8 @@ class FuncDecNode(Node):
 		#{"name": p[2], "params": p[4], "return_op": p[6],
 		# ""estatutos": p[7]}
 
-	def __str__(self):
-		return "{0}".format(("FUNCDEC", self.dec))
-
 	def __repr__(self):
-		return "{0}".format(("FUNCDEC", self.dec))
+		return pprint.pformat(("FUNCDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		## CHECAR ID GLOBAL
@@ -204,7 +201,7 @@ class ClassDecNode(Node):
 			'body': {'Estatutos': []}}]}})'''
 
 	def __repr__(self):
-		return "{0}\n".format(("CLASSDEC", self.dec))
+		return pprint.pformat(("CLASSDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		# Checar que si existe la herencia
@@ -219,7 +216,7 @@ class ClassDecNode(Node):
 		scope = [{}]
 
 		for attribute in self.dec["attributes"] :
-			declarar_symbol_scopes(attribute, scope)
+			declarar_symbol_scopes(attribute.dec, scope)
 
 		for method in self.dec["methods"] :
 			declarar_symbol_scopes(method, scope)
@@ -289,11 +286,10 @@ class AssignNode(Node):
 		self.var = var
 		self.expresion = expresion
 
-	def __str__(self):
-		return "{0}".format(("ASSIGN", self.var, self.expresion))
+
 
 	def __repr__(self):
-		return "{0}".format(("ASSIGN", self.var, self.expresion))
+		return pprint.pformat(("ASSIGN", self.var, self.expresion))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		
@@ -344,11 +340,9 @@ class UnopNode(Node):
 		self.operation = operation
 		self.operand = operand
 
-	def __str__(self):
-		return "{0}".format(("UNOP", self.operation, self.operand))
 
 	def __repr__(self):
-		return "{0}".format(("UNOP", self.operation, self.operand))
+		return pprint.pformat(("UNOP", self.operation, self.operand))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		operand_type = self.operand.analyze()
@@ -370,11 +364,8 @@ class BinopNode(Node):
 		self.lhs = lhs
 		self.rhs = rhs
 
-	def __str__(self):
-		return "{0}".format(("BINOP",self.lhs,self.rhs))
-
 	def __repr__(self):
-		return "{0}".format(("BINOP", self.lhs, self.rhs))
+		return pprint.pformat((self.__class__.__name__, self.lhs, self.rhs))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		lh_type = self.lhs.analyze(analyzer)
@@ -392,6 +383,7 @@ class BinopNode(Node):
 			return lh_type
 
 class CompareNode(BinopNode):
+
 	def analyze(self, analyzer):
 		lh_type = self.lhs.analyze(analyzer)
 		rh_type = self.rhs.analyze(analyzer)
@@ -405,12 +397,7 @@ class CompareNode(BinopNode):
 			return BaseType.BOOL
 
 class PlusNode(BinopNode):
-	def __str__(self):
-		return "{0}".format(("PLUS", self.lhs,self.rhs))
-
-	def __repr__(self):
-		return "{0}".format(("PLUS",self.lhs, self.rhs))
-
+	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.run(vm)
@@ -426,11 +413,6 @@ class PlusNode(BinopNode):
 	
 
 class MinusNode(BinopNode):
-	def __str__(self):
-		return "{0}".format(("MINUS",  self.lhs,self.rhs))
-
-	def __repr__(self):
-		return "{0}".format(("MINUS",  self.lhs, self.rhs))
 		
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -439,11 +421,6 @@ class MinusNode(BinopNode):
 		return lhs - rhs
 
 class TimesNode(BinopNode):
-	def __str__(self):
-		return "{0}".format(("TIMES",  self.lhs,self.rhs))
-
-	def __repr__(self):
-		return "{0}".format(("TIMES", self.lhs, self.rhs))
 	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -452,12 +429,6 @@ class TimesNode(BinopNode):
 		return lhs * rhs
 
 class DivideNode(BinopNode):
-	def __str__(self):
-		return "{0}".format(("DIVIDE", self.lhs,self.rhs))
-
-	def __repr__(self):
-		return "{0}".format(("DIVIDE",  self.lhs, self.rhs))
-		
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.sun(vm)
@@ -465,12 +436,7 @@ class DivideNode(BinopNode):
 		return lhs / rhs
 
 class EqualsNode(CompareNode):
-	def __str__(self):
-		return "{0}".format(("EQUALS", self.lhs,self.rhs))
 
-	def __repr__(self):
-		return "{0}".format(("EQUALS", self.lhs, self.rhs))
-	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.sun(vm)
@@ -478,11 +444,6 @@ class EqualsNode(CompareNode):
 		return lhs == rhs
 
 class NotEqualsNode(CompareNode):
-	def __str__(self):
-		return "{0}".format(("NOTEQ",  self.lhs,self.rhs))
-
-	def __repr__(self):
-		return "{0}".format(("NOTEQ",  self.lhs, self.rhs))
 	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -491,12 +452,7 @@ class NotEqualsNode(CompareNode):
 		return lhs != rhs
 
 class GTNode(CompareNode):
-	def __str__(self):
-		return "{0}".format(("GTHAN", self.lhs,self.rhs))
-
-	def __repr__(self):
-		return "{0}".format(("GTHAN",  self.lhs, self.rhs))
-
+	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.sun(vm)
@@ -504,11 +460,7 @@ class GTNode(CompareNode):
 		return lhs > rhs
 
 class LTNode(CompareNode):
-	def __str__(self):
-		return "{0}".format(("LTHAN", self.lhs,self.rhs))
 
-	def __repr__(self):
-		return "{0}".format(("LTHAN",  self.lhs, self.rhs))
 	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -521,11 +473,8 @@ class ConstantNode(Node):
 	def analyze(self,  analyzer):
 		return self.type_name
 		
-	def __str__(self):
-		return "{0}".format(("Constant", self.value,self.type_name))
-
 	def __repr__(self):
-		return "{0}".format(("CONSTANT",  self.value, self.type_name))
+		return pprint.pformat((self.__class__.__name__,  self.value, self.type_name.name))
 	
 	def run(self, vm):
 		return self.value
@@ -563,25 +512,30 @@ class VarCallNode(Node):
 		self.id = id
 		self.call_type = call_type
 	
-	def __str__(self):
-		return "{0}".format(("VAR_CALL", self.id, self.call_type))
-
 	def __repr__(self):
-		return "{0}".format(("VAR_CALL", self.id, self.call_type))
+		return pprint.pformat(("VAR_CALL", self.id, self.call_type))
 		
-	def analyze(self, analyzer, assignment=False):
+	def analyze(self, analyzer, assignment=False, var = None):
+		if var is None:
+			scope = analyzer.symbol_table_list
+		else:
+			scope = [var["scope"]] # revisar el padre 
 		# Checar que existe
-		var = check_if_symbol_declared_scopes(self.id,analyzer.symbol_table_list)
+		var = check_if_symbol_declared_scopes(self.id,scope)
 		## CHECK CALL TYPE IS THE SAME AS VAR DIMS
 		if var:
 			if not assignment:
 				if var["defined"]:
-					return self.call_type.analyze(var,analyzer)
+					if self.call_type is None:
+						return var["type"]
+					return self.call_type.analyze(analyzer,var = var)
 				else:
 					raise SemanticError("CAN'T CALL UNDEFINDED VAR {0}".format(self.id))
 			else:
-				# var["defined"] == True
-				return self.call_type.analyze(var,analyzer)
+				var["defined"] == True
+				if self.call_type is None:
+					return var["type"]
+				return self.call_type.analyze(analyzer, var = var)
 		else:
 			raise SemanticError("CAN'T CALL UNDECLARED VAR {0}".format(self.id))
 
@@ -599,7 +553,10 @@ class SimpleCallNode(Node):
 	def __init__(self,dims):
 		self.dims = dims
 
-	def analyze(self,var,analyzer : SemanticAnalyzer):
+	def __repr__(self):
+		return pprint.pformat(("Simple Var Call", self.dims ))
+
+	def analyze(self,analyzer : SemanticAnalyzer,var):
 		if var["symbol_type"] != "simple":
 			raise SemanticError("Expected simple var.\n Recieved: {0}".format(var["symbol_type"]))
 
@@ -628,20 +585,43 @@ class MethodCallNode():
 	pass
 
 class AttributeCallNode():	
-	def __init__(self, val):
-		pass
+	'''Attribute call node analyzes and executes attribute calls.\n
+	Take a var and an attribute name'''
+	def __init__(self, attributeName):
+		self.attributeName = attributeName
+	
+	def __repr__(self):
+		return pprint.pformat(("ATTRIBUTE CALL", self.var, self.attributeName))
+
+	def analyze(self,var,analyzer:SemanticAnalyzer):
+		# Does attribute exist?
+		if var["symbol_type"] != "object":
+			raise SemanticError("Expected object var.\n Recieved: {0}".format(var["symbol_type"]))
+
+		if len(var["scope"][self.attributeName]["dims"]) != len(self.dims):
+			return SemanticError("Wrong number of Dimensions! \n Expected: {0}".format(var["dims"]))
+		for dim in self.dims:
+			dimtype = dim.analyze()
+
+			if dimtype is not BaseType.INT:
+				return SemanticError("Index has to be int, found  {0}".format(dimtype))
+
+		return var["type"]
 
 
-#DONE
+
+#hDONE
 class ReturnNode(Node):
+	'''
+	Return node analyzes an expresion recieved and executes it\n 
+	takes an expresion
+	'''
 	def __init__(self, expr):
 		self.expr = expr
 
-	def __str__(self):
-		return "{0}".format(("RETURN", self.expr))
 
 	def __repr__(self):
-		return "{0}".format(("RETURN", self.expr))
+		return pprint.pformat(("RETURN", self.expr))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		return self.expr.analyze(analyzer)
@@ -653,11 +633,9 @@ class FuncCallNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
 
-	def __str__(self):
-		return "{0}".format(("VARDEC", self.dec))
 
 	def __repr__(self):
-		return "{0}".format(("VARDEC", self.dec))
+		return pprint.pformat(("VARDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		pass
@@ -666,11 +644,9 @@ class ObjectCallNode(Node):
 	def __init__(self, dec):
 		self.dec = dec
 
-	def __str__(self):
-		return "{0}".format(("VARDEC", self.dec))
 
 	def __repr__(self):
-		return "{0}".format(("VARDEC", self.dec))
+		return pprint.pformat(("VARDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		pass
@@ -683,11 +659,9 @@ class ReadNode(Node):
 	def __init__(self, variables : [VarCallNode]):
 		self.variables = variables
 
-	def __str__(self):
-		return "{0}".format(("READ", self.variables))
 
 	def __repr__(self):
-		return "{0}".format(("READ", self.variables))
+		return pprint.pformat(("READ", self.variables))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		for var in self.variables:
@@ -714,11 +688,9 @@ class WriteNode(Node):
 	def __init__(self, expresiones):
 		self.expresiones = expresiones 
 
-	def __str__(self):
-		return "{0}".format(("WRITE", self.expresiones))
 
 	def __repr__(self):
-		return "{0}".format(("WRITE", self.expresiones))
+		return pprint.pformat(("WRITE", self.expresiones))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 
@@ -741,11 +713,9 @@ class IfNode(Node):
 		self.body = body
 		self.else_body = else_body
 		
-	def __str__(self):
-		return "{0}".format(("IfNode", self.condition,self.body,self.else_body))
 
 	def __repr__(self):
-		return "{0}".format(("IfNode", self.condition, self.body, self.else_body))
+		return pprint.pformat(("IfNode", self.condition, self.body, self.else_body))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		# print("Symbol list:",analyzer.symbol_table_list)
@@ -784,11 +754,9 @@ class WhileNode(Node):
 		self.condition = condition
 		self.body = body
 
-	def __str__(self):
-		return "{0}".format(("WHILE", self.condition, self.body))
 
 	def __repr__(self):
-		return "{0}".format(("WHILE", self.condition, self.body))
+		return pprint.pformat(("WHILE", self.condition, self.body))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		condition_type = self.condition.analyze(analyzer)
@@ -816,11 +784,9 @@ class ForLoopNode(Node):
 		self.end = end
 		self.body = body
 
-	def __str__(self):
-		return "{0}".format(("FOR_LOOP", self.dec))
 
 	def __repr__(self):
-		return "{0}".format(("FOR_LOOP", self.dec))
+		return pprint.pformat(("FOR_LOOP", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 
@@ -861,8 +827,8 @@ def p_declaraciones(p):
 
 
 def p_declaraciones_variables(p):
-	'''declaraciones : var_def SEMICOLON declaraciones '''
-	p[0] = [VarDecNode(p[1])] + p[3]
+	'''declaraciones : var_dec SEMICOLON declaraciones '''
+	p[0] = [p[1]] + p[3]
 
 
 def p_declaraciones_funciones(p):
@@ -920,7 +886,7 @@ def p_funcion_def(p):
 
 
 def p_op_var(p):
-	''' op_var : var_def SEMICOLON op_var
+	''' op_var : var_dec SEMICOLON op_var
 			   | empty'''
 	if (len(p)==4):
 		p[0] = [p[1]] + p[3]
@@ -946,7 +912,7 @@ params_op : COMMA ID COLON type_simple params_op
 '''
 
 def p_params(p):
-	''' params : var_def params_op
+	''' params : var_dec params_op
 				| empty'''
 	if(len(p) == 3):
 		p[0] = [p[1]] + p[2]
@@ -955,7 +921,7 @@ def p_params(p):
 
 
 def p_params_op(p):
-	''' params_op : COMMA var_def params_op
+	''' params_op : COMMA var_dec params_op
 					| empty '''
 	if (len(p) == 4):
 		p[0] = [p[2]] + p[3]
@@ -992,15 +958,15 @@ def p_main_error(p):
 """
 
 
-def p_var_def(p):
-	''' var_def :  type_compuesto    ID           
+def p_var_dec(p):
+	''' var_dec :  type_compuesto    ID           
 				|  type_simple       ID op_vardef   '''
 	# VAR TYPE_COMP VAR1,VAR2... ;
 	# VAR TYPE_SIMPLE VAR1;
 	if (len(p) == 3):
-		p[0] = {"type": p[1], "id": p[2], "defined": False}
+		p[0] = ({"type": p[1], "id": p[2], "defined": False,"symbol_type":"compound"})
 	else:
-		p[0] = {"type": p[1], "id": p[2], "dims": p[3] , "defined":False, "symbol_type":"simple"}
+		p[0] = VarDecNode({"type": p[1], "id": p[2], "dims": p[3] , "defined":False, "symbol_type":"simple"})
 
 
 def p_op_vardef(p):
@@ -1067,12 +1033,12 @@ def p_estatuto(p):
 				| returns SEMICOLON
 				| llamada_funcion SEMICOLON
 				| llamada_metodo SEMICOLON
-				| var_def SEMICOLON
+				| var_dec SEMICOLON
 				| lectura SEMICOLON
 				| escritura SEMICOLON
 				| decision SEMICOLON
 				| repeticion SEMICOLON
-				| bloque_func SEMICOLON'''
+				 '''
 	p[0] = p[1]
 
 # def p_estatuto_returns(p):
@@ -1267,7 +1233,7 @@ def p_variable(p):
 
 
 def p_variable_op(p):
-	''' variable_op : DOT ID 
+	''' variable_op : DOT variable
 					| LBRACKET expresion RBRACKET 
 					| LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET
 					| empty
@@ -1275,7 +1241,7 @@ def p_variable_op(p):
 	if(len(p) == 2):
 		p[0] =	SimpleCallNode([])
 	elif (len(p) == 3):
-		p[0] = AttributeCallNode(p[2])
+		p[0] = p[2]
 	elif (len(p) == 4):
 		p[0] = SimpleCallNode([p[2]])
 	else:
