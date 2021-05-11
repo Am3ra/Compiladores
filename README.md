@@ -90,3 +90,13 @@ agregamos la primer prueba de VM
 Entrega 5:
 
 Ningun avance
+
+Entrega 6:
+
+Agregar declaracion de objetos (analisis, y VM)
+Modificar impresion de operaciones
+Agregar interpretacion de variables
+Agregar asignaicon VM variables
+agregar return al main
+agregar soporte para bloque de codigo como estatuto
+agregar pruebas declaracion de objetos

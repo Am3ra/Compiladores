@@ -433,3 +433,22 @@ def test_analisis_semantico_if_else():
 	}
 	'''
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+
+def test_analisis_declaracion_de_objetos():
+	programa_ejemplo = '''
+
+	Clase team{
+		int cool;
+		Funcion electron(){
+			
+		}
+	}
+
+	Main ()
+	{
+		team a;
+	}
+	'''  # FUNCIO
+
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)

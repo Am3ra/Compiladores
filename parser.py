@@ -46,11 +46,7 @@ class SemanticAnalyzer():
 		self.check_if_declared_global(dec, "CLASS")
 		self.symbol_table_classes[dec["id"]] = dec
 
-	
-	def declare_symbol_class(self, dec, class_name, type):
-		# self.check_if_declared_class(self,dec,class_name)
-		check_if_symbol_declared_scope(dec,self.symbol_table_classes[class_name])
-		self.symbol_table_classes[class_name][type][dec["id"]] = dec
+
 
 def declarar_symbol_scopes(dec,scopes : [dict]):
 	''' takes a declaration of any type (class, varaible, function) and 
@@ -72,9 +68,9 @@ def check_if_symbol_declared_scopes(id : str,scopes:[dict]):
 	
 def declarar_symbol_scopes_run(dec, scopes, globals):
 	if len(scopes) == 0:
-		globals[dec["id"]] = dec
+		globals[dec[dec["id"]]] = dec
 	else:
-		scopes[-1][-1]["id"] = dec 
+		scopes[-1][-1][dec["id"]] = dec 
 
 def run_lista_estatutos(vm,lista_estatutos):
 	for estatuto in lista_estatutos:
@@ -130,6 +126,7 @@ class VarDecNode(Node):
 		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
 
 	def run(self,vm):
+		self.dec["value"] = [] 
 		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
 
 class FuncDecNode(Node):
@@ -270,7 +267,8 @@ class BloqueNode(Node):
 
 		for estatuto in self.estatutos:
 			if isinstance(estatuto, ReturnNode):
-				return estatuto.run(vm)
+				a = estatuto.run(vm)
+				return a
 			estatuto.run(vm)
 
 
@@ -300,6 +298,10 @@ class AssignNode(Node):
 			raise SemanticError("Wrong types in assign: Found {1}, expected:{0}".format(var_type,expr_type))
 		
 		check_if_symbol_declared_scopes(self.var.id,analyzer.symbol_table_list)["defined"] = True
+
+	def run(self,vm):
+		assignment = self.expresion.run(vm)
+		self.var.run(vm,assignment)
 		
 
 # FUNCIONA!
@@ -543,10 +545,14 @@ class VarCallNode(Node):
 		var = check_if_symbol_declared_scopes(self.id,[vm.global_symbols]+vm.symbol_scope_list[-1])
 
 		var_space = self.call_type.run(var, vm)
+		#"var[0][1] | var"
+		#exec -> ejecuta string como codigo
+		#eval -> regresa el valor de la expresion 
 		if assignment:
-			var_space["value"] = assignment
+			exec(var_space + " = assignment")
+			
 		else:
-			return var_space["value"]
+			return eval(var_space)
 
 
 class SimpleCallNode(Node):
@@ -575,11 +581,10 @@ class SimpleCallNode(Node):
 			dimcall = dimcall.run(vm)
 			if dimcall >= dimVar:
 				raise RuntimeError("Index out of bounds! Max index: {0}, recieved: {1}".format(dimVar,dimcall))
-		current_val = var["value"]
-		for dim in current_val:
-			current_val = current_val[dim]
-		return current_val
-
+		current_space = "var[\"value\"]"
+		for dim in self.dims: # Todo esto por no tener apuntadores :(
+			current_space += "[" + dim + "]"
+		return current_space
 
 class MethodCallNode():
 	pass
@@ -772,6 +777,31 @@ class WhileNode(Node):
 					return estatuto.run(vm)
 				estatuto.run(vm)
 
+class ObjectDecNode(Node):
+	'''{"type": p[1], "id": p[2], "defined": False,"symbol_type":"object"}'''
+	def __init__(self, dec):
+		self.dec = dec
+
+	def __repr__(self):
+	 return pprint.pformat((self.__class__.__name,self.dec))
+	# Analisis semantico : Checar que exita la clase
+	def analyze(self,analyzer : SemanticAnalyzer):
+		if check_if_symbol_declared_scopes(self.dec["id"],analyzer.symbol_table_list):
+			raise SemanticError("Symbol already declared with name {0}".format(self.dec["id"]))
+		parent_class = check_if_symbol_declared_scopes(self.dec["type"],analyzer.symbol_table_list)
+		if parent_class is False:
+			raise SemanticError("Class {0} is not declared".format(parent_class))
+		
+		if parent_class["symbol_type"] != "class":
+			raise SemanticError("{0} is not a class, it's a {1}".format(parent_class["id"],parent_class["symbol_type"]))
+
+		self.dec["scope"] = parent_class["scope"].copy()
+		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
+
+	# Run: *Copiar* (No referenciar) scope de clase padre
+
+	def run(self,vm):
+		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
 
 class ForLoopNode(Node):
 	'''
@@ -964,7 +994,7 @@ def p_var_dec(p):
 	# VAR TYPE_COMP VAR1,VAR2... ;
 	# VAR TYPE_SIMPLE VAR1;
 	if (len(p) == 3):
-		p[0] = ({"type": p[1], "id": p[2], "defined": False,"symbol_type":"compound"})
+		p[0] = ObjectDecNode({"type": p[1], "id": p[2], "defined": False,"symbol_type":"object"})
 	else:
 		p[0] = VarDecNode({"type": p[1], "id": p[2], "dims": p[3] , "defined":False, "symbol_type":"simple"})
 
