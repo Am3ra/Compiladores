@@ -100,3 +100,7 @@ Agregar asignaicon VM variables
 agregar return al main
 agregar soporte para bloque de codigo como estatuto
 agregar pruebas declaracion de objetos
+terminar llamada funcion VM Y SEMANTICO
+agregar pruebas llamadas funcion
+agregar llamadas atributos
+agregar pruebas llamada atributos

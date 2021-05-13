@@ -466,6 +466,8 @@ def test_analisis_declaracion_de_objetos_llamada_atributo():
 	{
 		team a;
 		a.cool = 3;
+
+		return a.cool;
 	}
 	'''  # FUNCIO
 

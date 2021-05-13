@@ -252,8 +252,9 @@ class BloqueNode(Node):
 
 		for estatuto in self.estatutos:
 			if isinstance(estatuto, ReturnNode):
+				a = estatuto.analyze(analyzer)
 				analyzer.symbol_table_list.pop() # pop lexical scope
-				return estatuto.analyze(analyzer)
+				return a
 			estatuto.analyze(analyzer)
 
 		# print("BloqueFUNC",analyzer.symbol_table_list)
@@ -521,9 +522,10 @@ class VarCallNode(Node):
 		if var is None:
 			scope = analyzer.symbol_table_list
 		else:
-			scope = [var["scope"]] # revisar el padre 
+			scope = var["scope"] # revisar el padre 
 		# Checar que existe
 		var = check_if_symbol_declared_scopes(self.id,scope)
+
 		## CHECK CALL TYPE IS THE SAME AS VAR DIMS
 		if var:
 			if not assignment:
@@ -534,10 +536,10 @@ class VarCallNode(Node):
 				else:
 					raise SemanticError("CAN'T CALL UNDEFINDED VAR {0}".format(self.id))
 			else:
-				var["defined"] == True
+				var["defined"] = True
 				if self.call_type is None:
 					return var["type"]
-				return self.call_type.analyze(analyzer, var = var)
+				return self.call_type.analyze(analyzer, var = var, assignment = True)
 		else:
 			raise SemanticError("CAN'T CALL UNDECLARED VAR {0}".format(self.id))
 
@@ -562,7 +564,7 @@ class SimpleCallNode(Node):
 	def __repr__(self):
 		return pprint.pformat(("Simple Var Call", self.dims ))
 
-	def analyze(self,analyzer : SemanticAnalyzer,var):
+	def analyze(self,analyzer : SemanticAnalyzer,var,assignment=False):
 		if var["symbol_type"] != "simple":
 			raise SemanticError("Expected simple var.\n Recieved: {0}".format(var["symbol_type"]))
 
@@ -589,29 +591,22 @@ class SimpleCallNode(Node):
 class MethodCallNode():
 	pass
 
-class AttributeCallNode():	
-	'''Attribute call node analyzes and executes attribute calls.\n
-	Take a var and an attribute name'''
-	def __init__(self, attributeName):
-		self.attributeName = attributeName
+# class AttributeCallNode():	
+# 	'''Attribute call node analyzes and executes attribute calls.\n
+# 	Take a var and an attribute name'''
+# 	def __init__(self, attributeName):
+# 		self.attributeName = attributeName
 	
-	def __repr__(self):
-		return pprint.pformat(("ATTRIBUTE CALL", self.var, self.attributeName))
+# 	def __repr__(self):
+# 		return pprint.pformat(("ATTRIBUTE CALL", self.var, self.attributeName))
 
-	def analyze(self,var,analyzer:SemanticAnalyzer):
-		# Does attribute exist?
-		if var["symbol_type"] != "object":
-			raise SemanticError("Expected object var.\n Recieved: {0}".format(var["symbol_type"]))
+# 	def analyze(self,analyzer:SemanticAnalyzer,var,assignment = False ):
+# 		# Does attribute exist?
+# 		if var["symbol_type"] != "object":
+# 			raise SemanticError("Expected object var.\n Recieved: {0}".format(var["symbol_type"]))
 
-		if len(var["scope"][self.attributeName]["dims"]) != len(self.dims):
-			return SemanticError("Wrong number of Dimensions! \n Expected: {0}".format(var["dims"]))
-		for dim in self.dims:
-			dimtype = dim.analyze()
 
-			if dimtype is not BaseType.INT:
-				return SemanticError("Index has to be int, found  {0}".format(dimtype))
-
-		return var["scope"][self.attributeName]["type"]
+# 		return self.attributeName.analyze(analyzer,assignment,var)
 
 
 
@@ -1326,7 +1321,7 @@ def p_variable_op(p):
 	if(len(p) == 2):
 		p[0] =	SimpleCallNode([])
 	elif (len(p) == 3):
-		p[0] = AttributeCallNode(p[2])
+		p[0] = p[2]
 	elif (len(p) == 4):
 		p[0] = SimpleCallNode([p[2]])
 	else:
