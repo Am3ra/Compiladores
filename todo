@@ -4,7 +4,12 @@ que sea estatuto????? :D
 
 PREGUNTA: SE PUEDE "SOBREDECLARAR" UNA VARIABLE?
 
-AGREGAR PRUEBAS DECLARACION DE OBJETOS
+AGREGAR MAS PRUEBAS DECLARACION DE OBJETOS
+
+
+
+
+- Agregar llamads atributos/metodos
 
 main{
 	int a;

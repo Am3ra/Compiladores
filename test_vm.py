@@ -39,3 +39,24 @@ def test_main_return_var():
 	parser = yacc.yacc()
 	vm.ast = parser.parse(programa_ejemplo)
 	assert vm.run() == 3
+
+
+def test_analisis_semantico_llamada_func_parametros():
+	programa_ejemplo = '''
+
+	Funcion karen(int a, int b, float f) -> int{
+
+		return a + b;
+	}
+
+	Main ()
+	{
+		
+		return  karen(1,3,3.1);
+	}
+	'''  # FUNCIONO!
+	vm = VirtualMachine()
+	parser = yacc.yacc()
+	vm.ast = parser.parse(programa_ejemplo)
+	assert vm.run() == 4
+

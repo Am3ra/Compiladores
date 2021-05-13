@@ -133,7 +133,6 @@ def test_analisis_semantico_declaracion_funcion_returns():
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
 
-
 def test_analisis_semantico_declaracion_funcion_returns_error():
 	programa_ejemplo = '''
 
@@ -452,3 +451,71 @@ def test_analisis_declaracion_de_objetos():
 	'''  # FUNCIO
 
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+def test_analisis_declaracion_de_objetos_llamada_atributo():
+	programa_ejemplo = '''
+
+	Clase team{
+		int cool;
+		Funcion electron(){
+			
+		}
+	}
+
+	Main ()
+	{
+		team a;
+		a.cool = 3;
+	}
+	'''  # FUNCIO
+
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+def test_analisis_semantico_llamada_funcion():
+	programa_ejemplo = '''
+
+	Funcion karen() -> int{
+
+		return 3;
+	}
+
+	Main ()
+	{
+		int a;
+		a = karen();
+	}
+	'''  # FUNCIONO!
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
+
+def test_analisis_semantico_dec_func_parametros():
+	programa_ejemplo = '''
+
+	Funcion karen(int a, int b, float f) -> int{
+
+		return 3;
+	}
+
+	Main ()
+	{
+
+	}
+	'''  # FUNCIONO!
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
+
+
+def test_analisis_semantico_llamada_func_parametros():
+	programa_ejemplo = '''
+
+	Funcion karen(int a, int b, float f) -> int{
+
+		return 3;
+	}
+
+	Main ()
+	{
+		int a; 
+
+		a = karen(1,3,3.1);
+	}
+	'''  # FUNCIONO!
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)

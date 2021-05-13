@@ -147,13 +147,7 @@ class FuncDecNode(Node):
 		# print(analyzer.symbol_table_list)
 
 		## CREAR DIC VACIO
-		analyzer.symbol_table_list[0][self.dec["id"]] = temp_symbol_table = {
-
-			"id": self.dec["id"],
-			"parameters": self.dec["params"],
-			"return_type":self.dec["return_op"]
-		}
-		
+		analyzer.symbol_table_list[0][self.dec["id"]] = self.dec
 
 		analyzer.symbol_table_list.append({})
 		# print("push to list")
@@ -163,7 +157,7 @@ class FuncDecNode(Node):
 
 		## DECLARAR PARAMETROS
 		for param in self.dec["params"]:
-			declarar_symbol_scopes(param,analyzer.symbol_table_list)
+			param.analyze(analyzer)
 		
 		var = self.dec["body"].analyze(analyzer)
 		# for estatuto in self.dec["body"]:
@@ -175,8 +169,10 @@ class FuncDecNode(Node):
 		if var != self.dec["return_op"]:
 			raise SemanticError("Return of Wrong Type! \nExpected:{0}\nRecieved:{1}".format(self.dec["return_op"],var))
 				
-
 		
+		print(analyzer.symbol_table_list)
+
+		analyzer.symbol_table_list.pop()
 		# print(analyzer.symbol_table_list)
 
 
@@ -256,10 +252,13 @@ class BloqueNode(Node):
 
 		for estatuto in self.estatutos:
 			if isinstance(estatuto, ReturnNode):
+				analyzer.symbol_table_list.pop() # pop lexical scope
 				return estatuto.analyze(analyzer)
 			estatuto.analyze(analyzer)
 
-
+		# print("BloqueFUNC",analyzer.symbol_table_list)
+		# del analyzer.symbol_table_list[-1]
+		# analyzer.symbol_table_list.pop() # pop lexical scope
 		analyzer.symbol_table_list.pop() # pop lexical scope
 
 	def run(self,vm):
@@ -267,6 +266,7 @@ class BloqueNode(Node):
 
 		for estatuto in self.estatutos:
 			if isinstance(estatuto, ReturnNode):
+				vm.symbol_scope_list[-1].pop()
 				a = estatuto.run(vm)
 				return a
 			estatuto.run(vm)
@@ -611,7 +611,7 @@ class AttributeCallNode():
 			if dimtype is not BaseType.INT:
 				return SemanticError("Index has to be int, found  {0}".format(dimtype))
 
-		return var["type"]
+		return var["scope"][self.attributeName]["type"]
 
 
 
@@ -635,15 +635,53 @@ class ReturnNode(Node):
 		return self.expr.run(vm)
 
 class FuncCallNode(Node):
-	def __init__(self, dec):
-		self.dec = dec
-
+	def __init__(self, callFunc):
+		self.callFunc = callFunc
 
 	def __repr__(self):
-		return pprint.pformat(("VARDEC", self.dec))
+		return pprint.pformat(("FUNC_CALL", self.callFunc))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		pass
+		# revisar que la funcion exista 
+		func = check_if_symbol_declared_scopes(self.callFunc["id"],analyzer.symbol_table_list)
+		if not func:
+			raise SemanticError("Function {0} does not exist".format(callFunc["id"]))	
+		
+		if func["symbol_type"] != "func":
+			raise SemanticError("{0} is already declared and is not a func\n".format(func["id"]))
+
+		params = func["params"]
+
+		# checar params que sean de tipo correcto
+		if len(func["params"]) != len(self.callFunc["args"]):
+			raise SemanticError("Wrong number of arguments in function call {0}".format(func["id"]))
+		
+		for (index,(param,arg)) in enumerate(zip(func["params"],self.callFunc["args"])):
+			param_type = param.dec["type"]
+			arg_type = arg.analyze(analyzer)
+
+			if param_type != arg_type:
+				raise SemanticError("argument {} is of wrong type.\n Expected {}, recieved {}".format(index,param_type,arg_type))
+
+
+		# regresar el tipo de regreso
+		return func["return_op"]
+
+	def run(self, vm):
+		# obtener func de llamada,
+		# push nuevo scope
+		func = check_if_symbol_declared_scopes(self.callFunc["id"],[vm.global_symbols]+vm.symbol_scope_list[-1])
+
+		vm.symbol_scope_list.append([{}])
+
+		# declarar params
+		for (param, arg) in zip(func["params"],self.callFunc["args"]):
+			param.run(vm)
+			param = check_if_symbol_declared_scopes(param.dec["id"],[vm.global_symbols]+vm.symbol_scope_list[-1])
+			param["value"] = arg.run(vm)
+
+		return func["body"].run(vm)
+
 		
 class ObjectCallNode(Node):
 	def __init__(self, dec):
@@ -1196,6 +1234,10 @@ def p_var_cte_string(p):
 	p[0] = StringNode(p[1])
 
 
+def p_var_cte_func_call(p):
+	''' var_cte : llamada_funcion '''
+	p[0] = p[1]
+
 def p_bool(p):
 	''' boolean : TRUE
 				| FALSE '''
@@ -1210,7 +1252,7 @@ def p_returns(p):
 
 def p_llamada_funcion(p):
 	''' llamada_funcion : ID LPAREN param_llamada RPAREN '''
-	p[0] = ("CALL_FUNC", {"id": p[1], "params": p[3]})
+	p[0] = FuncCallNode({"id": p[1], "args": p[3]})
 
 
 """
@@ -1262,6 +1304,19 @@ def p_variable(p):
 	p[0] = VarCallNode( p[1],  p[2])
 
 
+
+# Ahorita solo soportamos un nivel de profundidad: a.b, no a.b.c.d()
+# no hay method call
+
+'''
+
+DOT varibale variable_op
+DIMS 
+DOT FUNC_CALL variable_op
+empty
+'''
+
+
 def p_variable_op(p):
 	''' variable_op : DOT variable
 					| LBRACKET expresion RBRACKET 
@@ -1271,7 +1326,7 @@ def p_variable_op(p):
 	if(len(p) == 2):
 		p[0] =	SimpleCallNode([])
 	elif (len(p) == 3):
-		p[0] = p[2]
+		p[0] = AttributeCallNode(p[2])
 	elif (len(p) == 4):
 		p[0] = SimpleCallNode([p[2]])
 	else:

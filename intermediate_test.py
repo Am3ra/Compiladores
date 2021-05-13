@@ -1,4 +1,4 @@
-from parser import * 
+from parser import *
 import pytest as pytest
 
 
@@ -22,5 +22,20 @@ programa_ejemplo = '''
 	}
 	'''  # FUNCIO}
 
-SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)
+# SemanticAnalyzer(programa_ejemplo).analisis_semantico(None, debug=True)
 
+programa_ejemplo = '''
+
+	Funcion karen(int a, int b, float f) -> int{
+
+		return 3;
+	}
+
+	Main ()
+	{
+		int a; 
+
+		a = karen(1,3,3.1);
+	}
+	'''  # FUNCIONO!
+SemanticAnalyzer(programa_ejemplo).analisis_semantico(None, debug=True)
