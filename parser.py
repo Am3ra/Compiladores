@@ -114,9 +114,9 @@ class MainNode(Node):
 
 
 class VarDecNode(Node):
-	def __init__(self, dec):
+	def __init__(self, dec, lineno = None):
 		self.dec = dec
-
+		self.lineno = lineno
 
 	def __repr__(self):
 		return pprint.pformat(("VARDEC", self.dec))
@@ -130,8 +130,9 @@ class VarDecNode(Node):
 		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
 
 class FuncDecNode(Node):
-	def __init__(self, dec):
+	def __init__(self, dec, lineno = None):
 		self.dec = dec
+		self.lineno = lineno
 		#{"name": p[2], "params": p[4], "return_op": p[6],
 		# ""estatutos": p[7]}
 
@@ -141,7 +142,7 @@ class FuncDecNode(Node):
 	def analyze(self, analyzer: SemanticAnalyzer):
 		## CHECAR ID GLOBAL
 		if (check_if_symbol_declared_scopes(self.dec["id"], analyzer.symbol_table_list) ):
-			raise SemanticError("Symbol declared with same name.")
+			raise SemanticError("Symbol declared with same name.",self.lineno)
 
 
 		# print(analyzer.symbol_table_list)
@@ -167,7 +168,7 @@ class FuncDecNode(Node):
 
 			
 		if var != self.dec["return_op"]:
-			raise SemanticError("Return of Wrong Type! \nExpected:{0}\nRecieved:{1}".format(self.dec["return_op"],var))
+			raise SemanticError("Return of Wrong Type! \nExpected:{0}\nRecieved:{1}".format(self.dec["return_op"],var),self.lineno)
 				
 		
 		print(analyzer.symbol_table_list)
@@ -183,11 +184,15 @@ class FuncDecNode(Node):
 		# print(analyzer.symbol_table_list)
 
 class SemanticError(Exception):
-	pass
+	def __init__(self, message, lineno = None):
+		self.lineno = "" if lineno is None else "Error on line {}!\n".format(lineno)
+		self.message = message
+		super().__init__(self.lineno+self.message)
 
 class ClassDecNode(Node):
-	def __init__(self, dec):
+	def __init__(self, dec, lineno = None):
 		self.dec = dec
+		self.lineno = lineno
 		'''('CLASSDEC', {'id': 'team', 'inheritance': None, 
 		'body': {'attributes': [], 'methods': 
 			[{'id': 'team', 'params': [], 'return_op': None, 
@@ -202,7 +207,7 @@ class ClassDecNode(Node):
 		
 		# Checar el id
 		if check_if_symbol_declared_scopes(self.dec["id"],analyzer.symbol_table_list):
-			raise SemanticError("Clase ya declarada")
+			raise SemanticError("Clase ya declarada",self.lineno)
 		# Checar nombres de funcs y vars
 		analyzer.symbol_table_list[0][self.dec["id"]] = ({"id": self.dec["id"],"attributes":self.dec["attributes"],"methods":self.dec["methods"],"symbol_type": "class"})
 		analyzer.symbol_table_list[0][self.dec["id"]]["scope"] = [{}]
@@ -212,7 +217,7 @@ class ClassDecNode(Node):
 			declarar_symbol_scopes(attribute.dec, scope)
 
 		for method in self.dec["methods"] :
-			declarar_symbol_scopes(method, scope)
+			declarar_symbol_scopes(method.dec, scope)
 
 		## Agregar cosas inheritance
 		# print(declarar_symbol_scopes)
@@ -220,7 +225,7 @@ class ClassDecNode(Node):
 		if (self.dec["inheritance"]):
 			father = analyzer.symbol_table_list[0].get(self.dec["inheritance"])
 			if (father is None):
-				raise SemanticError("Inherits undeclared class")
+				raise SemanticError("Inherits undeclared class",self.lineno)
 			else:
 				for attribute in father["attributes"]:
 					analyzer.symbol_table_list[0][self.dec["id"]]["attributes"].setdefault(attribute,father[attribute])
@@ -237,8 +242,9 @@ class ClassDecNode(Node):
 
 
 class BloqueNode(Node):
-	def __init__(self,  estatutos):
+	def __init__(self,  estatutos, lineno = None):
 		self.estatutos = estatutos
+		self.lineno = lineno
 
 	def __str__(self):
 		return "{0}".format(("BLOQUE CODE", self.estatutos))
@@ -267,8 +273,8 @@ class BloqueNode(Node):
 
 		for estatuto in self.estatutos:
 			if isinstance(estatuto, ReturnNode):
-				vm.symbol_scope_list[-1].pop()
 				a = estatuto.run(vm)
+				vm.symbol_scope_list[-1].pop()
 				return a
 			estatuto.run(vm)
 
@@ -281,10 +287,10 @@ class AssignNode(Node):
 	check that variable exists, and is same type as expression.
 	assignes true to `"defined"` field of var dec
 	'''
-	def __init__(self, var, expresion):
+	def __init__(self, var, expresion, lineno = None):
 		self.var = var
 		self.expresion = expresion
-
+		self.lineno = lineno
 
 
 	def __repr__(self):
@@ -296,7 +302,7 @@ class AssignNode(Node):
 		expr_type = self.expresion.analyze(analyzer)
 
 		if var_type is not expr_type:
-			raise SemanticError("Wrong types in assign: Found {1}, expected:{0}".format(var_type,expr_type))
+			raise SemanticError("Wrong types in assign: Found {1}, expected:{0}".format(var_type,expr_type),self.lineno)
 		
 		check_if_symbol_declared_scopes(self.var.id,analyzer.symbol_table_list)["defined"] = True
 
@@ -363,9 +369,10 @@ class UnopNode(Node):
 
 #done
 class BinopNode(Node):
-	def __init__(self, lhs, rhs):
+	def __init__(self, lhs, rhs, lineno = None):
 		self.lhs = lhs
 		self.rhs = rhs
+		self.lineno = lineno
 
 	def __repr__(self):
 		return pprint.pformat((self.__class__.__name__, self.lhs, self.rhs))
@@ -375,27 +382,28 @@ class BinopNode(Node):
 		rh_type = self.rhs.analyze(analyzer)
 
 		if lh_type is BaseType.STRING:
-			raise SemanticError("Strings cannot be used in binary operations")
+			raise SemanticError("Strings cannot be used in binary operations",self.lineno)
 
 		if lh_type is BaseType.BOOL:
-			raise SemanticError("Booleans cannot be used in binary operations")
+			raise SemanticError("Booleans cannot be used in binary operations",self.lineno)
 
 		if lh_type != rh_type:
-			raise SemanticError("Binary operations can only be done with same types")
+			raise SemanticError("Binary operations can only be done with same types",self.lineno)
 		else:
 			return lh_type
 
 class CompareNode(BinopNode):
 
-	def analyze(self, analyzer):
+	def analyze(self, analyzer, lineno = None):
 		lh_type = self.lhs.analyze(analyzer)
 		rh_type = self.rhs.analyze(analyzer)
+		self.lineno = lineno
 		
 		if lh_type is BaseType.STRING:
-			raise SemanticError("Strings cannot be used in binary operations")
+			raise SemanticError("Strings cannot be used in binary operations",self.lineno)
 
 		if lh_type != rh_type:
-			raise SemanticError("Binary operations can only be done with same types")
+			raise SemanticError("Binary operations can only be done with same types",self.lineno)
 		else:
 			return BaseType.BOOL
 
@@ -485,25 +493,26 @@ class ConstantNode(Node):
 
 
 class BoolNode(ConstantNode):
-	def __init__(self, value):
+	def __init__(self, value, lineno = None):
 		self.value = value
 		self.type_name = BaseType.BOOL
+		self.lineno = lineno
 
 class FloatNode(ConstantNode):
-	def __init__(self, value):
+	def __init__(self, value, lineno = None):
 		self.value = value
 		self.type_name = BaseType.FLOAT
-		
+		self.lineno = lineno
 class IntNode(ConstantNode):
-	def __init__(self, value):
+	def __init__(self, value, lineno = None):
 		self.value = value
 		self.type_name = BaseType.INT
 
 class StringNode(ConstantNode):
-	def __init__(self, value):
+	def __init__(self, value, lineno = None):
 		self.value = value
 		self.type_name = BaseType.STRING
-
+		self.lineno = lineno
 class VarCallNode(Node):
 	'''
 	Takes a `String` id, and a `BaseType` type.\n
@@ -511,9 +520,10 @@ class VarCallNode(Node):
 	Returns `type` of var
 	
 	'''
-	def __init__(self,id,call_type):
+	def __init__(self,id,call_type, lineno = None):
 		self.id = id
 		self.call_type = call_type
+		self.lineno = lineno
 	
 	def __repr__(self):
 		return pprint.pformat(("VAR_CALL", self.id, self.call_type))
@@ -534,14 +544,14 @@ class VarCallNode(Node):
 						return var["type"]
 					return self.call_type.analyze(analyzer,var = var)
 				else:
-					raise SemanticError("CAN'T CALL UNDEFINDED VAR {0}".format(self.id))
+					raise SemanticError("CAN'T CALL UNDEFINDED VAR {0}".format(self.id),self.lineno)
 			else:
 				var["defined"] = True
 				if self.call_type is None:
 					return var["type"]
 				return self.call_type.analyze(analyzer, var = var, assignment = True)
 		else:
-			raise SemanticError("CAN'T CALL UNDECLARED VAR {0}".format(self.id))
+			raise SemanticError("CAN'T CALL UNDECLARED VAR {0}".format(self.id),self.lineno)
 
 	def run(self, vm, assignment = False):
 		var = check_if_symbol_declared_scopes(self.id,[vm.global_symbols]+vm.symbol_scope_list[-1])
@@ -558,23 +568,24 @@ class VarCallNode(Node):
 
 
 class SimpleCallNode(Node):
-	def __init__(self,dims):
+	def __init__(self,dims,lineno=None):
 		self.dims = dims
+		self.lineno = lineno
 
 	def __repr__(self):
 		return pprint.pformat(("Simple Var Call", self.dims ))
 
 	def analyze(self,analyzer : SemanticAnalyzer,var,assignment=False):
 		if var["symbol_type"] != "simple":
-			raise SemanticError("Expected simple var.\n Recieved: {0}".format(var["symbol_type"]))
+			raise SemanticError("Expected simple var.\n Recieved: {0}".format(var["symbol_type"]),self.lineno)
 
 		if len(var["dims"]) != len(self.dims):
-			return SemanticError("Wrong number of Dimensions! \n Expected: {0}".format(var["dims"]))
+			return SemanticError("Wrong number of Dimensions! \n Expected: {0}".format(var["dims"]),self.lineno)
 		for dim in self.dims:
 			dimtype = dim.analyze()
 
 			if dimtype is not BaseType.INT:
-				return SemanticError("Index has to be int, found  {0}".format(dimtype))
+				return SemanticError("Index has to be int, found  {0}".format(dimtype),self.lineno)
 
 		return var["type"]
 
@@ -616,9 +627,9 @@ class ReturnNode(Node):
 	Return node analyzes an expresion recieved and executes it\n 
 	takes an expresion
 	'''
-	def __init__(self, expr):
+	def __init__(self, expr, lineno = None):
 		self.expr = expr
-
+		self.lineno = lineno
 
 	def __repr__(self):
 		return pprint.pformat(("RETURN", self.expr))
@@ -630,8 +641,9 @@ class ReturnNode(Node):
 		return self.expr.run(vm)
 
 class FuncCallNode(Node):
-	def __init__(self, callFunc):
+	def __init__(self, callFunc, lineno = None):
 		self.callFunc = callFunc
+		self.lineno = lineno
 
 	def __repr__(self):
 		return pprint.pformat(("FUNC_CALL", self.callFunc))
@@ -640,23 +652,23 @@ class FuncCallNode(Node):
 		# revisar que la funcion exista 
 		func = check_if_symbol_declared_scopes(self.callFunc["id"],analyzer.symbol_table_list)
 		if not func:
-			raise SemanticError("Function {0} does not exist".format(callFunc["id"]))	
+			raise SemanticError("Function {0} does not exist".format(callFunc["id"]),self.lineno)	
 		
 		if func["symbol_type"] != "func":
-			raise SemanticError("{0} is already declared and is not a func\n".format(func["id"]))
+			raise SemanticError("{0} is already declared and is not a func\n".format(func["id"]),self.lineno)
 
 		params = func["params"]
 
 		# checar params que sean de tipo correcto
 		if len(func["params"]) != len(self.callFunc["args"]):
-			raise SemanticError("Wrong number of arguments in function call {0}".format(func["id"]))
+			raise SemanticError("Wrong number of arguments in function call {0}".format(func["id"]),self.lineno)
 		
 		for (index,(param,arg)) in enumerate(zip(func["params"],self.callFunc["args"])):
 			param_type = param.dec["type"]
 			arg_type = arg.analyze(analyzer)
 
 			if param_type != arg_type:
-				raise SemanticError("argument {} is of wrong type.\n Expected {}, recieved {}".format(index,param_type,arg_type))
+				raise SemanticError("argument {} is of wrong type.\n Expected {}, recieved {}".format(index,param_type,arg_type),self.lineno)
 
 
 		# regresar el tipo de regreso
@@ -679,8 +691,9 @@ class FuncCallNode(Node):
 
 		
 class ObjectCallNode(Node):
-	def __init__(self, dec):
+	def __init__(self, dec, lineno = None):
 		self.dec = dec
+		self.lineno = lineno
 
 
 	def __repr__(self):
@@ -694,9 +707,9 @@ class ReadNode(Node):
 		Reads series of inputs into vars, makes them defined.\n
 		Returns nothing.\n
 		Raises `SemanticError` if var not declared '''
-	def __init__(self, variables : [VarCallNode]):
+	def __init__(self, variables : [VarCallNode], lineno = None):
 		self.variables = variables
-
+		self.lineno = lineno
 
 	def __repr__(self):
 		return pprint.pformat(("READ", self.variables))
@@ -705,9 +718,9 @@ class ReadNode(Node):
 		for var in self.variables:
 			var = check_if_symbol_declared_scopes(var.id,analyzer.symbol_table_list)
 			if not var:
-				raise SemanticError("Can't read into variable that's not declared")
+				raise SemanticError("Can't read into variable that's not declared",self.lineno)
 			if var["type"] is not BaseType.STRING:
-				raise SemanticError("Can only read into String type var")
+				raise SemanticError("Can only read into String type var",self.lineno)
 			var["defined"] = True
 
 	def run(self, vm):
@@ -723,9 +736,9 @@ class WriteNode(Node):
 	Takes a list of expresions, writes them to console.
 	
 	'''
-	def __init__(self, expresiones):
+	def __init__(self, expresiones, lineno = None):
 		self.expresiones = expresiones 
-
+		self.lineno = lineno
 
 	def __repr__(self):
 		return pprint.pformat(("WRITE", self.expresiones))
@@ -746,11 +759,11 @@ class IfNode(Node):
 	Then analyzes `estatutos` in `body`,
 	Then analyzes `estatutos` in `else_body`
 	'''
-	def __init__(self, condition, body, else_body):
+	def __init__(self, condition, body, else_body, lineno = None):
 		self.condition = condition
 		self.body = body
 		self.else_body = else_body
-		
+		self.lineno = lineno
 
 	def __repr__(self):
 		return pprint.pformat(("IfNode", self.condition, self.body, self.else_body))
@@ -760,7 +773,7 @@ class IfNode(Node):
 		# Checar que expresion condicion sea bool
 		condition_type = self.condition.analyze(analyzer)
 		if condition_type is not BaseType.BOOL:
-			raise SemanticError("Condition has to return BOOL type")
+			raise SemanticError("Condition has to return BOOL type",self.lineno)
 		
 		for estatuto in self.body:
 			estatuto.analyze(analyzer)
@@ -788,10 +801,10 @@ class WhileNode(Node):
 	then analyzes `estatutos` in `body`,
 	
 	'''
-	def __init__(self, condition, body):
+	def __init__(self, condition, body, lineno = None):
 		self.condition = condition
 		self.body = body
-
+		self.lineno = lineno
 
 	def __repr__(self):
 		return pprint.pformat(("WHILE", self.condition, self.body))
@@ -799,7 +812,7 @@ class WhileNode(Node):
 	def analyze(self, analyzer: SemanticAnalyzer):
 		condition_type = self.condition.analyze(analyzer)
 		if condition_type is not BaseType.BOOL:
-			raise SemanticError("Condition has to return BOOL type")
+			raise SemanticError("Condition has to return BOOL type",self.lineno)
 		for estatuto in self.body:
 			estatuto.analyze(analyzer)
 	
@@ -812,21 +825,22 @@ class WhileNode(Node):
 
 class ObjectDecNode(Node):
 	'''{"type": p[1], "id": p[2], "defined": False,"symbol_type":"object"}'''
-	def __init__(self, dec):
+	def __init__(self, dec, lineno = None):
 		self.dec = dec
+		self.lineno = lineno
 
 	def __repr__(self):
 	 return pprint.pformat((self.__class__.__name,self.dec))
 	# Analisis semantico : Checar que exita la clase
 	def analyze(self,analyzer : SemanticAnalyzer):
 		if check_if_symbol_declared_scopes(self.dec["id"],analyzer.symbol_table_list):
-			raise SemanticError("Symbol already declared with name {0}".format(self.dec["id"]))
+			raise SemanticError("Symbol already declared with name {0}".format(self.dec["id"]),self.lineno)
 		parent_class = check_if_symbol_declared_scopes(self.dec["type"],analyzer.symbol_table_list)
 		if parent_class is False:
-			raise SemanticError("Class {0} is not declared".format(parent_class))
+			raise SemanticError("Class {0} is not declared".format(parent_class),self.lineno)
 		
 		if parent_class["symbol_type"] != "class":
-			raise SemanticError("{0} is not a class, it's a {1}".format(parent_class["id"],parent_class["symbol_type"]))
+			raise SemanticError("{0} is not a class, it's a {1}".format(parent_class["id"],parent_class["symbol_type"]),self.lineno)
 
 		self.dec["scope"] = parent_class["scope"].copy()
 		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
@@ -841,12 +855,12 @@ class ForLoopNode(Node):
 	`ForLoopNode` takes a control var, an assignment, a end point, and a body.\n
 	Runs body while condition is true.
 	'''
-	def __init__(self, variable, expresion, end, body):
+	def __init__(self, variable, expresion, end, body, lineno = None):
 		self.variable = variable
 		self.expresion = expresion
 		self.end = end
 		self.body = body
-
+		self.lineno = lineno
 
 	def __repr__(self):
 		return pprint.pformat(("FOR_LOOP", self.dec))
@@ -857,11 +871,11 @@ class ForLoopNode(Node):
 
 		var_type = check_if_symbol_declared_scopes(self.variable.id,analyzer.symbol_table_list)["type"]
 		if var_type is not BaseType.INT:
-			raise SemanticError("Can only use ints in for loop")
+			raise SemanticError("Can only use ints in for loop",self.lineno)
 		end_type = self.end.analyze(analyzer)
 		
 		if end_type is not BaseType.INT:
-			raise SemanticError("Can only use type INT in for loop")
+			raise SemanticError("Can only use type INT in for loop",self.lineno)
 		
 		for estatuto in self.body:
 			estatuto.analyze(analyzer)
@@ -885,29 +899,21 @@ def p_programa(p):
 	
 
 def p_declaraciones(p):
-	'''declaraciones : empty '''
-	p[0] = []
-
-
-def p_declaraciones_variables(p):
-	'''declaraciones : var_dec SEMICOLON declaraciones '''
-	p[0] = [p[1]] + p[3]
-
-
-def p_declaraciones_funciones(p):
-	'''declaraciones : funcion_def declaraciones '''
-	p[0] = [FuncDecNode(p[1])] + p[2]
-
-
-def p_declaraciones_clases(p):
-	'''declaraciones : clase_def declaraciones '''
-	p[0] = [ClassDecNode(p[1])] + p[2]
-
+	'''declaraciones : empty 
+					| var_dec SEMICOLON declaraciones
+					| funcion_def declaraciones
+					| clase_def declaraciones'''
+	if len(p) == 2:
+		p[0] = []
+	elif len(p) == 4:
+		p[0] = [p[1]] + p[3] # var dec es de largo diferente
+	else:
+		p[0] = [p[1]] + p[2]
 
 def p_clase_def(p):
 	'''clase_def : CLASS ID clase_op bloque_clase'''
-	p[0] = ({"id" : p[2], "inheritance" : p[3], 
-		"attributes": p[4]["attributes"], "methods" : p[4]["methods"], "symbol_type":"class"})
+	p[0] = ClassDecNode({"id" : p[2], "inheritance" : p[3], 
+		"attributes": p[4]["attributes"], "methods" : p[4]["methods"], "symbol_type":"class"}, lineno = p.lineno(1))
 
 
 def p_clase_op(p):
@@ -944,8 +950,8 @@ def p_op_func(p):
 
 def p_funcion_def(p):
 	''' funcion_def : FUNC ID LPAREN params RPAREN return_option bloque_func'''
-	p[0] = {"id": p[2], "params": p[4], "return_op": p[6],
-			"body":p[7], "symbol_type":"func"}
+	p[0] = FuncDecNode({"id": p[2], "params": p[4], "return_op": p[6],
+			"body":p[7], "symbol_type":"func"}, lineno = p.lineno(1))
 
 
 def p_op_var(p):
@@ -995,7 +1001,7 @@ def p_params_op(p):
 
 def p_bloque_func(p):
 	''' bloque_func : LBRACE estatutos RBRACE'''
-	p[0] = BloqueNode( p[2])
+	p[0] = BloqueNode( p[2], lineno = p.lineno(1))
 
 
 def p_main(p):
@@ -1027,9 +1033,9 @@ def p_var_dec(p):
 	# VAR TYPE_COMP VAR1,VAR2... ;
 	# VAR TYPE_SIMPLE VAR1;
 	if (len(p) == 3):
-		p[0] = ObjectDecNode({"type": p[1], "id": p[2], "defined": False,"symbol_type":"object"})
+		p[0] = ObjectDecNode({"type": p[1], "id": p[2], "defined": False,"symbol_type":"object"}, lineno = p.lineno(2))
 	else:
-		p[0] = VarDecNode({"type": p[1], "id": p[2], "dims": p[3] , "defined":False, "symbol_type":"simple"})
+		p[0] = VarDecNode({"type": p[1], "id": p[2], "dims": p[3] , "defined":False, "symbol_type":"simple"}, lineno = p.lineno(2))
 
 
 def p_op_vardef(p):
@@ -1120,7 +1126,7 @@ def p_estatuto(p):
 
 def p_asignacion(p):
 	''' asignacion : variable EQUAL expresion '''
-	p[0] =  AssignNode(p[1], p[3])
+	p[0] =  AssignNode(p[1], p[3], lineno = p.lineno(2))
 
 
 """
@@ -1168,7 +1174,7 @@ def p_expresion(p):
 		if (p[1] == '('):
 			p[0] = p[2]
 		else:
-			p[0]=p[2](p[1], p[3]) # Cambiar por dicccionario
+			p[0]=p[2](p[1], p[3]) 
 
 
 def p_binop(p):
@@ -1211,22 +1217,22 @@ def p_var_cte_var(p):
 
 def p_var_cte_bool(p):
 	''' var_cte : boolean '''
-	p[0] = BoolNode(p[1])
+	p[0] = p[1]
 
 
 
 def p_var_cte_f(p):
 	''' var_cte : CTEF '''
-	p[0] = FloatNode(p[1])
+	p[0] = FloatNode(p[1], lineno = p.lineno(1))
 
 
 def p_var_cte_i(p):
 	''' var_cte : CTEI '''
-	p[0] = IntNode(p[1])
+	p[0] = IntNode(p[1], lineno = p.lineno(1))
 
 def p_var_cte_string(p):
 	''' var_cte : CTESTRING'''
-	p[0] = StringNode(p[1])
+	p[0] = StringNode(p[1], lineno = p.lineno(1))
 
 
 def p_var_cte_func_call(p):
@@ -1236,18 +1242,18 @@ def p_var_cte_func_call(p):
 def p_bool(p):
 	''' boolean : TRUE
 				| FALSE '''
-	p[0] = p[1]
+	p[0] = BoolNode(p[1], lineno = p.lineno(1))
 
 def p_returns(p):
 	''' returns : RETURN expresion '''
-	p[0] = ReturnNode(p[2])
+	p[0] = ReturnNode(p[2], lineno = p.lineno(1))
 
 #! SE QUITO EL SEMICOLON
 
 
 def p_llamada_funcion(p):
 	''' llamada_funcion : ID LPAREN param_llamada RPAREN '''
-	p[0] = FuncCallNode({"id": p[1], "args": p[3]})
+	p[0] = FuncCallNode({"id": p[1], "args": p[3]}, lineno = p.lineno(1))
 
 
 """
@@ -1280,7 +1286,7 @@ def p_llamada_metodo(p):
 
 def p_lectura(p):
 	''' lectura : READ LPAREN variable op_lectura RPAREN '''
-	p[0] = ReadNode([p[3]]+p[4])
+	p[0] = ReadNode([p[3]]+p[4], lineno = p.lineno(1))
 
 
 def p_op_lectura(p):
@@ -1296,7 +1302,7 @@ def p_op_lectura(p):
 
 def p_variable(p):
 	''' variable : ID variable_op '''
-	p[0] = VarCallNode( p[1],  p[2])
+	p[0] = VarCallNode( p[1],  p[2], lineno = p.lineno(1))
 
 
 
@@ -1319,13 +1325,13 @@ def p_variable_op(p):
 					| empty
 									'''
 	if(len(p) == 2):
-		p[0] =	SimpleCallNode([])
+		p[0] =	SimpleCallNode([], lineno = p.lineno(1))
 	elif (len(p) == 3):
 		p[0] = p[2]
 	elif (len(p) == 4):
-		p[0] = SimpleCallNode([p[2]])
+		p[0] = SimpleCallNode([p[2]], lineno = p.lineno(1))
 	else:
-		p[0] = SimpleCallNode([p[2], p[5]])
+		p[0] = SimpleCallNode([p[2], p[5]], lineno = p.lineno(1))
 
 """
 #! GRAMATICA MODIFICADA
@@ -1344,7 +1350,7 @@ matrix : LBRACKET expresion RBRACKET
 
 def p_escritura(p):
 	''' escritura : WRITE LPAREN expresion op_escritura RPAREN '''
-	p[0] = WriteNode([p[3]] + p[4])
+	p[0] = WriteNode([p[3]] + p[4], lineno = p.lineno(1))
 
 
 def p_op_escritura(p):
@@ -1358,7 +1364,7 @@ def p_op_escritura(p):
 
 def p_decision(p):
 	''' decision : IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision '''
-	p[0] = IfNode(p[3],p[6], p[8])
+	p[0] = IfNode(p[3],p[6], p[8], lineno = p.lineno(1))
 
 
 def p_op_decision(p):
@@ -1378,12 +1384,12 @@ def p_repeticion(p):
 
 def p_condicional(p):
 	''' condicional : WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE '''
-	p[0] = WhileNode(p[3], p[7])
+	p[0] = WhileNode(p[3], p[7], lineno = p.lineno(1))
 
 
 def p_no_condicional(p):
 	''' no_condicional : FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE '''
-	p[0] = ForLoopNode(  p[2], p[4],  p[6], p[9])
+	p[0] = ForLoopNode(  p[2], p[4],  p[6], p[9], lineno = p.lineno(1))
 
 
 """
@@ -1409,7 +1415,3 @@ precedence = (
 	('left', 'PLUS', 'MINUS'),
 	('left', 'TIMES', 'DIVIDE'),
 )
-
-
-
-
