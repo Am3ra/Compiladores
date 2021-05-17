@@ -87,20 +87,32 @@ Agregamos funcionalidad de return al main
 
 agregamos la primer prueba de VM
 
-Entrega 5:
+## Entrega 5:
 
 Ningun avance
 
-Entrega 6:
+## Entrega 6:
 
-Agregar declaracion de objetos (analisis, y VM)
-Modificar impresion de operaciones
-Agregar interpretacion de variables
-Agregar asignaicon VM variables
-agregar return al main
-agregar soporte para bloque de codigo como estatuto
-agregar pruebas declaracion de objetos
-terminar llamada funcion VM Y SEMANTICO
-agregar pruebas llamadas funcion
-agregar llamadas atributos
-agregar pruebas llamada atributos
+- Agregar declaracion de objetos (analisis, y VM)
+- Modificar impresion de operaciones
+- Agregar interpretacion de variables
+- Agregar asignaicon VM variables
+- agregar return al main
+- agregar soporte para bloque de codigo como estatuto
+- agregar pruebas declaracion de objetos
+- terminar llamada funcion VM Y SEMANTICO
+- agregar pruebas llamadas funcion
+- agregar llamadas atributos
+- agregar pruebas llamada atributos
+- agregar lineas de error a errores semanticosSemanticError
+
+
+# Entrega 7:
+
+- Agregar pruebas analisis semantico recursividad
+- Agregar pruebas analisis semantico while, if y foor loop
+- Agregar pruebas ejecución while, if y foor loop
+- Pasar if a expresion
+- Agregar pruebas de if como expresion
+- Agregar bloque func como expresion
+- Agregar pruebas analisis semantico if y bloque func como expresion

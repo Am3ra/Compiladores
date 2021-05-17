@@ -272,10 +272,15 @@ class BloqueNode(Node):
 		vm.symbol_scope_list[-1].append({}) 
 
 		for estatuto in self.estatutos:
-			if isinstance(estatuto, ReturnNode):
+			if isinstance(estatuto, ReturnNode) :
 				a = estatuto.run(vm)
 				vm.symbol_scope_list[-1].pop()
 				return a
+			elif isinstance(estatuto,IfNode):
+				a = estatuto.run(vm)
+				if a is not None:
+					vm.symbol_scope_list[-1].pop()
+					return a
 			estatuto.run(vm)
 
 
@@ -298,8 +303,8 @@ class AssignNode(Node):
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 		
-		var_type = self.var.analyze(analyzer,True)
 		expr_type = self.expresion.analyze(analyzer)
+		var_type = self.var.analyze(analyzer,True)
 
 		if var_type is not expr_type:
 			raise SemanticError("Wrong types in assign: Found {1}, expected:{0}".format(var_type,expr_type),self.lineno)
@@ -427,7 +432,7 @@ class MinusNode(BinopNode):
 		
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
-		rhs = self.rhs.sun(vm)
+		rhs = self.rhs.run(vm)
 
 		return lhs - rhs
 
@@ -435,14 +440,14 @@ class TimesNode(BinopNode):
 	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
-		rhs = self.rhs.sun(vm)
+		rhs = self.rhs.run(vm)
 
 		return lhs * rhs
 
 class DivideNode(BinopNode):
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
-		rhs = self.rhs.sun(vm)
+		rhs = self.rhs.run(vm)
 
 		return lhs / rhs
 
@@ -450,7 +455,7 @@ class EqualsNode(CompareNode):
 
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
-		rhs = self.rhs.sun(vm)
+		rhs = self.rhs.run(vm)
 
 		return lhs == rhs
 
@@ -458,7 +463,7 @@ class NotEqualsNode(CompareNode):
 	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
-		rhs = self.rhs.sun(vm)
+		rhs = self.rhs.run(vm)
 
 		return lhs != rhs
 
@@ -466,7 +471,7 @@ class GTNode(CompareNode):
 	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
-		rhs = self.rhs.sun(vm)
+		rhs = self.rhs.run(vm)
 
 		return lhs > rhs
 
@@ -475,7 +480,7 @@ class LTNode(CompareNode):
 	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
-		rhs = self.rhs.sun(vm)
+		rhs = self.rhs.run(vm)
 
 		return lhs < rhs
 
@@ -775,23 +780,23 @@ class IfNode(Node):
 		if condition_type is not BaseType.BOOL:
 			raise SemanticError("Condition has to return BOOL type",self.lineno)
 		
-		for estatuto in self.body:
-			estatuto.analyze(analyzer)
+		body_type = self.body.analyze(analyzer)
 		
-		for estatuto in self.else_body:
-			estatuto.analyze(analyzer)
+		if self.else_body is None:
+			else_body_type = None
+		else:
+			else_body_type =  self.else_body.analyze(analyzer)
+
+		if body_type != else_body_type:
+			raise SemanticError("If body and else body return different types!")
+		
+		return body_type
 
 	def run(self,vm):
-		if self.condition == True:
-			for estatuto in self.body:
-				if isinstance(estatuto, ReturnNode):
-					return estatuto.run(vm)
-				estatuto.run(vm)
+		if self.condition.run(vm) == True:
+			return self.body.run(vm)
 		else:
-			for estatuto in self.else_body:
-				if isinstance(estatuto, ReturnNode):
-					return estatuto.run(vm)
-				estatuto.run(vm)
+			return self.else_body.run(vm)
 
 
 class WhileNode(Node):
@@ -813,15 +818,11 @@ class WhileNode(Node):
 		condition_type = self.condition.analyze(analyzer)
 		if condition_type is not BaseType.BOOL:
 			raise SemanticError("Condition has to return BOOL type",self.lineno)
-		for estatuto in self.body:
-			estatuto.analyze(analyzer)
+		self.body.analyze(analyzer)	
 	
 	def run(self,vm):
-		while self.condition.run():
-			for estatuto in self.body:
-				if isinstance(estatuto, ReturnNode):
-					return estatuto.run(vm)
-				estatuto.run(vm)
+		while self.condition.run(vm):
+			self.body.run(vm)
 
 class ObjectDecNode(Node):
 	'''{"type": p[1], "id": p[2], "defined": False,"symbol_type":"object"}'''
@@ -872,23 +873,24 @@ class ForLoopNode(Node):
 		var_type = check_if_symbol_declared_scopes(self.variable.id,analyzer.symbol_table_list)["type"]
 		if var_type is not BaseType.INT:
 			raise SemanticError("Can only use ints in for loop",self.lineno)
+
+
 		end_type = self.end.analyze(analyzer)
 		
 		if end_type is not BaseType.INT:
 			raise SemanticError("Can only use type INT in for loop",self.lineno)
 		
-		for estatuto in self.body:
-			estatuto.analyze(analyzer)
+		self.body.analyze(analyzer)
 
 	def run(self,vm):
-		var = check_if_symbol_declared_scopes(var.id,[vm.global_symbols]+vm.symbol_scope_list[-1][-1])
+		var = check_if_symbol_declared_scopes(self.variable.id,[vm.global_symbols]+vm.symbol_scope_list[-1])
 		var["value"] = self.expresion.run(vm)
 		end = self.end.run(vm)
 		while var["value"] != end:
-			for estatuto in self.body:
-				if isinstance(estatuto, ReturnNode):
-					return estatuto.run(vm)
-				estatuto.run(vm)
+			a = self.body.run(vm)
+			if a:
+				return a
+			var["value"] += 1
 
 def generic_error(type,p):
 	print("Error in {2}  on line {0} \n At index {1}".format(p.lineno(4), p.lexpos(4),type))
@@ -1098,14 +1100,12 @@ def p_estatutos(p):
 #! Se elimino expresion de estatutos
 def p_estatuto(p):
 	''' estatuto : asignacion SEMICOLON
+				| var_dec SEMICOLON
 				| expresion SEMICOLON
 				| returns SEMICOLON
-				| llamada_funcion SEMICOLON
 				| llamada_metodo SEMICOLON
-				| var_dec SEMICOLON
 				| lectura SEMICOLON
 				| escritura SEMICOLON
-				| decision SEMICOLON
 				| repeticion SEMICOLON
 				 '''
 	p[0] = p[1]
@@ -1127,38 +1127,6 @@ def p_estatuto(p):
 def p_asignacion(p):
 	''' asignacion : variable EQUAL expresion '''
 	p[0] =  AssignNode(p[1], p[3], lineno = p.lineno(2))
-
-
-"""
-#! CAMBIO DE GRAMATICA, REGLAS DE EXPRESIONES MODIFICADAS 
-
-''' expr : expresion
-			 | expresion binop expresion '''
-
-''' expresion : termino op_expresion '''
-
-''' op_expresion : plus_minus expresion 
-					 | empty'''
-	
-''' termino : factor op_factor '''
-
-''' op_factor : mulop factor
-				| empty '''
-
-''' factor : LPAREN expr RPAREN 
-			| var_cte
-			| variable '''
-			
-''' mulop : TIMES 
-			  | DIVIDE '''
-
-## ADD ESTO
-	expresion : expresion BINOP expresion
-			   | plus_minus expresion
-			   | LPAREN expresion RPAREN
-			   | var_cte     
-
-"""
 
 
 def p_expresion(p):
@@ -1237,6 +1205,14 @@ def p_var_cte_string(p):
 
 def p_var_cte_func_call(p):
 	''' var_cte : llamada_funcion '''
+	p[0] = p[1]
+
+def p_var_cte_if(p):
+	''' var_cte : decision '''
+	p[0] = p[1]
+
+def p_var_cte_bloque_func(p):
+	''' var_cte : bloque_func '''
 	p[0] = p[1]
 
 def p_bool(p):
@@ -1363,17 +1339,17 @@ def p_op_escritura(p):
 
 
 def p_decision(p):
-	''' decision : IF LPAREN expresion RPAREN LBRACE estatutos RBRACE op_decision '''
-	p[0] = IfNode(p[3],p[6], p[8], lineno = p.lineno(1))
+	''' decision : IF LPAREN expresion RPAREN bloque_func op_decision '''
+	p[0] = IfNode(p[3],p[5], p[6], lineno = p.lineno(1))
 
 
 def p_op_decision(p):
-	''' op_decision : ELSE LBRACE estatutos RBRACE 
-									| empty '''
-	if(len(p) == 4):
-		p[0] = [p[3]]
+	''' op_decision : ELSE bloque_func 
+					| empty '''
+	if(len(p) == 3):
+		p[0] = p[2]
 	else:
-		p[0] = []
+		p[0] = None
 
 
 def p_repeticion(p):
@@ -1383,13 +1359,13 @@ def p_repeticion(p):
 
 
 def p_condicional(p):
-	''' condicional : WHILE LPAREN expresion RPAREN DO LBRACE estatutos RBRACE '''
-	p[0] = WhileNode(p[3], p[7], lineno = p.lineno(1))
+	''' condicional : WHILE LPAREN expresion RPAREN DO bloque_func '''
+	p[0] = WhileNode(p[3], p[6], lineno = p.lineno(1))
 
 
 def p_no_condicional(p):
-	''' no_condicional : FROM variable EQUAL expresion TO expresion DO LBRACE estatutos RBRACE '''
-	p[0] = ForLoopNode(  p[2], p[4],  p[6], p[9], lineno = p.lineno(1))
+	''' no_condicional : FROM variable EQUAL expresion TO expresion DO bloque_func '''
+	p[0] = ForLoopNode(  p[2], p[4],  p[6], p[8], lineno = p.lineno(1))
 
 
 """

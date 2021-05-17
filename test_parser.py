@@ -521,3 +521,151 @@ def test_analisis_semantico_llamada_func_parametros():
 	}
 	'''  # FUNCIONO!
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
+
+def test_analisis_semantico_llamada_func_recursiva():
+	programa_ejemplo = '''
+	
+	Funcion karen(int a, int b, float f) -> int{
+		a = karen(2,3,4.5);
+		return 3;
+	}
+
+	Main ()
+	{
+		int b; 
+
+		b = karen(1,3,3.1);
+	}
+	'''  # FUNCIONO!
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
+
+
+def test_analisis_semantico_llamada_func_recursiva():
+	programa_ejemplo = '''
+	
+	Funcion karen(int a, int b, float f) -> int{
+		a = karen(2,3,4.5);
+		return 3;
+	}
+
+	Main ()
+	{
+		int b; 
+
+		b = karen(1,3,3.1);
+	}
+	'''  # FUNCIONO!
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
+
+
+def test_analisis_semantico_while():
+	programa_ejemplo = '''
+
+	int alan ; 
+
+	Main ()
+	{
+		mientras (4 < 10) hacer 
+		{
+			alan = 3;
+		};
+	}
+	'''
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+def test_analisis_semantico_while_error_condicion():
+	programa_ejemplo = '''
+
+	int alan ; 
+
+	Main ()
+	{
+		mientras (10) hacer 
+		{
+			alan = 3;
+		};
+	}
+	'''
+	with pytest.raises(SemanticError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+def test_analisis_semantico_for_loop():
+	programa_ejemplo = '''
+
+	int alan ; 
+
+	Main ()
+	{
+		desde alan = 0 hasta 43 hacer 
+		{
+			escribe(alan);
+		};
+	}
+	'''
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+def test_analisis_semantico_for_loop_error_condicion():
+	programa_ejemplo = '''
+
+	int alan ; 
+
+	Main ()
+	{
+		desde alan = 0 hasta a>43 hacer  
+		{
+			escribe(alan);
+		};
+	}
+	'''
+	with pytest.raises(SemanticError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+def test_analisis_semantico_bloque_func_estatuto():
+	programa_ejemplo = '''
+
+	int alan ; 
+
+	Main ()
+	{
+		{
+		
+		};
+	}
+	'''
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+def test_analisis_semantico_bloque_func_estatuto_con_expresiones():
+	programa_ejemplo = '''
+
+	int alan ; 
+
+	Main ()
+	{
+		
+		{
+			return 3;
+		};
+		karen = 3;
+	}
+	'''
+	with pytest.raises(SemanticError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
+def test_analisis_semantico_bloque_func_estatuto_expresion_return():
+	programa_ejemplo = '''
+
+	int alan ; 
+
+	Main ()
+	{
+		alan = 3 + 
+			{
+				return 5 + if(3<4){
+								return 5;
+							}else{
+								return 6;
+							}; 
+			};
+	}
+	'''
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)

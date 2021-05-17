@@ -1,5 +1,5 @@
 from parser import *
-
+from maquinaVirtual import *
 
 
 programa_ejemplo = '''
@@ -26,16 +26,24 @@ programa_ejemplo = '''
 
 programa_ejemplo = '''
 
-	Funcion karen(int a, int b, float f) -> int{
+int alan ; 
 
-		return 3;
-	}
-
-	Main ()
+Main ()
+{
+	alan = 9;
+	if(alan < 10)
 	{
-		int a; 
-
-		a = karen(1,3,3.1);
+		alan = alan;
 	}
-	'''  # FUNCIONO!
-SemanticAnalyzer(programa_ejemplo).analisis_semantico(None, debug=True)
+	else
+	{
+		alan = 3;
+	};
+	return alan;
+}
+'''
+vm = VirtualMachine()
+parser = yacc.yacc()
+vm.ast = parser.parse(programa_ejemplo)
+print(vm.run())
+
