@@ -473,6 +473,25 @@ def test_analisis_declaracion_de_objetos_llamada_atributo():
 
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
 
+def test_analisis_declaracion_de_objetos_llamada_metodo():
+	programa_ejemplo = '''
+
+	Clase team{
+		Funcion electron() -> int{
+			return 3;
+		}
+	}
+
+	Main ()
+	{
+		team a;
+
+		return a.electron();
+	}
+	'''  # FUNCIO
+
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+	
 def test_analisis_semantico_llamada_funcion():
 	programa_ejemplo = '''
 

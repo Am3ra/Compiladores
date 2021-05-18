@@ -66,9 +66,11 @@ def check_if_symbol_declared_scopes(id : str,scopes:[dict]):
 			return scope.get(id)
 	return False
 	
-def declarar_symbol_scopes_run(dec, scopes, globals):
-	if len(scopes) == 0:
-		globals[dec[dec["id"]]] = dec
+def declarar_symbol_scopes_run(dec, scopes, globals,force=False):
+	if force:
+		scopes[-1][dec["id"]] = dec
+	elif len(scopes) == 1 and len(scopes[0]) == 0:
+		globals[dec["id"]] = dec
 	else:
 		scopes[-1][-1][dec["id"]] = dec 
 
@@ -231,13 +233,15 @@ class ClassDecNode(Node):
 					analyzer.symbol_table_list[0][self.dec["id"]]["attributes"].setdefault(attribute,father[attribute])
 
 	def run(self,vm):
-		scope = [{}]
+		scope = [{}] ##
 
 		for attribute in self.dec["attributes"] :
-			declarar_symbol_scopes_run(attribute, scope,None)
+			declarar_symbol_scopes_run(attribute.dec, scope,None,force=True)
 
 		for method in self.dec["methods"] :
-			declarar_symbol_scopes_run(method, scope, None)
+			declarar_symbol_scopes_run(method.dec, scope, None,force=True)
+
+		self.dec["scope"] = scope
 		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
 
 
@@ -558,18 +562,29 @@ class VarCallNode(Node):
 		else:
 			raise SemanticError("CAN'T CALL UNDECLARED VAR {0}".format(self.id),self.lineno)
 
-	def run(self, vm, assignment = False):
-		var = check_if_symbol_declared_scopes(self.id,[vm.global_symbols]+vm.symbol_scope_list[-1])
+	def run(self, vm, assignment = False, var = None):
+		if var is None:
+			scope = [vm.global_symbols]+vm.symbol_scope_list[-1]
+		else:
+			scope = var["scope"]
 
-		var_space = self.call_type.run(var, vm)
+
+		var2 = var
+		var = check_if_symbol_declared_scopes(self.id,scope)
+
+		var_space = self.call_type.run(var =var, vm = vm,assignment = assignment)
 		#"var[0][1] | var"
 		#exec -> ejecuta string como codigo
 		#eval -> regresa el valor de la expresion 
-		if assignment:
+		if assignment :
+			if var_space is None:
+				return None
 			exec(var_space + " = assignment")
-			
 		else:
-			return eval(var_space)
+			if var_space is None:
+				return None
+			
+			return eval(str(var_space)) 
 
 
 class SimpleCallNode(Node):
@@ -594,7 +609,7 @@ class SimpleCallNode(Node):
 
 		return var["type"]
 
-	def run(self, var, vm):
+	def run(self, var, vm, assignment = False):
 		for (dimcall,dimVar) in zip(self.dims,var["dims"]):
 			dimcall = dimcall.run(vm)
 			if dimcall >= dimVar:
@@ -603,28 +618,6 @@ class SimpleCallNode(Node):
 		for dim in self.dims: # Todo esto por no tener apuntadores :(
 			current_space += "[" + dim + "]"
 		return current_space
-
-class MethodCallNode():
-	pass
-
-# class AttributeCallNode():	
-# 	'''Attribute call node analyzes and executes attribute calls.\n
-# 	Take a var and an attribute name'''
-# 	def __init__(self, attributeName):
-# 		self.attributeName = attributeName
-	
-# 	def __repr__(self):
-# 		return pprint.pformat(("ATTRIBUTE CALL", self.var, self.attributeName))
-
-# 	def analyze(self,analyzer:SemanticAnalyzer,var,assignment = False ):
-# 		# Does attribute exist?
-# 		if var["symbol_type"] != "object":
-# 			raise SemanticError("Expected object var.\n Recieved: {0}".format(var["symbol_type"]))
-
-
-# 		return self.attributeName.analyze(analyzer,assignment,var)
-
-
 
 #hDONE
 class ReturnNode(Node):
@@ -653,9 +646,13 @@ class FuncCallNode(Node):
 	def __repr__(self):
 		return pprint.pformat(("FUNC_CALL", self.callFunc))
 
-	def analyze(self, analyzer: SemanticAnalyzer):
+	def analyze(self, analyzer: SemanticAnalyzer , var = None, assignment=False):
+		if var is None:
+			scope = analyzer.symbol_table_list
+		else:
+			scope = var["scope"]
 		# revisar que la funcion exista 
-		func = check_if_symbol_declared_scopes(self.callFunc["id"],analyzer.symbol_table_list)
+		func = check_if_symbol_declared_scopes(self.callFunc["id"],scope)
 		if not func:
 			raise SemanticError("Function {0} does not exist".format(callFunc["id"]),self.lineno)	
 		
@@ -679,20 +676,33 @@ class FuncCallNode(Node):
 		# regresar el tipo de regreso
 		return func["return_op"]
 
-	def run(self, vm):
+	def run(self, vm, var = None , assignment = False):
+
+		if var is None:
+			scope = [vm.global_symbols]+vm.symbol_scope_list[-1]
+		else:
+			scope = var["scope"]
 		# obtener func de llamada,
 		# push nuevo scope
-		func = check_if_symbol_declared_scopes(self.callFunc["id"],[vm.global_symbols]+vm.symbol_scope_list[-1])
+		func = check_if_symbol_declared_scopes(self.callFunc["id"],scope)
+
+		args_result = []
+		for arg in self.callFunc["args"]:
+			args_result.append(arg.run(vm))
 
 		vm.symbol_scope_list.append([{}])
-
+		#declarar func, para llamada recursiva.
+		# declarar_symbol_scopes_run(func,vm.symbol_scope_list,vm.globals)
 		# declarar params
-		for (param, arg) in zip(func["params"],self.callFunc["args"]):
+		for (index,param) in enumerate(func["params"]):
 			param.run(vm)
 			param = check_if_symbol_declared_scopes(param.dec["id"],[vm.global_symbols]+vm.symbol_scope_list[-1])
-			param["value"] = arg.run(vm)
+			param["value"] = args_result[index]
+		result =func["body"].run(vm)
 
-		return func["body"].run(vm)
+		vm.symbol_scope_list.pop() 
+
+		return result if var is None else str(result)
 
 		
 class ObjectCallNode(Node):
@@ -849,6 +859,8 @@ class ObjectDecNode(Node):
 	# Run: *Copiar* (No referenciar) scope de clase padre
 
 	def run(self,vm):
+		scope_padre = check_if_symbol_declared_scopes(self.dec["type"],[vm.global_symbols]+vm.symbol_scope_list[-1])["scope"]
+		self.dec["scope"] = scope_padre.copy()
 		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
 
 class ForLoopNode(Node):
@@ -1035,7 +1047,7 @@ def p_var_dec(p):
 	# VAR TYPE_COMP VAR1,VAR2... ;
 	# VAR TYPE_SIMPLE VAR1;
 	if (len(p) == 3):
-		p[0] = ObjectDecNode({"type": p[1], "id": p[2], "defined": False,"symbol_type":"object"}, lineno = p.lineno(2))
+		p[0] = ObjectDecNode({"type": p[1], "id": p[2], "defined": True,"symbol_type":"object"}, lineno = p.lineno(2))
 	else:
 		p[0] = VarDecNode({"type": p[1], "id": p[2], "dims": p[3] , "defined":False, "symbol_type":"simple"}, lineno = p.lineno(2))
 
@@ -1309,19 +1321,9 @@ def p_variable_op(p):
 	else:
 		p[0] = SimpleCallNode([p[2], p[5]], lineno = p.lineno(1))
 
-"""
-#! GRAMATICA MODIFICADA
-
-variable_op : DOT ID
-					| LBRACKET expresion RBRACKET matrix
-					| empty
-					
-GRAMATICA ELIMINADA
-
-matrix : LBRACKET expresion RBRACKET
-			   | empty
-
-"""
+def p_variable_op_metodo(p):
+	''' variable_op : DOT llamada_funcion'''
+	p[0] = p[2]
 
 
 def p_escritura(p):
@@ -1366,17 +1368,6 @@ def p_condicional(p):
 def p_no_condicional(p):
 	''' no_condicional : FROM variable EQUAL expresion TO expresion DO bloque_func '''
 	p[0] = ForLoopNode(  p[2], p[4],  p[6], p[8], lineno = p.lineno(1))
-
-
-"""
-#! CAMBiO GRAMATICA QUITAR TYPE NO CONDICIONAL
-
-type_no_condicional : ID.ID
-	| ID LBRACKET expresion RBRACKET 
-	| ID LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET
-
-"""
-
 
 def p_empty(p):
 	''' empty : '''

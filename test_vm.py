@@ -191,3 +191,74 @@ def test_ejecucion_if_expresion():
 	parser = yacc.yacc()
 	vm.ast = parser.parse(programa_ejemplo)
 	assert vm.run() == 6
+
+
+def test_ejecucion_recursividad():
+	programa_ejemplo = '''
+
+	int alan ; 
+	Funcion karen(int a) -> int{
+		if (a < 3){
+			return 1;
+		}else{
+			return karen(a - 1);
+		};
+	}
+
+	Main ()
+	{
+		return karen(3);
+	}
+	'''
+	vm = VirtualMachine()
+	parser = yacc.yacc()
+	vm.ast = parser.parse(programa_ejemplo)
+	assert vm.run() == 1
+
+
+def test_ejecucion_llamada_metodo():
+	programa_ejemplo = '''
+
+	Clase team{
+		Funcion electron() -> int{
+			return 3;
+		}
+	}
+
+	Main ()
+	{
+		team a;
+
+		return a.electron();
+	}
+	'''  # FUNCIO
+
+
+	vm = VirtualMachine()
+	parser = yacc.yacc()
+	vm.ast = parser.parse(programa_ejemplo)
+	assert vm.run() == 3
+
+def test_ejecucion_llamada_atributo():
+	programa_ejemplo = '''
+
+	Clase team{
+		int cool;
+		Funcion electron() -> int{
+			return 3;
+		}
+	}
+
+	Main ()
+	{
+		team a;
+		a.cool = 3;
+		return a.cool;
+	}
+	'''  # FUNCIO
+
+
+	vm = VirtualMachine()
+	parser = yacc.yacc()
+	vm.ast = parser.parse(programa_ejemplo)
+	assert vm.run() == 3

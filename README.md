@@ -116,3 +116,5 @@ Ningun avance
 - Agregar pruebas de if como expresion
 - Agregar bloque func como expresion
 - Agregar pruebas analisis semantico if y bloque func como expresion
+- Agregar Recursividad VM
+- Agregar llamadas a metodos VM
