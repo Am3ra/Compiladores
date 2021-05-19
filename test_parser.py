@@ -27,6 +27,36 @@ def test_analisis_semantico_declaracion_clase_con_variable_global():
 
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
+
+def test_analisis_semantico_declaracion_clase_con_herencia():
+	programa_ejemplo = '''
+
+	Clase hola
+	{
+		int p;
+		Funcion adios()
+		{
+
+		}
+	}
+
+	Clase team hereda hola{
+		int cool;
+		Funcion electron(){
+			
+		}
+	}
+
+	Main ()
+	{
+		
+	}
+	'''  # FUNCIO}
+
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
+
+
+
 def test_analisis_semantico_declaracion_variable_en_main():
 	programa_ejemplo = '''
 

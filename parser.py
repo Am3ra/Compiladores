@@ -705,17 +705,6 @@ class FuncCallNode(Node):
 		return result if var is None else str(result)
 
 		
-class ObjectCallNode(Node):
-	def __init__(self, dec, lineno = None):
-		self.dec = dec
-		self.lineno = lineno
-
-
-	def __repr__(self):
-		return pprint.pformat(("VARDEC", self.dec))
-
-	def analyze(self, analyzer: SemanticAnalyzer):
-		pass
 
 class ReadNode(Node):
 	''' Readnode takes an array of VarCallNodes names as a parameter.\n

@@ -22,7 +22,7 @@ programa_ejemplo = '''
 	}
 	'''  # FUNCIO}
 
-# SemanticAnalyzer(programa_ejemplo).analisis_semantico(None, debug=True)
+SemanticAnalyzer(programa_ejemplo).analisis_semantico(None, debug=True)
 
 programa_ejemplo = '''
 
