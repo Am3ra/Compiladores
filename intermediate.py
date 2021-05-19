@@ -1,4 +1,4 @@
-from parser import *
+from Parser import *
 from maquinaVirtual import *
 
 
@@ -22,7 +22,7 @@ programa_ejemplo = '''
 	}
 	'''  # FUNCIO}
 
-SemanticAnalyzer(programa_ejemplo).analisis_semantico(None, debug=True)
+#SemanticAnalyzer(programa_ejemplo).analisis_semantico(None, debug=False)
 
 programa_ejemplo = '''
 
@@ -42,8 +42,34 @@ Main ()
 	return alan;
 }
 '''
-vm = VirtualMachine()
-parser = yacc.yacc()
-vm.ast = parser.parse(programa_ejemplo)
-print(vm.run())
+# vm = VirtualMachine()
+# parser = yacc.yacc()
+# vm.ast = parser.parse(programa_ejemplo)
+# print(vm.run())
 
+
+programa_ejemplo = '''
+
+	Clase hola
+	{
+		int p;
+		Funcion adios()
+		{
+
+		}
+	}
+
+	Clase team hereda hola{
+		int cool;
+		Funcion electron(){
+			
+		}
+	}
+
+	Main ()
+	{
+		
+	}
+	'''  # FUNCIO}
+
+SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=True)

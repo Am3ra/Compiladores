@@ -1,6 +1,6 @@
 import pytest
 from maquinaVirtual import VirtualMachine
-from parser import *
+from Parser import *
 
 
 def test_main_return():
@@ -258,6 +258,38 @@ def test_ejecucion_llamada_atributo():
 	'''  # FUNCIO
 
 
+	vm = VirtualMachine()
+	parser = yacc.yacc()
+	vm.ast = parser.parse(programa_ejemplo)
+	assert vm.run() == 3
+
+def test_analisis_semantico_declaracion_clase_con_herencia():
+	programa_ejemplo = '''
+
+	Clase hola
+	{
+		int p;
+		Funcion adios()->int
+		{
+			return 3;
+		}
+	}
+
+	Clase team hereda hola{
+		int cool;
+		Funcion electron(){
+			
+		}
+	}
+
+	Main ()
+	{	
+		team karalan;
+
+		return karalan.adios();
+		
+	}
+	'''  # FUNCIO}
 	vm = VirtualMachine()
 	parser = yacc.yacc()
 	vm.ast = parser.parse(programa_ejemplo)

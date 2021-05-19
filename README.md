@@ -118,3 +118,4 @@ Ningun avance
 - Agregar pruebas analisis semantico if y bloque func como expresion
 - Agregar Recursividad VM
 - Agregar llamadas a metodos VM
+- Agregar herencia analisis semantico

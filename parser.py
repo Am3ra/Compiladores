@@ -1,7 +1,8 @@
 import ply.yacc as yacc
 import pickle
-from lexer import lexer
-from lexer import tokens
+from typing import List
+from Lexer import lexer
+from Lexer import tokens
 from enum import Enum
 import pprint
 # from semanticAnalyzer import 
@@ -30,11 +31,11 @@ class SemanticAnalyzer():
 
 	def analisis_semantico(self,filename="a.out",debug=False):
 		#Falta hacer el analysis
-		if debug:
-			print(self.main)
 
 		self.main.analyze(self)
 
+		if debug:
+			print(self.main)
 		
 		
 		if filename is not None:
@@ -48,7 +49,7 @@ class SemanticAnalyzer():
 
 
 
-def declarar_symbol_scopes(dec,scopes : [dict]):
+def declarar_symbol_scopes(dec,scopes : List[dict]):
 	''' takes a declaration of any type (class, varaible, function) and 
 		checks if already declared in current and global scope. \n
 		`raise`s `SemanticError` if already declared \n
@@ -57,7 +58,7 @@ def declarar_symbol_scopes(dec,scopes : [dict]):
 		raise SemanticError("{0} already declared".format(dec["id"]))
 	scopes[-1][dec["id"]] = dec
 
-def check_if_symbol_declared_scopes(id : str,scopes:[dict]):
+def check_if_symbol_declared_scopes(id : str,scopes:List[dict]):
 	''' takes a string id, list of dicts\n
 		returns declaration if found.\n
 		returns `False` if not '''
@@ -230,7 +231,11 @@ class ClassDecNode(Node):
 				raise SemanticError("Inherits undeclared class",self.lineno)
 			else:
 				for attribute in father["attributes"]:
-					analyzer.symbol_table_list[0][self.dec["id"]]["attributes"].setdefault(attribute,father[attribute])
+					# analyzer.symbol_table_list[0][self.dec["id"]]["attributes"].setdefault(attribute,father[attribute])
+					declarar_symbol_scopes(attribute.dec, scope)
+				for method in father["methods"]:
+					declarar_symbol_scopes(method.dec, scope)
+		print(analyzer.symbol_table_list)
 
 	def run(self,vm):
 		scope = [{}] ##
@@ -240,6 +245,19 @@ class ClassDecNode(Node):
 
 		for method in self.dec["methods"] :
 			declarar_symbol_scopes_run(method.dec, scope, None,force=True)
+
+		# Encontrar padre
+		if (self.dec["inheritance"]):
+			father = check_if_symbol_declared_scopes(self.dec["inheritance"],[vm.global_symbols]+vm.symbol_scope_list[-1])
+			
+			for attribute in father["attributes"]:
+				# analyzer.symbol_table_list[0][self.dec["id"]]["attributes"].setdefault(attribute,father[attribute])
+				declarar_symbol_scopes_run(attribute.dec, scope, None, force=True)
+			for method in father["methods"]:
+				declarar_symbol_scopes_run(method.dec, scope, None, force=True)
+		# for methods declarar metodo
+
+		# for attributos declarar atributo
 
 		self.dec["scope"] = scope
 		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
@@ -654,7 +672,7 @@ class FuncCallNode(Node):
 		# revisar que la funcion exista 
 		func = check_if_symbol_declared_scopes(self.callFunc["id"],scope)
 		if not func:
-			raise SemanticError("Function {0} does not exist".format(callFunc["id"]),self.lineno)	
+			raise SemanticError("Function {0} does not exist".format(self.callFunc["id"]),self.lineno)	
 		
 		if func["symbol_type"] != "func":
 			raise SemanticError("{0} is already declared and is not a func\n".format(func["id"]),self.lineno)
@@ -711,7 +729,7 @@ class ReadNode(Node):
 		Reads series of inputs into vars, makes them defined.\n
 		Returns nothing.\n
 		Raises `SemanticError` if var not declared '''
-	def __init__(self, variables : [VarCallNode], lineno = None):
+	def __init__(self, variables : List[VarCallNode], lineno = None):
 		self.variables = variables
 		self.lineno = lineno
 

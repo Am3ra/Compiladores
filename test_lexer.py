@@ -1,4 +1,4 @@
-from lexer import *
+from Lexer import *
 
 def test_lexer():
 	data = " Main si escribe j"

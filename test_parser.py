@@ -1,4 +1,4 @@
-from parser import * 
+from Parser import *
 import pytest as pytest
 import itertools
 
