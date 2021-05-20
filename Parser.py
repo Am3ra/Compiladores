@@ -21,6 +21,10 @@ El manejo de memoria es de maner dinamica, por lo cual no se especificaran
 registros en memoria de manera estática
 '''
 class SemanticAnalyzer():
+	'''
+	Takes an `Input File` and asigns ast to main node to analyze content. \n
+	Has method analisis_semantico to analyze the main node.
+	'''
 	def __init__(self, input=None, debug = False):
 		if input is not None:
 			self.input = input
@@ -48,7 +52,6 @@ class SemanticAnalyzer():
 		self.symbol_table_classes[dec["id"]] = dec
 
 
-
 def declarar_symbol_scopes(dec,scopes : List[dict]):
 	''' takes a declaration of any type (class, varaible, function) and 
 		checks if already declared in current and global scope. \n
@@ -68,6 +71,11 @@ def check_if_symbol_declared_scopes(id : str,scopes:List[dict]):
 	return False
 	
 def declarar_symbol_scopes_run(dec, scopes, globals,force=False):
+	'''	Takes a declaration of any type (class, var, func), the 
+		current scope, the global scope and force (which). \n 
+		If force = true then, else it checks if the current scope is the global
+		and declares dec in globals or else it declares in the current scope.
+	'''
 	if force:
 		scopes[-1][dec["id"]] = dec
 	elif len(scopes) == 1 and len(scopes[0]) == 0:
@@ -94,6 +102,8 @@ class Node():
 
 
 class MainNode(Node):
+	'''	Takes 
+	'''
 	def __init__(self, declaraciones, main):
 		self.declaraciones = declaraciones
 		self.main = main
@@ -117,6 +127,11 @@ class MainNode(Node):
 
 
 class VarDecNode(Node):
+	'''	Takes a `var` declaration. \n 
+		Then it declares the var in the current scope.\n 
+		When excecuting the `var dec` it assings value to `empty`, and 
+		declares var in current scope.
+	'''
 	def __init__(self, dec, lineno = None):
 		self.dec = dec
 		self.lineno = lineno
@@ -133,6 +148,8 @@ class VarDecNode(Node):
 		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
 
 class FuncDecNode(Node):
+	'''	Takes a `func` declaration. \n 
+	'''
 	def __init__(self, dec, lineno = None):
 		self.dec = dec
 		self.lineno = lineno
