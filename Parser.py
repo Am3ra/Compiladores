@@ -5,6 +5,8 @@ from Lexer import lexer
 from Lexer import tokens
 from enum import Enum
 import pprint
+import numpy as np
+
 # from semanticAnalyzer import 
 
 #! TIPOS DISPONIBLES EN EL LENGUAJE:
@@ -1087,7 +1089,10 @@ def p_var_dec(p):
 	if (len(p) == 3):
 		p[0] = ObjectDecNode({"type": p[1], "id": p[2], "defined": True,"symbol_type":"object"}, lineno = p.lineno(2))
 	else:
-		p[0] = VarDecNode({"type": p[1], "id": p[2], "dims": p[3] , "defined":False, "symbol_type":"simple"}, lineno = p.lineno(2))
+		# dims = [2,3]
+		# [[None,None,None],[None,None,None]]
+
+		p[0] = VarDecNode({"type": p[1], "id": p[2], "dims": p[3] , "value":np.zeros(p[3]), "defined":False, "symbol_type":"simple"}, lineno = p.lineno(2))
 
 
 def p_op_vardef(p):

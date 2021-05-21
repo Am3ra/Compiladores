@@ -120,6 +120,7 @@ Ningun avance
 # Entrega 7:
 - Agregar Recursividad VM
 - Agregar llamadas a metodos VM
+- *AGREGAMOS HERENCIA DE CLASES*
 - Agregar herencia analisis semantico
 - Agregar lectura de archivos VM
 - cambiamos pruebas de vm a pruebas de integracion (escritura por AS, y lectura por VM)
