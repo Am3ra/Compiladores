@@ -116,6 +116,15 @@ Ningun avance
 - Agregar pruebas de if como expresion
 - Agregar bloque func como expresion
 - Agregar pruebas analisis semantico if y bloque func como expresion
+
+# Entrega 7:
 - Agregar Recursividad VM
 - Agregar llamadas a metodos VM
 - Agregar herencia analisis semantico
+- Agregar lectura de archivos VM
+- cambiamos pruebas de vm a pruebas de integracion (escritura por AS, y lectura por VM)
+- Reorganización de pruebas para mejor localización
+- Arreglamos que parametros esten definidos
+- Agregamos pruebas semanticas de declaración de arreglos y matrices
+- Agregamos prubeas semanticas de asignación de arreglos y matrices
+- Documentación de diversos Nodos

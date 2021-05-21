@@ -65,7 +65,7 @@ def test_analisis_declaracion_de_objetos_llamada_metodo():
 
 ############################################! VM TESTS ##################################################
 
-def test_ejecucion_llamada_metodo():
+def test_ejecucion_llamada_metodo(tmpdir):
 	programa_ejemplo = '''
 
 	Clase team{
@@ -83,12 +83,12 @@ def test_ejecucion_llamada_metodo():
 	'''  # FUNCIO
 
 
-	vm = VirtualMachine()
-	parser = yacc.yacc()
-	vm.ast = parser.parse(programa_ejemplo)
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
 	assert vm.run() == 3
 
-def test_ejecucion_llamada_atributo():
+def test_ejecucion_llamada_atributo(tmpdir):
 	programa_ejemplo = '''
 
 	Clase team{
@@ -107,7 +107,7 @@ def test_ejecucion_llamada_atributo():
 	'''  # FUNCIO
 
 
-	vm = VirtualMachine()
-	parser = yacc.yacc()
-	vm.ast = parser.parse(programa_ejemplo)
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
 	assert vm.run() == 3

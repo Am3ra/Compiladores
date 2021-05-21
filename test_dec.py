@@ -258,6 +258,38 @@ def test_analisis_semantico_declaracion_variables():
 
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
+
+def test_analisis_semantico_declaracion_arreglos():
+	programa_ejemplo = '''
+
+	int alan [3]; 
+	float k ;
+	string m;
+
+	Main ()
+	{
+
+	}
+	''' 
+
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
+
+
+def test_analisis_semantico_declaracion_matrices():
+	programa_ejemplo = '''
+
+	int alan [3][6]; 
+	float k ;
+	string m;
+
+	Main ()
+	{
+
+	}
+	''' 
+
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
+
 def test_analisis_semantico_declaracion_variables_error():
 	programa_ejemplo = '''
 
@@ -288,7 +320,7 @@ def test_analisis_semantico_declaracion_variable_en_main():
 
 #! CLASE
 
-def test_analisis_semantico_declaracion_clase_con_herencia():
+def test_analisis_semantico_declaracion_clase_con_herencia(tmpdir):
 	programa_ejemplo = '''
 
 	Clase hola
@@ -315,8 +347,8 @@ def test_analisis_semantico_declaracion_clase_con_herencia():
 		
 	}
 	'''  # FUNCIO}
-	vm = VirtualMachine()
-	parser = yacc.yacc()
-	vm.ast = parser.parse(programa_ejemplo)
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
 	assert vm.run() == 3
 

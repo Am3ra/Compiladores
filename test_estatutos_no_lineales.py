@@ -19,6 +19,7 @@ def test_analisis_semantico_if():
 	'''
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
 
+
 def test_analisis_semantico_if_error_condicion():
 	programa_ejemplo = '''
 
@@ -33,6 +34,7 @@ def test_analisis_semantico_if_error_condicion():
 	'''
 	with pytest.raises(SemanticError):
 		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
 
 def test_analisis_semantico_if_else():
 	programa_ejemplo = '''
@@ -71,6 +73,7 @@ def test_analisis_semantico_while():
 	'''
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
 
+
 def test_analisis_semantico_while_error_condicion():
 	programa_ejemplo = '''
 
@@ -89,6 +92,7 @@ def test_analisis_semantico_while_error_condicion():
 
 #! FOR LOOP
 
+
 def test_analisis_semantico_for_loop():
 	programa_ejemplo = '''
 
@@ -103,6 +107,7 @@ def test_analisis_semantico_for_loop():
 	}
 	'''
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
 
 def test_analisis_semantico_for_loop_error_condicion():
 	programa_ejemplo = '''
@@ -124,7 +129,8 @@ def test_analisis_semantico_for_loop_error_condicion():
 
 #! WHILE
 
-def test_analisis_while():
+
+def test_analisis_while(tmpdir):
 	programa_ejemplo = '''
 
 	int alan ; 
@@ -138,13 +144,15 @@ def test_analisis_while():
 		};
 	}
 	'''
-	vm = VirtualMachine()
-	parser = yacc.yacc()
-	vm.ast = parser.parse(programa_ejemplo)
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
 	vm.run()
 
 #! FOR LOOP
-def test_ejecucion_for_loop():
+
+
+def test_ejecucion_for_loop(tmpdir):
 	programa_ejemplo = '''
 
 	int alan ; 
@@ -157,15 +165,15 @@ def test_ejecucion_for_loop():
 		};
 	}
 	'''
-	vm = VirtualMachine()
-	parser = yacc.yacc()
-	vm.ast = parser.parse(programa_ejemplo)
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
 	vm.run()
 
 
 #! IF
 
-def test_ejecucion_if():
+def test_ejecucion_if(tmpdir):
 	programa_ejemplo = '''
 
 	int alan ; 
@@ -183,12 +191,13 @@ def test_ejecucion_if():
 		};
 	}
 	'''
-	vm = VirtualMachine()
-	parser = yacc.yacc()
-	vm.ast = parser.parse(programa_ejemplo)
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
 	assert vm.run() == 9
 
-def test_ejecucion_if_expresion():
+
+def test_ejecucion_if_expresion(tmpdir):
 	programa_ejemplo = '''
 
 	int alan ; 
@@ -208,14 +217,13 @@ def test_ejecucion_if_expresion():
 		return alan;
 	}
 	'''
-	vm = VirtualMachine()
-	parser = yacc.yacc()
-	vm.ast = parser.parse(programa_ejemplo)
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
 	assert vm.run() == 3
 
 
-
-def test_ejecucion_if_expresion():
+def test_ejecucion_if_expresion(tmpdir):
 	programa_ejemplo = '''
 
 	int alan ; 
@@ -235,7 +243,7 @@ def test_ejecucion_if_expresion():
 		return alan;
 	}
 	'''
-	vm = VirtualMachine()
-	parser = yacc.yacc()
-	vm.ast = parser.parse(programa_ejemplo)
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
 	assert vm.run() == 6

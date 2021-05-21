@@ -36,16 +36,17 @@ class SemanticAnalyzer():
 	def analisis_semantico(self,filename="a.out",debug=False):
 		#Falta hacer el analysis
 
+
 		self.main.analyze(self)
 
 		if debug:
 			print(self.main)
 		
-		
 		if filename is not None:
-			f = open(filename,'wb')
-			pickle.dump(self.main,f) # Se serializa el AST
-			f.close()
+			with open(filename,'wb') as f:
+				pickle.dump(self.main,f) # Se serializa el AST
+			# f.close()
+		
 
 	def declarar_class(self, dec):
 		self.check_if_declared_global(dec, "CLASS")
@@ -76,12 +77,14 @@ def declarar_symbol_scopes_run(dec, scopes, globals,force=False):
 		If force = true then, else it checks if the current scope is the global
 		and declares dec in globals or else it declares in the current scope.
 	'''
-	if force:
-		scopes[-1][dec["id"]] = dec
-	elif len(scopes) == 1 and len(scopes[0]) == 0:
+	if force: # agregador por 
+		scopes[-1][dec["id"]] = dec # Solo para forzar que se declare en el scope, y no en global
+		#esto solo se usa dentro de ClassDecNode
+	elif len(scopes) == 1 and len(scopes[0]) == 0: #aun no se declara el alcance de main
 		globals[dec["id"]] = dec
 	else:
-		scopes[-1][-1][dec["id"]] = dec 
+		scopes[-1][-1][dec["id"]] = dec #ultimo diccionario dentro de la ultima lista
+		#osea, el alcance mas "interno", mas "anidado"
 
 def run_lista_estatutos(vm,lista_estatutos):
 	for estatuto in lista_estatutos:
@@ -179,7 +182,11 @@ class FuncDecNode(Node):
 		## DECLARAR PARAMETROS
 		for param in self.dec["params"]:
 			param.analyze(analyzer)
-		
+			##obtener el parametro
+			param = check_if_symbol_declared_scopes(param.dec["id"],analyzer.symbol_table_list)
+			##declararlo como definido
+			param["defined"] = True
+
 		var = self.dec["body"].analyze(analyzer)
 		# for estatuto in self.dec["body"]:
 		# 	estatuto.analyze(analyzer)
@@ -191,7 +198,7 @@ class FuncDecNode(Node):
 			raise SemanticError("Return of Wrong Type! \nExpected:{0}\nRecieved:{1}".format(self.dec["return_op"],var),self.lineno)
 				
 		
-		print(analyzer.symbol_table_list)
+		# print(analyzer.symbol_table_list)
 
 		analyzer.symbol_table_list.pop()
 		# print(analyzer.symbol_table_list)
@@ -608,18 +615,17 @@ class VarCallNode(Node):
 		var = check_if_symbol_declared_scopes(self.id,scope)
 
 		var_space = self.call_type.run(var =var, vm = vm,assignment = assignment)
+		# obtener un "apuntador" del valor que se llama, en formato de string o un valor
+
 		#"var[0][1] | var"
 		#exec -> ejecuta string como codigo
 		#eval -> regresa el valor de la expresion 
-		if assignment :
-			if var_space is None:
-				return None
-			exec(var_space + " = assignment")
+		if var_space is None:
+			return None
+		elif assignment :
+			exec(var_space + " = assignment") # ejecutar la asignacion
 		else:
-			if var_space is None:
-				return None
-			
-			return eval(str(var_space)) 
+			return eval(str(var_space)) # regresar el valor del "apuntador"
 
 
 class SimpleCallNode(Node):
@@ -637,7 +643,7 @@ class SimpleCallNode(Node):
 		if len(var["dims"]) != len(self.dims):
 			return SemanticError("Wrong number of Dimensions! \n Expected: {0}".format(var["dims"]),self.lineno)
 		for dim in self.dims:
-			dimtype = dim.analyze()
+			dimtype = dim.analyze(analyzer)
 
 			if dimtype is not BaseType.INT:
 				return SemanticError("Index has to be int, found  {0}".format(dimtype),self.lineno)
@@ -645,10 +651,18 @@ class SimpleCallNode(Node):
 		return var["type"]
 
 	def run(self, var, vm, assignment = False):
-		for (dimcall,dimVar) in zip(self.dims,var["dims"]):
+		
+		for (dimcall,dimVar) in zip(self.dims,var["dims"]): 
+			#var["dims"] es el tamaño de esa dimension
+			#dimcall, es la expresion que se llama, para acceder esa dimension
+			# ej.: int a[3][4];
+			# var["dims"] = [3,4]
+			# a[1+b] -> dimcall = (1+b)
 			dimcall = dimcall.run(vm)
-			if dimcall >= dimVar:
+			if dimcall >= dimVar: # checamos que la llamada, si este dentro de los limites
 				raise RuntimeError("Index out of bounds! Max index: {0}, recieved: {1}".format(dimVar,dimcall))
+		
+		# Regresar un string "apuntador"
 		current_space = "var[\"value\"]"
 		for dim in self.dims: # Todo esto por no tener apuntadores :(
 			current_space += "[" + dim + "]"
@@ -865,7 +879,7 @@ class ObjectDecNode(Node):
 		self.lineno = lineno
 
 	def __repr__(self):
-	 return pprint.pformat((self.__class__.__name,self.dec))
+		return pprint.pformat((self.__class__.__name__,self.dec))
 	# Analisis semantico : Checar que exita la clase
 	def analyze(self,analyzer : SemanticAnalyzer):
 		if check_if_symbol_declared_scopes(self.dec["id"],analyzer.symbol_table_list):
@@ -900,7 +914,7 @@ class ForLoopNode(Node):
 		self.lineno = lineno
 
 	def __repr__(self):
-		return pprint.pformat(("FOR_LOOP", self.dec))
+		return pprint.pformat(("FOR_LOOP", self.variable, self.expresion,self.end,self.body))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
 
