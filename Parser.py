@@ -6,6 +6,7 @@ from Lexer import tokens
 from enum import Enum
 import pprint
 import numpy as np
+from copy import deepcopy
 
 # from semanticAnalyzer import 
 
@@ -391,9 +392,9 @@ class UnopNode(Node):
 		return pprint.pformat(("UNOP", self.operation, self.operand))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		operand_type = self.operand.analyze()
+		operand_type = self.operand.analyze(analyzer)
 
-		if operand_type is not BaseType.INT or operand_type is not BaseType.FLOAT:
+		if operand_type is not BaseType.INT and operand_type is not BaseType.FLOAT:
 			SemanticError("Can only apply unary +/- to int or float")
 		else:
 			return operand_type
@@ -600,7 +601,7 @@ class VarCallNode(Node):
 		#eval -> regresa el valor de la expresion 
 		if var_space is None:
 			return None
-		elif assignment :
+		elif assignment is not False:
 			exec(var_space + " = assignment") # ejecutar la asignacion
 		else:
 			return eval(str(var_space)) # regresar el valor del "apuntador"
@@ -718,7 +719,7 @@ class FuncCallNode(Node):
 		for arg in self.callFunc["args"]:
 			args_result.append(arg.run(vm))
 
-		vm.symbol_scope_list.append([{}])
+		vm.symbol_scope_list.append([{self.callFunc["id"]:deepcopy(func)}])
 		#declarar func, para llamada recursiva.
 		# declarar_symbol_scopes_run(func,vm.symbol_scope_list,vm.globals)
 		# declarar params
@@ -1036,18 +1037,15 @@ def p_var_dec(p):
 		# dims = [2,3]
 		# [[None,None,None],[None,None,None]]
 
-		p[0] = VarDecNode({"type": p[1], "id": p[2], "dims": p[3] , "value":np.zeros(p[3]), "defined":False, "symbol_type":"simple"}, lineno = p.lineno(2))
+		p[0] = VarDecNode({"type": p[1], "id": p[2], "dims": p[3] , "value": np.zeros(p[3]) if len(p[3]) > 0 else [], "defined":False, "symbol_type":"simple"}, lineno = p.lineno(2))
 
 
 def p_op_vardef(p):
-	''' op_vardef : LBRACKET CTEI RBRACKET 
-					| LBRACKET CTEI RBRACKET LBRACKET CTEI RBRACKET 
+	''' op_vardef : LBRACKET CTEI RBRACKET op_vardef
 					| empty'''
 	dims = []
-	if(len(p) == 4):
-		dims = [p[2]]
-	elif (len(p) == 7):
-		dims = [p[2], p[5]]
+	if(len(p) == 5):
+		dims = [p[2]] + p[4]
 	p[0] = dims
 
 
@@ -1238,19 +1236,29 @@ def p_variable(p):
 
 def p_variable_op(p):
 	''' variable_op : DOT variable
-					| LBRACKET expresion RBRACKET 
-					| LBRACKET expresion RBRACKET LBRACKET expresion RBRACKET
 					| empty
 									'''
 	if(len(p) == 2):
 		p[0] =	SimpleCallNode([], lineno = p.lineno(1))
 	elif (len(p) == 3):
 		p[0] = p[2]
-	elif (len(p) == 4):
-		p[0] = SimpleCallNode([p[2]], lineno = p.lineno(1))
-	else:
-		p[0] = SimpleCallNode([p[2], p[5]], lineno = p.lineno(1))
 
+
+def p_variable_op_dimensiones(p):
+	''' variable_op : dimensiones'''
+	p[0] = SimpleCallNode(p[1], lineno = p.lineno(1))
+
+
+def p_dimensiones_llamada(p):
+	'''	dimensiones : LBRACKET expresion RBRACKET dimensiones
+					| empty'''
+
+	if (len(p) == 2):
+		p[0] = []
+	else:
+		p[0] = [p[2]] + p[4]
+
+	
 def p_variable_op_metodo(p):
 	''' variable_op : DOT llamada_funcion'''
 	p[0] = p[2]
@@ -1309,6 +1317,7 @@ def p_error(p):
 	raise SyntaxError("Syntax error in input!")
 
 precedence = (
+	('left','LTHAN','GTHAN','SAME','NOTEQ'),
 	('left', 'PLUS', 'MINUS'),
 	('left', 'TIMES', 'DIVIDE'),
 )

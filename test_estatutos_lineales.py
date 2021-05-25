@@ -417,3 +417,16 @@ def test_ejecucion_llamada_pos_matriz(tmpdir):
 	vm = VirtualMachine(fileInput=d)
 	assert vm.run() == 1
 
+def test_ejecucion_comparacion(tmpdir):
+	programa_ejemplo = '''
+
+	Main ()
+	{	
+		return (-1)<3;
+		
+	}
+	'''  # FUNCIO}
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d,debug=True)
+	vm = VirtualMachine(fileInput=d)
+	assert vm.run() == True

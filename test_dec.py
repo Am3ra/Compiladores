@@ -290,6 +290,22 @@ def test_analisis_semantico_declaracion_matrices():
 
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
 
+def test_analisis_semantico_declaracion_cubos():
+	programa_ejemplo = '''
+
+	int alan [3][6][9]; 
+	float k ;
+	string m;
+
+	Main ()
+	{
+
+	}
+	''' 
+
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None,debug=False)
+
+
 def test_analisis_semantico_declaracion_variables_error():
 	programa_ejemplo = '''
 
