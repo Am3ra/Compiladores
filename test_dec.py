@@ -320,35 +320,19 @@ def test_analisis_semantico_declaracion_variable_en_main():
 
 #! CLASE
 
-def test_analisis_semantico_declaracion_clase_con_herencia(tmpdir):
+def test_ejecucion_declaracion_matriz(tmpdir):
 	programa_ejemplo = '''
 
-	Clase hola
-	{
-		int p;
-		Funcion adios()->int
-		{
-			return 3;
-		}
-	}
-
-	Clase team hereda hola{
-		int cool;
-		Funcion electron(){
-			
-		}
-	}
+	int a [2][3];
 
 	Main ()
 	{	
-		team karalan;
-
-		return karalan.adios();
+			
 		
 	}
 	'''  # FUNCIO}
 	d = str(tmpdir / "a.out")
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
 	vm = VirtualMachine(fileInput=d)
-	assert vm.run() == 3
+	vm.run()
 

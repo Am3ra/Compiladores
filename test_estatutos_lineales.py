@@ -398,3 +398,22 @@ def test_ejecucion_recursividad():
 	parser = yacc.yacc()
 	vm.ast = parser.parse(programa_ejemplo)
 	assert vm.run() == 1
+
+
+def test_ejecucion_llamada_pos_matriz(tmpdir):
+	programa_ejemplo = '''
+
+	int a [2][3];
+
+	Main ()
+	{	
+		a[0][1]= 1;
+		return a[0][1];
+		
+	}
+	'''  # FUNCIO}
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
+	assert vm.run() == 1
+

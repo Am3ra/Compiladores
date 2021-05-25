@@ -1,23 +1,4 @@
 agregar funcionalidad/pruebas de areglos/matrices
 
-que sea estatuto????? :D
+verificar que read escriba valor de tipo correcto, no string
 
-agregar recursividad
-
-PREGUNTA: SE PUEDE "SOBREDECLARAR" UNA VARIABLE?
-
-
-
-
-- Agregar llamads atributos/metodos
-
-main{
-	int a;
-	a = 3;
-	{
-		int a; # Error de sintaxis?, cambiar para que solo revise en el scope en el que se encuentra
-		a = 2
-	}
-
-	return a;
-}

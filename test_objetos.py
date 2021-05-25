@@ -111,3 +111,75 @@ def test_ejecucion_llamada_atributo(tmpdir):
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
 	vm = VirtualMachine(fileInput=d)
 	assert vm.run() == 3
+
+
+def test_ejecucion_clase_con_herencia_metodo(tmpdir):
+	programa_ejemplo = '''
+
+	Clase hola
+	{
+		int p;
+		Funcion adios()->int
+		{
+			return 3;
+		}
+	}
+
+	Clase team hereda hola{
+		int cool;
+		Funcion electron(){
+			
+		}
+	}
+
+	Main ()
+	{	
+		team karalan;
+
+		return karalan.adios();
+
+		
+		
+	}
+	'''  # FUNCIO}
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
+	assert vm.run() == 3
+
+
+def test_ejecucion_clase_con_herencia_atributo(tmpdir):
+	programa_ejemplo = '''
+
+	Clase hola
+	{
+		int p;
+		Funcion adios()->int
+		{
+			return 3;
+		}
+	}
+
+	Clase team hereda hola{
+		int cool;
+		Funcion electron(){
+			
+		}
+	}
+
+	Main ()
+	{	
+		team karalan;
+
+		karalan.p = 3;
+
+		return karalan.p;
+
+		
+		
+	}
+	'''  # FUNCIO}
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
+	assert vm.run() == 3

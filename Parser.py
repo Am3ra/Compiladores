@@ -149,7 +149,6 @@ class VarDecNode(Node):
 		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
 
 	def run(self,vm):
-		self.dec["value"] = [] 
 		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
 
 class FuncDecNode(Node):
@@ -362,9 +361,7 @@ class AssignNode(Node):
 	def run(self,vm):
 		assignment = self.expresion.run(vm)
 		self.var.run(vm,assignment)
-		
-
-# FUNCIONA!
+	
 
 # ''' estatuto : asignacion
 	# 			| expresion
@@ -382,19 +379,6 @@ class BaseType(Enum):
 	INT = 2
 	FLOAT = 3
 	BOOL = 4
-
-# class ExpresionNode(Node):
-# 	def __init__(self, type, children):
-# 		self.dec = dec
-
-# 	def __str__(self):
-# 		return "{0}".format(("EXPR", self.dec))
-
-# 	def __repr__(self):
-# 		return "{0}".format(("EXPR", self.dec))
-
-# 	def analyze(self, analyzer: SemanticAnalyzer):
-		
 
 #done
 class UnopNode(Node):
@@ -467,14 +451,6 @@ class PlusNode(BinopNode):
 		rhs = self.rhs.run(vm)
 
 		return lhs + rhs
-
-	# def compile(self,vm):
-	# 	lhs = self.lhs.run(vm)
-	# 	rhs = self.rhs.run(vm)
-	# 	current_pos = vm.current_pos()
-	# 	print("+ {0} {1} {2}".format(lhs,rhs,current_pos))
-	# 	return current_pos
-	
 
 class MinusNode(BinopNode):
 		
@@ -667,7 +643,8 @@ class SimpleCallNode(Node):
 		# Regresar un string "apuntador"
 		current_space = "var[\"value\"]"
 		for dim in self.dims: # Todo esto por no tener apuntadores :(
-			current_space += "[" + dim + "]"
+			dim = dim.run(vm)
+			current_space += "[" + str(dim) + "]"
 		return current_space
 
 #hDONE
@@ -983,15 +960,6 @@ def p_bloque_clase(p):
 	''' bloque_clase : LBRACE op_var op_func RBRACE'''
 	p[0] = {"attributes":p[2], "methods" : p[3]}
 
-'''
-#! CAMBIO DE GRAMATICA 
-
-op_func : funcion_def 
-
-op_var : var_def op_var	
-
-'''
-
 
 def p_op_func(p):
 	''' op_func : funcion_def op_func
@@ -1016,8 +984,6 @@ def p_op_var(p):
 	else:
 		p[0] = []
 		
-
-
 def p_return_option(p):
 	''' return_option : RET type_simple
 					  | empty '''
@@ -1025,14 +991,6 @@ def p_return_option(p):
 		p[0] = p[2]
 	else:
 		p[0] = None
-
-'''
-#! PARAMS AHORA PUEDE SER EMPTY
-
-#! CAMBIO EN GRAMATICA 
-params_op : COMMA ID COLON type_simple params_op
-
-'''
 
 def p_params(p):
 	''' params : var_dec params_op
@@ -1051,7 +1009,6 @@ def p_params_op(p):
 	else:
 		p[0] = []
 
-#! SE QUITO VARDEF
 
 def p_bloque_func(p):
 	''' bloque_func : LBRACE estatutos RBRACE'''
@@ -1066,19 +1023,6 @@ def p_main(p):
 def p_main_error(p):
 	''' main : MAIN LPAREN RPAREN error'''
 	generic_error("main function",p)
-
-"""
-#! CAMBIO DE GRAMATICA
-
-''' var_def : VAR type_compuesto    ID ids         SEMICOLON
-				| VAR type_simple   ID op_var_def  SEMICOLON '''
-
-#! REGLA ELIMINADA                
-
- ''' ids : COMMA ID ids
-				| empty'''
-
-"""
 
 
 def p_var_dec(p):
@@ -1120,14 +1064,7 @@ def p_type_simple(p):
 		p[0] = BaseType.BOOL
 	else:
 		p[0] = BaseType.STRING
-	
-# def p_bool_true(p):
-# 	''' bool : TRUE'''
-# 	p[0] = True
 
-# def p_bool_false(p):
-# 	''' bool : false'''
-# 	p[0] = True
 
 def p_type_compuesto(p):
 	''' type_compuesto : ID '''
@@ -1146,13 +1083,6 @@ def p_estatutos(p):
 		else:
 			p[0] = [p[1]]
 
-#! SE AGREGO SEMICOLON A LLAMADA_FUNC Y LLAMADA_OBJ y VAR FEC
-
-# Asignacion : VAR EXISTA, y no METODO, Y que el tipo expresion sea correcto
-# returns : cambiar que solo las funciones puedan tener el return
-# 
-
-#! Se elimino expresion de estatutos
 def p_estatuto(p):
 	''' estatuto : asignacion SEMICOLON
 				| var_dec SEMICOLON
@@ -1164,20 +1094,6 @@ def p_estatuto(p):
 				| repeticion SEMICOLON
 				 '''
 	p[0] = p[1]
-
-# def p_estatuto_returns(p):
-# 	''' estatuto : asignacion 
-# 				| expresion 
-# 				| returns 
-# 				| llamada_funcion 
-# 				| llamada_metodo 
-# 				| var_def 
-# 				| lectura 
-# 				| escritura 
-# 				| decision 
-# 				| repeticion '''
-# 	p[0] = ReturnNode(p[1])
-#  se tendria que cambiar el analisis de Return node para aceptar estatutos
 
 def p_asignacion(p):
 	''' asignacion : variable EQUAL expresion '''
@@ -1279,22 +1195,9 @@ def p_returns(p):
 	''' returns : RETURN expresion '''
 	p[0] = ReturnNode(p[2], lineno = p.lineno(1))
 
-#! SE QUITO EL SEMICOLON
-
-
 def p_llamada_funcion(p):
 	''' llamada_funcion : ID LPAREN param_llamada RPAREN '''
 	p[0] = FuncCallNode({"id": p[1], "args": p[3]}, lineno = p.lineno(1))
-
-
-"""
-#! GRAMATICA CORREGIDA 
-
-''' param_llamada : expresion
-				  | empty '''
-
-"""
-
 
 def p_param_llamada(p):
 	''' param_llamada : expresion
@@ -1328,26 +1231,10 @@ def p_op_lectura(p):
 	else:
 		p[0] = [p[2]] + p[3]
 
-#! Se quito llamada objeto
-
 
 def p_variable(p):
 	''' variable : ID variable_op '''
 	p[0] = VarCallNode( p[1],  p[2], lineno = p.lineno(1))
-
-
-
-# Ahorita solo soportamos un nivel de profundidad: a.b, no a.b.c.d()
-# no hay method call
-
-'''
-
-DOT varibale variable_op
-DIMS 
-DOT FUNC_CALL variable_op
-empty
-'''
-
 
 def p_variable_op(p):
 	''' variable_op : DOT variable
