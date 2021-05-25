@@ -130,4 +130,6 @@ Ningun avance
 - Agregamos prubeas semanticas de asignación de arreglos y matrices
 - Documentación de diversos Nodos
 - Agregar funcionalidad matrices y arreglos
-	- Tentativo: agregar dimensiones ilimitadas
+-  agregar dimensiones ilimitadas
+- Arreglamos recursividad
+- fibonacci y factorial
