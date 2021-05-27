@@ -874,6 +874,29 @@ class WhileNode(Node):
 		while self.condition.run(vm):
 			self.body.run(vm)
 
+class DoWhileNode(Node):
+	def __init__(self, body, condition, lineno = None):
+		self.condition = condition
+		self.body = body
+		self.lineno = lineno
+	
+	def __repr__(self):
+		return pprint.pformat(("DO_WHILE", self.condition, self.body))
+
+	def analyze(self, analyzer: SemanticAnalyzer):
+		##Revisar el tipo de condicion == BOOL
+		condition_type = self.condition.analyze(analyzer)
+		if condition_type is not BaseType.BOOL:
+			raise SemanticError("Condition must be BOOL, received {0}".format(condition_type),self.lineno)
+
+		##Analizar el cuerpo
+		self.body.analyze(analyzer)	
+
+	def run(self, vm):
+		#Mientras la condicion se cumpla hacer
+		while self.condition.run(vm):
+			self.body.run(vm)
+
 class ObjectDecNode(Node):
 	'''{"type": p[1], "id": p[2], "defined": False,"symbol_type":"object"}'''
 	def __init__(self, dec, lineno = None):
@@ -1328,26 +1351,10 @@ def p_op_lectura(p):
 	else:
 		p[0] = [p[2]] + p[3]
 
-#! Se quito llamada objeto
-
 
 def p_variable(p):
 	''' variable : ID variable_op '''
 	p[0] = VarCallNode( p[1],  p[2], lineno = p.lineno(1))
-
-
-
-# Ahorita solo soportamos un nivel de profundidad: a.b, no a.b.c.d()
-# no hay method call
-
-'''
-
-DOT varibale variable_op
-DIMS 
-DOT FUNC_CALL variable_op
-empty
-'''
-
 
 def p_variable_op(p):
 	''' variable_op : DOT variable
@@ -1406,6 +1413,10 @@ def p_repeticion(p):
 def p_condicional(p):
 	''' condicional : WHILE LPAREN expresion RPAREN DO bloque_func '''
 	p[0] = WhileNode(p[3], p[6], lineno = p.lineno(1))
+
+def p_condicional_do(p):
+	''' condicional : DO bloque_func WHILE LPAREN expresion RPAREN '''
+	p[0] = DoWhileNode(p[2], p[5], lineno = p.lineno(1))
 
 
 def p_no_condicional(p):
