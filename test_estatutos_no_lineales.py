@@ -125,6 +125,25 @@ def test_analisis_semantico_for_loop_error_condicion():
 	with pytest.raises(SemanticError):
 		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
 
+
+def test_analisis_semantico_do_while():
+	programa_ejemplo = '''
+
+	int alan ; 
+	int p;
+
+	Main ()
+	{
+		p = 1;
+		hacer
+		{
+			alan = 3;
+		}
+		mientras (p < 10);
+	}
+	'''
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
 ############################################! VM TESTS ##################################################
 
 #! WHILE
@@ -148,6 +167,29 @@ def test_analisis_while(tmpdir):
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
 	vm = VirtualMachine(fileInput=d)
 	vm.run()
+
+def test_ejecucion_semantico_do_while(tmpdir):
+	programa_ejemplo = '''
+
+	int alan ;
+
+	Main ()
+	{
+		alan = 10; 
+
+		hacer
+		{
+			alan = alan - 1;
+		}
+		mientras (4 < alan);
+
+		return alan;
+	}
+	'''
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
+	vm.run() == 5
 
 #! FOR LOOP
 
