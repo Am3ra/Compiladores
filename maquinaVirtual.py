@@ -17,7 +17,7 @@ class VirtualMachine():
 		# os.open(filename)
 		f = open(filename,"rb")
 		self.ast = pickle.load(f)
-		print(self.ast)
+		# print(self.ast)
 		f.close()
 
 #with open('out/cache/' +hashed_url, 'rb') as pickle_file:

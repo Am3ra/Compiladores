@@ -107,7 +107,7 @@ Ningun avance
 - agregar lineas de error a errores semanticosSemanticError
 
 
-# Entrega 7:
+## Entrega 7:
 
 - Agregar pruebas analisis semantico recursividad
 - Agregar pruebas analisis semantico while, if y foor loop
@@ -117,7 +117,7 @@ Ningun avance
 - Agregar bloque func como expresion
 - Agregar pruebas analisis semantico if y bloque func como expresion
 
-# Entrega 7:
+## Entrega 8:
 - Agregar Recursividad VM
 - Agregar llamadas a metodos VM
 - *AGREGAMOS HERENCIA DE CLASES*
@@ -132,4 +132,12 @@ Ningun avance
 - Agregar funcionalidad matrices y arreglos
 -  agregar dimensiones ilimitadas
 - Arreglamos recursividad
-- fibonacci y factorial
+
+## Entrega Final
+- Pruebas de todos los estatutos tanto de ejecucion como de analisis completas
+- Multiplicación de matrices
+- Sort y Find de arreglos
+- Pruebas de ejecución de read y write
+- fibonacci y factorial, tanto recursiva como iterativamente
+- Agregado estatuto Do While
+- Pruebas de analisis de ejecución de Do While

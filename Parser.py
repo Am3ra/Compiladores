@@ -759,7 +759,7 @@ class ReadNode(Node):
 	def run(self, vm):
 		for var in self.variables:
 			# obtener variable
-			var = check_if_symbol_declared_scopes(var.id,[vm.global_symbols]+vm.symbol_scope_list[-1][-1])
+			var = check_if_symbol_declared_scopes(var.id,[vm.global_symbols]+vm.symbol_scope_list[-1])
 			# obtener input()
 			# escribir resultado de input() en el valor de la variable
 			var["value"] = input()
@@ -823,7 +823,7 @@ class IfNode(Node):
 	def run(self,vm):
 		if self.condition.run(vm) == True:
 			return self.body.run(vm)
-		else:
+		elif self.else_body is not None:
 			return self.else_body.run(vm)
 
 

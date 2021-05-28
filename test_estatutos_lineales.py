@@ -2,6 +2,7 @@ from Parser import *
 import pytest as pytest
 from maquinaVirtual import VirtualMachine
 import itertools
+import io
 
 
 #! ASIGNACION
@@ -430,3 +431,39 @@ def test_ejecucion_comparacion(tmpdir):
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d,debug=True)
 	vm = VirtualMachine(fileInput=d)
 	assert vm.run() == True
+
+def test_ejecucion_semantico_read(tmpdir,monkeypatch):
+	monkeypatch.setattr('sys.stdin', io.StringIO('my input'))
+	programa_ejemplo = '''
+
+	string alan ; 
+
+	Main ()
+	{
+		lee(alan);
+		return alan;
+	}
+	'''
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d,debug=True)
+	vm = VirtualMachine(fileInput=d)
+	assert vm.run() == 'my input'
+
+
+def test_ejecucion_write(tmpdir,capfd):
+	programa_ejemplo = '''
+
+	int alan ; 
+
+	Main ()
+	{
+		alan = 3;
+		escribe(alan);	
+	}
+	'''
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
+	vm.run()
+	out, err = capfd.readouterr()
+	assert out == "3\n"

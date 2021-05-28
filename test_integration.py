@@ -165,3 +165,118 @@ def test_ejecucion_factorial(tmpdir):
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
 	vm = VirtualMachine(fileInput=d)
 	assert vm.run() == 24 
+
+def test_ejecucion_sort_array(tmpdir):
+	programa_ejemplo = '''
+
+	int a [4];
+	int b [4];
+	int temp;
+	int i;
+	int j;
+
+	Main ()
+	{
+		a[0] = 4;
+		a[1] = 2;
+		a[2] = 3;
+		a[3] = 1;
+
+		desde i = 0 hasta 4 hacer 
+		{
+			desde j = 0 hasta 4 hacer 
+			{
+				temp = 0;
+				if(a[j] > a[i])
+				{
+					temp = a[i];
+					a[i] = a[j];
+					a[j] = temp;
+				};
+				
+			};
+		};
+
+		return a[1];
+
+	}
+	'''  # FUNCIO
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
+	assert vm.run() == 2
+
+
+def test_ejecucion_find_array(tmpdir):
+	programa_ejemplo = '''
+
+	int a [4];
+	int b [4];
+	int temp;
+	int i;
+	int j;
+	int index;
+	Main ()
+	{
+		a[0] = 4;
+		a[1] = 2;
+		a[2] = 3;
+		a[3] = 1;
+
+		desde i = 0 hasta 4 hacer 
+		{
+			if (a[i] == 3){
+				index = i;
+			};
+		};
+
+		return index;
+
+	}
+	'''  # FUNCIO
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
+	assert vm.run() == 2
+
+
+def test_ejecucion_matrix_multiplication(tmpdir):
+	programa_ejemplo = '''
+
+	int a [2][2];
+	int b [2][2];	
+	int c [2][2];
+
+	Main ()
+	{
+		int i;
+		int j;
+		int k;
+
+		desde i = 0 hasta 2 hacer 
+		{
+			desde j = 0 hasta 2 hacer{
+				a[i][j] = i + j;
+				b[i][j] = 9 - i - j;
+			};
+		};
+		
+		desde i = 0 hasta 2 hacer 
+		{
+			desde j = 0 hasta 2 hacer
+			{
+				int temp;
+				temp = 0;
+				desde k = 0 hasta 2 hacer
+				{
+					temp = temp + a[i][k] * b[k][j];
+				};
+				c[i][j] = temp;
+			};
+		};
+	}
+	'''  # FUNCIO
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
+	vm.run()
