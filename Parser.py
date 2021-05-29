@@ -14,10 +14,6 @@ from copy import deepcopy
 # 1) TIPOS SIMPLES
 # 2) LOS KEYS DE LA TABLA DE CLASES 
 
-# simple_types + symbol_table_classes.keys()
-
-
-#! Juntar simbolos?
 
 ''' 
 El manejo de memoria es de maner dinamica, por lo cual no se especificaran 
@@ -37,8 +33,6 @@ class SemanticAnalyzer():
 
 
 	def analisis_semantico(self,filename="a.out",debug=False):
-		#Falta hacer el analysis
-
 
 		self.main.analyze(self)
 
@@ -48,7 +42,6 @@ class SemanticAnalyzer():
 		if filename is not None:
 			with open(filename,'wb') as f:
 				pickle.dump(self.main,f) # Se serializa el AST
-			# f.close()
 		
 
 	def declarar_class(self, dec):
@@ -95,7 +88,6 @@ def run_lista_estatutos(vm,lista_estatutos):
 			return estatuto.run(vm)
 		estatuto.run(vm)
 		
-# SemanticAnalyzer(text).analisis_semantico()
 
 class Node():
 	'''Generic Class interface'''
@@ -146,7 +138,6 @@ class VarDecNode(Node):
 		return pprint.pformat(("VARDEC", self.dec))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		# print("Symbol list:",analyzer.symbol_table_list)
 		declarar_symbol_scopes(self.dec,analyzer.symbol_table_list)
 
 	def run(self,vm):
@@ -158,8 +149,6 @@ class FuncDecNode(Node):
 	def __init__(self, dec, lineno = None):
 		self.dec = dec
 		self.lineno = lineno
-		#{"name": p[2], "params": p[4], "return_op": p[6],
-		# ""estatutos": p[7]}
 
 	def __repr__(self):
 		return pprint.pformat(("FUNCDEC", self.dec))
@@ -169,15 +158,10 @@ class FuncDecNode(Node):
 		if (check_if_symbol_declared_scopes(self.dec["id"], analyzer.symbol_table_list) ):
 			raise SemanticError("Symbol declared with same name.",self.lineno)
 
-
-		# print(analyzer.symbol_table_list)
-
 		## CREAR DIC VACIO
 		analyzer.symbol_table_list[0][self.dec["id"]] = self.dec
 
 		analyzer.symbol_table_list.append({})
-		# print("push to list")
-		# print(analyzer.symbol_table_list)
 
 		#Declarar todos los params
 
@@ -190,27 +174,18 @@ class FuncDecNode(Node):
 			param["defined"] = True
 
 		var = self.dec["body"].analyze(analyzer)
-		# for estatuto in self.dec["body"]:
-		# 	estatuto.analyze(analyzer)
-		# ## Analyzar CUERPO
-		# if has return type
 
 			
 		if var != self.dec["return_op"]:
 			raise SemanticError("Return of Wrong Type! \nExpected:{0}\nRecieved:{1}".format(self.dec["return_op"],var),self.lineno)
 				
-		
-		# print(analyzer.symbol_table_list)
-
 		analyzer.symbol_table_list.pop()
-		# print(analyzer.symbol_table_list)
 
 
 
 	def run(self,vm):
 		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
 
-		# print(analyzer.symbol_table_list)
 
 class SemanticError(Exception):
 	def __init__(self, message, lineno = None):
@@ -236,7 +211,7 @@ class ClassDecNode(Node):
 		
 		# Checar el id
 		if check_if_symbol_declared_scopes(self.dec["id"],analyzer.symbol_table_list):
-			raise SemanticError("Clase ya declarada",self.lineno)
+			raise SemanticError("Class already declared",self.lineno)
 		# Checar nombres de funcs y vars
 		analyzer.symbol_table_list[0][self.dec["id"]] = ({"id": self.dec["id"],"attributes":self.dec["attributes"],"methods":self.dec["methods"],"symbol_type": "class"})
 		analyzer.symbol_table_list[0][self.dec["id"]]["scope"] = [{}]
@@ -248,16 +223,13 @@ class ClassDecNode(Node):
 		for method in self.dec["methods"] :
 			declarar_symbol_scopes(method.dec, scope)
 
-		## Agregar cosas inheritance
-		# print(declarar_symbol_scopes)
-
+		## Agregar inheritance
 		if (self.dec["inheritance"]):
 			father = analyzer.symbol_table_list[0].get(self.dec["inheritance"])
 			if (father is None):
 				raise SemanticError("Inherits undeclared class",self.lineno)
 			else:
 				for attribute in father["attributes"]:
-					# analyzer.symbol_table_list[0][self.dec["id"]]["attributes"].setdefault(attribute,father[attribute])
 					declarar_symbol_scopes(attribute.dec, scope)
 				for method in father["methods"]:
 					declarar_symbol_scopes(method.dec, scope)
@@ -281,9 +253,6 @@ class ClassDecNode(Node):
 				declarar_symbol_scopes_run(attribute.dec, scope, None, force=True)
 			for method in father["methods"]:
 				declarar_symbol_scopes_run(method.dec, scope, None, force=True)
-		# for methods declarar metodo
-
-		# for attributos declarar atributo
 
 		self.dec["scope"] = scope
 		declarar_symbol_scopes_run(self.dec,vm.symbol_scope_list,vm.global_symbols)
@@ -311,9 +280,6 @@ class BloqueNode(Node):
 				return a
 			estatuto.analyze(analyzer)
 
-		# print("BloqueFUNC",analyzer.symbol_table_list)
-		# del analyzer.symbol_table_list[-1]
-		# analyzer.symbol_table_list.pop() # pop lexical scope
 		analyzer.symbol_table_list.pop() # pop lexical scope
 
 	def run(self,vm):
@@ -364,17 +330,6 @@ class AssignNode(Node):
 		self.var.run(vm,assignment)
 	
 
-# ''' estatuto : asignacion
-	# 			| expresion
-	# 			| returns
-	# 			| llamada_funcion SEMICOLON
-	# 			| llamada_objeto SEMICOLON
-	# 			| var_def SEMICOLON
-	# 			| lectura
-	# 			| escritura
-	# 			| decision
-	# 			| repeticion '''
-
 class BaseType(Enum):
 	STRING = 1
 	INT = 2
@@ -405,7 +360,6 @@ class UnopNode(Node):
 		else :
 			return - self.operand.run(vm)
 
-#done
 class BinopNode(Node):
 	def __init__(self, lhs, rhs, lineno = None):
 		self.lhs = lhs
@@ -648,7 +602,6 @@ class SimpleCallNode(Node):
 			current_space += "[" + str(dim) + "]"
 		return current_space
 
-#hDONE
 class ReturnNode(Node):
 	'''
 	Return node analyzes an expresion recieved and executes it\n 
@@ -699,7 +652,7 @@ class FuncCallNode(Node):
 			arg_type = arg.analyze(analyzer)
 
 			if param_type != arg_type:
-				raise SemanticError("argument {} is of wrong type.\n Expected {}, recieved {}".format(index,param_type,arg_type),self.lineno)
+				raise SemanticError("argument {0} is of wrong type.\n Expected {1}, recieved {2}".format(index,param_type,arg_type),self.lineno)
 
 
 		# regresar el tipo de regreso
@@ -721,7 +674,6 @@ class FuncCallNode(Node):
 
 		vm.symbol_scope_list.append([{self.callFunc["id"]:deepcopy(func)}])
 		#declarar func, para llamada recursiva.
-		# declarar_symbol_scopes_run(func,vm.symbol_scope_list,vm.globals)
 		# declarar params
 		for (index,param) in enumerate(func["params"]):
 			param.run(vm)
@@ -802,7 +754,6 @@ class IfNode(Node):
 		return pprint.pformat(("IfNode", self.condition, self.body, self.else_body))
 
 	def analyze(self, analyzer: SemanticAnalyzer):
-		# print("Symbol list:",analyzer.symbol_table_list)
 		# Checar que expresion condicion sea bool
 		condition_type = self.condition.analyze(analyzer)
 		if condition_type is not BaseType.BOOL:
@@ -925,7 +876,7 @@ class ForLoopNode(Node):
 
 		var_type = check_if_symbol_declared_scopes(self.variable.id,analyzer.symbol_table_list)["type"]
 		if var_type is not BaseType.INT:
-			raise SemanticError("Can only use ints in for loop",self.lineno)
+			raise SemanticError("Can only use INT in for loop",self.lineno)
 
 
 		end_type = self.end.analyze(analyzer)
@@ -1057,9 +1008,6 @@ def p_var_dec(p):
 	if (len(p) == 3):
 		p[0] = ObjectDecNode({"type": p[1], "id": p[2], "defined": True,"symbol_type":"object"}, lineno = p.lineno(2))
 	else:
-		# dims = [2,3]
-		# [[None,None,None],[None,None,None]]
-
 		p[0] = VarDecNode({"type": p[1], "id": p[2], "dims": p[3] , "value": np.zeros(p[3]) if len(p[3]) > 0 else [], "defined":False, "symbol_type":"simple"}, lineno = p.lineno(2))
 
 

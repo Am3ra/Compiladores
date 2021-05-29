@@ -141,3 +141,5 @@ Ningun avance
 - fibonacci y factorial, tanto recursiva como iterativamente
 - Agregado estatuto Do While
 - Pruebas de analisis de ejecución de Do While
+- Se elimino codigo basura (comentarios)
+- Se modificaron los resultados de los errores semanticos para que todos esten en el mismo idioma
