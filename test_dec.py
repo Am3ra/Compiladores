@@ -352,3 +352,22 @@ def test_ejecucion_declaracion_matriz(tmpdir):
 	vm = VirtualMachine(fileInput=d)
 	vm.run()
 
+def test_ejecucion_declaracion_alcances_error(tmpdir):
+	programa_ejemplo = '''
+
+	int a ;
+
+	Main ()
+	{	
+		{
+			int a;
+		};
+		a = 4;
+	}
+	'''  # FUNCIO}
+	d = str(tmpdir / "a.out")
+	with pytest.raises(SemanticError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+		vm = VirtualMachine(fileInput=d)
+		vm.run()
+		

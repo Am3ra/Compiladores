@@ -294,6 +294,19 @@ def test_analisis_semantico_bloque_func_estatuto_con_expresiones():
 	with pytest.raises(SemanticError):
 		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
 
+def test_analisis_semantico_asignacion_error():
+	programa_ejemplo = '''
+
+	int alan ; 
+
+	Main ()
+	{
+		3 = 3;
+	}
+	'''
+	with pytest.raises(SyntaxError):
+		SemanticAnalyzer(programa_ejemplo).analisis_semantico(None)
+
 
 def test_analisis_semantico_bloque_func_estatuto_expresion_return():
 	programa_ejemplo = '''
