@@ -233,7 +233,6 @@ class ClassDecNode(Node):
 					declarar_symbol_scopes(attribute.dec, scope)
 				for method in father["methods"]:
 					declarar_symbol_scopes(method.dec, scope)
-		print(analyzer.symbol_table_list)
 
 	def run(self,vm):
 		scope = [{}] ##

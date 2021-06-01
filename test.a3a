@@ -1,0 +1,9 @@
+int alan ; 
+
+Main ()
+{
+	mientras (true) hacer 
+	{
+		alan = 3;
+	};
+}

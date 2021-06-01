@@ -280,3 +280,41 @@ def test_ejecucion_matrix_multiplication(tmpdir):
 	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
 	vm = VirtualMachine(fileInput=d)
 	vm.run()
+
+def test_ejecucion_metodos(tmpdir):
+	programa_ejemplo = '''
+int a[1][2][3];
+int f;
+
+Funcion electron() -> int
+{
+	return 3;
+}
+
+Clase alan{
+	int promedio;
+}
+
+Clase karen hereda alan
+{
+	int edad;
+	int estatura;
+	Funcion perro() -> int
+	{
+		return 7 - 4;
+	}
+}
+
+Main() 
+{
+	int b;
+	b=5;
+	f = 1;
+	karen k;
+	return k.perro();
+}
+	'''  # FUNCIO
+	d = str(tmpdir / "a.out")
+	SemanticAnalyzer(programa_ejemplo).analisis_semantico(filename=d)
+	vm = VirtualMachine(fileInput=d)
+	assert vm.run() == 3
