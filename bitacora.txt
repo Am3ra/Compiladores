@@ -143,6 +143,7 @@ Ningun avance
 - Pruebas de analisis de ejecución de Do While
 - Se elimino codigo basura (comentarios)
 - Se modificaron los resultados de los errores semanticos para que todos esten en el mismo idioma
+- Mover todo a nuevo branch
 
 
 
