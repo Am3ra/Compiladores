@@ -44,10 +44,6 @@ class SemanticAnalyzer():
 				pickle.dump(self.main,f) # Se serializa el AST
 		
 
-	def declarar_class(self, dec):
-		self.check_if_declared_global(dec, "CLASS")
-		self.symbol_table_classes[dec["id"]] = dec
-
 
 def declarar_symbol_scopes(dec,scopes : List[dict]):
 	''' takes a declaration of any type (class, varaible, function) and 
@@ -619,8 +615,6 @@ class VarCallNode(Node):
 		else:
 			scope = var["scope"]
 
-
-		var2 = var
 		var = check_if_symbol_declared_scopes(self.id,scope)
 
 		var_space = self.call_type.run(var =var, vm = vm,assignment = assignment)
