@@ -2,6 +2,19 @@ from Parser import *
 from maquinaVirtual import *
 import sys
 
+
+'''
+This file deals with the terminal use of the compiler and virtual machine.\n
+
+First parameter must be either `run` or `build`.\n
+
+Second parameter must be the input file path.\n
+
+Third parameter is optional. If used, it is the output file path.\n
+
+'''
+
+
 args = sys.argv
 output_filename = "a.out"
 

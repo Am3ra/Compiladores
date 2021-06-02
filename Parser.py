@@ -81,13 +81,7 @@ def declarar_symbol_scopes_run(dec, scopes, globals,force=False):
 	else:
 		scopes[-1][-1][dec["id"]] = dec #ultimo diccionario dentro de la ultima lista
 		#osea, el alcance mas "interno", mas "anidado"
-
-def run_lista_estatutos(vm,lista_estatutos):
-	for estatuto in lista_estatutos:
-		if isinstance(estatuto, ReturnNode):
-			return estatuto.run(vm)
-		estatuto.run(vm)
-		
+	
 
 class Node():
 	'''Generic Class interface'''
@@ -100,7 +94,9 @@ class Node():
 
 
 class MainNode(Node):
-	'''	Takes 
+	'''	Takes a list of declarations and a code block.\n
+		Then it analyzes the declarations and returns the result 
+		at the end of the analysis. 
 	'''
 	def __init__(self, declaraciones, main):
 		self.declaraciones = declaraciones
@@ -145,6 +141,8 @@ class VarDecNode(Node):
 
 class FuncDecNode(Node):
 	'''	Takes a `func` declaration. \n 
+		and uses `check_if_symbol_declared_scopes` to declare the funcion.\n
+		It adds a dictionary to symbol table to create a new scope for the contents of the function.
 	'''
 	def __init__(self, dec, lineno = None):
 		self.dec = dec
@@ -188,12 +186,17 @@ class FuncDecNode(Node):
 
 
 class SemanticError(Exception):
+	'''	Class used to generate semantic errors, it takes the message ans line number.'''
 	def __init__(self, message, lineno = None):
 		self.lineno = "" if lineno is None else "Error on line {}!\n".format(lineno)
 		self.message = message
 		super().__init__(self.lineno+self.message)
 
 class ClassDecNode(Node):
+	'''Class declaration node\n
+		Takes a class declaration, and an optional line no.
+	'''
+	
 	def __init__(self, dec, lineno = None):
 		self.dec = dec
 		self.lineno = lineno
@@ -258,6 +261,13 @@ class ClassDecNode(Node):
 
 
 class BloqueNode(Node):
+	'''
+	Class for code blocks, returns value if there is a returns node. \n
+	It takes a list of `estatutos` and analyzes them before removing the actual lexical 
+	scope.
+	'''
+
+	
 	def __init__(self,  estatutos, lineno = None):
 		self.estatutos = estatutos
 		self.lineno = lineno
@@ -277,6 +287,11 @@ class BloqueNode(Node):
 				a = estatuto.analyze(analyzer)
 				analyzer.symbol_table_list.pop() # pop lexical scope
 				return a
+			elif isinstance(estatuto, IfNode):
+				a = estatuto.analyze(analyzer)
+				if a is not None:
+					analyzer.symbol_table_list.pop() # pop lexical scope
+					return a
 			estatuto.analyze(analyzer)
 
 		analyzer.symbol_table_list.pop() # pop lexical scope
@@ -329,7 +344,7 @@ class AssignNode(Node):
 		self.var.run(vm,assignment)
 	
 
-class BaseType(Enum):
+class BaseType(Enum): # Enumerator for primitive types
 	STRING = 1
 	INT = 2
 	FLOAT = 3
@@ -337,6 +352,11 @@ class BaseType(Enum):
 
 #done
 class UnopNode(Node):
+	'''
+	Class for unary operations.
+	Analysis returns type of operand.
+	Execution returns value of operation.
+	'''
 	def __init__(self, operation, operand):
 		self.operation = operation
 		self.operand = operand
@@ -360,6 +380,11 @@ class UnopNode(Node):
 			return - self.operand.run(vm)
 
 class BinopNode(Node):
+	'''
+		Takes the expresion to be analyzed, with left node, right node. \n
+		It checks that both of them are the same type, and that they are primitive types
+		`BaseType.INT` and `BaseType.FLOAT`.
+	'''
 	def __init__(self, lhs, rhs, lineno = None):
 		self.lhs = lhs
 		self.rhs = rhs
@@ -384,7 +409,12 @@ class BinopNode(Node):
 			return lh_type
 
 class CompareNode(BinopNode):
-
+	'''
+	Class for comparisons.\n
+	Takes two expresions.\n
+	Analysis verifies that both sides of the operation are of the same type, and always returns Bool.\n
+	Execution returns boolean result.
+	'''
 	def analyze(self, analyzer, lineno = None):
 		lh_type = self.lhs.analyze(analyzer)
 		rh_type = self.rhs.analyze(analyzer)
@@ -399,7 +429,11 @@ class CompareNode(BinopNode):
 			return BaseType.BOOL
 
 class PlusNode(BinopNode):
-	
+	'''
+		Class for addition, \n
+		Takes the left part of the expression and the right part. \n
+		Returns the the result of the expression 
+	'''
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.run(vm)
@@ -407,7 +441,11 @@ class PlusNode(BinopNode):
 		return lhs + rhs
 
 class MinusNode(BinopNode):
-		
+	'''
+		Class for substrction, \n
+		Takes the left part of the expression and the right part. \n
+		Returns the the result of the expression 
+	'''
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.run(vm)
@@ -415,7 +453,11 @@ class MinusNode(BinopNode):
 		return lhs - rhs
 
 class TimesNode(BinopNode):
-	
+	'''
+		Class for multiplication, \n
+		Takes the left part of the expression and the right part. \n
+		Returns the the result of the expression 
+	'''
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.run(vm)
@@ -423,6 +465,11 @@ class TimesNode(BinopNode):
 		return lhs * rhs
 
 class DivideNode(BinopNode):
+	'''
+		Class for division, \n
+		Takes the left part of the expression and the right part. \n
+		Returns the the result of the expression 
+	'''
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.run(vm)
@@ -430,7 +477,11 @@ class DivideNode(BinopNode):
 		return lhs / rhs
 
 class EqualsNode(CompareNode):
-
+	'''
+		Class for equality comparison, \n
+		Takes the left part of the expression and the right part. \n
+		Returns the the result of the expression 
+	'''
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.run(vm)
@@ -438,7 +489,11 @@ class EqualsNode(CompareNode):
 		return lhs == rhs
 
 class NotEqualsNode(CompareNode):
-	
+	'''
+		Class for non-equality, \n
+		Takes the left part of the expression and the right part. \n
+		Returns the the result of the expression 
+	'''
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.run(vm)
@@ -446,7 +501,11 @@ class NotEqualsNode(CompareNode):
 		return lhs != rhs
 
 class GTNode(CompareNode):
-	
+	'''
+		Class for Greater than, `>` \n
+		Takes the left part of the expression and the right part. \n
+		Returns the the result of the expression 
+	'''
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
 		rhs = self.rhs.run(vm)
@@ -454,7 +513,11 @@ class GTNode(CompareNode):
 		return lhs > rhs
 
 class LTNode(CompareNode):
-
+	'''
+		Class for less than `<`, \n
+		Takes the left part of the expression and the right part. \n
+		Returns the the result of the expression 
+	'''
 	
 	def run(self,vm):
 		lhs = self.lhs.run(vm)
@@ -463,6 +526,10 @@ class LTNode(CompareNode):
 		return lhs < rhs
 
 class ConstantNode(Node):
+
+	'''
+	Generic class for constant values.
+	'''
 
 	def analyze(self,  analyzer):
 		return self.type_name
@@ -476,31 +543,41 @@ class ConstantNode(Node):
 
 
 class BoolNode(ConstantNode):
+	'''
+		Class for Bool type value.
+	'''
 	def __init__(self, value, lineno = None):
 		self.value = value
 		self.type_name = BaseType.BOOL
 		self.lineno = lineno
 
 class FloatNode(ConstantNode):
+	'''
+		Class for floating point values
+	'''
+	
 	def __init__(self, value, lineno = None):
 		self.value = value
 		self.type_name = BaseType.FLOAT
 		self.lineno = lineno
 class IntNode(ConstantNode):
+	'''Class for integer values'''
 	def __init__(self, value, lineno = None):
 		self.value = value
 		self.type_name = BaseType.INT
 
 class StringNode(ConstantNode):
+	''' Class for string values '''
 	def __init__(self, value, lineno = None):
 		self.value = value
 		self.type_name = BaseType.STRING
 		self.lineno = lineno
 class VarCallNode(Node):
 	'''
-	Takes a `String` id, and a `BaseType` type.\n
+	Takes a `String` id, and a `CallType` .\n
 	Checks if variable is declared, and that call is correct.\n
-	Returns `type` of var
+	Returns `type` of var dyring analysis.\n
+	Returns value during execution
 	
 	'''
 	def __init__(self,id,call_type, lineno = None):
@@ -561,6 +638,18 @@ class VarCallNode(Node):
 
 
 class SimpleCallNode(Node):
+	'''
+	Simple Call Node takes care of "simple" variables (as opposed to object variables).\n
+	It verifies that the number of dimensions of the variable call is correct.\n
+
+	During analysis, it simply verifies that dimension expresions are integer types,and returns var type.\n
+
+	During execution, it returns a pointer to the value, so that it can either be changed or read.
+	
+	'''	
+
+
+	
 	def __init__(self,dims,lineno=None):
 		self.dims = dims
 		self.lineno = lineno
@@ -620,6 +709,13 @@ class ReturnNode(Node):
 		return self.expr.run(vm)
 
 class FuncCallNode(Node):
+	'''
+		Takes the `id` of the function or method to be called. \n
+		Checks if it is a method (if true then gets the scope of the class, else it returns the full scope). \n
+		Checks if it exist in scope given and that the parameters are correct (number and type).\n
+		In excecution it checks the scope, and then makes a `deepcopy` for the excecution of `estatutos` in function. \n
+		Then it excecutes the body.
+	'''
 	def __init__(self, callFunc, lineno = None):
 		self.callFunc = callFunc
 		self.lineno = lineno
@@ -717,7 +813,7 @@ class ReadNode(Node):
 
 class WriteNode(Node):
 	'''
-	Takes a list of expresions, writes them to console.
+	Takes a list of expresions, writes the results to the terminal.
 	
 	'''
 	def __init__(self, expresiones, lineno = None):
@@ -781,7 +877,8 @@ class WhileNode(Node):
 	'''
 	Takes a condition and a body.\n 
 	evaluates condition and checks if evaluation is `BaseType.BOOL` and if not `raises` `SemanticError`,
-	then analyzes `estatutos` in `body`,
+	then analyzes `estatutos` in `body`.\n
+	In excecution, while the condition is true it excecutes the `body`.
 	
 	'''
 	def __init__(self, condition, body, lineno = None):
@@ -803,6 +900,12 @@ class WhileNode(Node):
 			self.body.run(vm)
 
 class DoWhileNode(Node):
+	'''
+	Takes a condition and a body.\n 
+	evaluates condition and checks if evaluation is `BaseType.BOOL` and if not `raises` `SemanticError`,
+	then analyzes `estatutos` in `body`.\n
+	In excecution, while the condition is true it excecutes the `body`.
+	'''
 	def __init__(self, body, condition, lineno = None):
 		self.condition = condition
 		self.body = body
@@ -826,7 +929,10 @@ class DoWhileNode(Node):
 			self.body.run(vm)
 
 class ObjectDecNode(Node):
-	'''{"type": p[1], "id": p[2], "defined": False,"symbol_type":"object"}'''
+	'''
+	Takes an object declaration and verifies that another symbol hasn't been declared with the same name.\n
+	In execution, it simply declares the object to it's relevant scope.
+	'''
 	def __init__(self, dec, lineno = None):
 		self.dec = dec
 		self.lineno = lineno
@@ -856,8 +962,8 @@ class ObjectDecNode(Node):
 
 class ForLoopNode(Node):
 	'''
-	`ForLoopNode` takes a control var, an assignment, a end point, and a body.\n
-	Runs body while condition is true.
+		`ForLoopNode` takes a control var, an assignment, a end point, and a body.\n
+		Runs body while condition is true.
 	'''
 	def __init__(self, variable, expresion, end, body, lineno = None):
 		self.variable = variable

@@ -3,6 +3,10 @@ import pickle
 
 
 class VirtualMachine():
+	'''
+	This class takes a file path, reads the file, and executes it.\n
+	Runs the recursive descent execution of the generated AST.
+	'''
 	def __init__(self, fileInput=None):
 		if fileInput is not None:
 			self.loadFile(fileInput)
@@ -10,15 +14,10 @@ class VirtualMachine():
 		self.symbol_scope_list = [[]]
 
 	def run(self):
-		# print(self.ast)
 		return self.ast.run(self)
 
 	def loadFile(self,filename):
-		# os.open(filename)
 		f = open(filename,"rb")
 		self.ast = pickle.load(f)
-		# print(self.ast)
 		f.close()
 
-#with open('out/cache/' +hashed_url, 'rb') as pickle_file:
-#   content = pickle.load(pickle_file)

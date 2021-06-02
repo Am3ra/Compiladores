@@ -1,0 +1,637 @@
+commit 45d621e14695ba08d2e7d376de14b3a90743e720
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Tue Jun 1 01:26:50 2021 -0500
+
+    crear compilador de terminal
+    
+    crear programa ejemplo
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit 3cbc85c3ed9e2e0550cb82ae9833caad42f2582c
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sat May 29 23:52:58 2021 -0500
+
+    agregar pruebas
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit 91776ec6c943ea462411e4c9a89afd92c7daff8d
+Author: Karen0731 <karenbolanos0731@gmail.com>
+Date:   Fri May 28 19:02:30 2021 -0500
+
+    - Se elimino codigo basura (comentarios)
+    - Se modificaron los resultados de los errores semanticos para que todos esten en el mismo idioma
+
+commit 04ba1bc132bf6f06ce0f09a162b54f719b16c748
+Author: Karen0731 <karenbolanos0731@gmail.com>
+Date:   Fri May 28 00:31:44 2021 -0500
+
+    - Pruebas de todos los estatutos tanto de ejecucion como de analisis completas
+    - Multiplicación de matrices
+    - Sort y Find de arreglos
+    - Pruebas de ejecución de read y write
+    - fibonacci y factorial, tanto recursiva como iterativamente
+    - Agregado estatuto Do While
+    - Pruebas de analisis de ejecución de Do While
+    
+    Co-authored-by: Alan M. <Am3ra@users.noreply.github.com>
+
+commit 284b9b19cc7f1ad3ce14f466b338a3bdcf1a705a
+Merge: f46d404 0a546c2
+Author: KarenBol0731 <karenbolanos0731@gmail.com>
+Date:   Thu May 27 22:57:10 2021 -0500
+
+    Merge pull request #2 from Am3ra/Karen
+    
+    Added do while only for test
+
+commit 0a546c2d36b778c48ecbd213f3dc778acb4f30ae
+Author: Karen0731 <karenbolanos0731@gmail.com>
+Date:   Thu May 27 15:17:33 2021 -0500
+
+    Added do while oly for test
+
+commit f46d4040d729397500b6099344e8f0044a8d641b
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Mon May 24 23:59:22 2021 -0500
+
+    update readme
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit 0ae2222bcf208e7b6c08b9676bdb3ebfd5767664
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Mon May 24 23:58:22 2021 -0500
+
+    agregar fibonacci y  factorial
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit 650e241dd6d35af4199d3193fa9d403599ea007c
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Mon May 24 21:32:26 2021 -0500
+
+    agregar pruebas/funcionalidad matrices
+    agregar pruebas herencia
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit ae0b20f7aaad39f5574dd404a04fec057c3a4770
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Fri May 21 00:55:43 2021 -0500
+
+    Agregar valor inicial matrices
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit eba3f63d00a66fe29c082fadfb0db489a9a0d65e
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Fri May 21 00:18:25 2021 -0500
+
+    Agregar lectura de archivos VM
+    - cambiamos pruebas de vm a pruebas de integracion (escritura por AS, y lectura por VM)
+    - Reorganización de pruebas para mejor localización
+    - Arreglamos que parametros esten definidos
+    - Agregamos pruebas semanticas de declaración de arreglos y matrices
+    - Agregamos prubeas semanticas de asignación de arreglos y matrices
+    - Documentación de diversos Nodos
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit 0676c9798380d8be61ae9f3e6a8197abe155d8d9
+Author: Karen0731 <karenbolanos0731@gmail.com>
+Date:   Thu May 20 14:17:53 2021 -0500
+
+    Start code documentation
+
+commit 1e0267d48dd4a302a05115fb7af99275c5a651a5
+Merge: 00cb73d 1a422dd
+Author: Karen0731 <karenbolanos0731@gmail.com>
+Date:   Thu May 20 13:54:17 2021 -0500
+
+    Merge branch 'main' of https://github.com/Am3ra/Compiladores into main
+
+commit 00cb73dfc57a304d623a1ee182b5a51e9b38ac02
+Author: Karen0731 <karenbolanos0731@gmail.com>
+Date:   Thu May 20 13:53:59 2021 -0500
+
+    Separar pruebas en diferentes archivos
+
+commit 1a422dd48d4889bb49e5d75e969c993cf75eabe5
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed May 19 00:48:49 2021 -0500
+
+    cambiar nombres parser lexer
+
+commit 9c02087e69c474dd368e0f5678fd298f0245f60a
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed May 19 00:47:20 2021 -0500
+
+    add settings to gitignore
+
+commit 121b8f81f6cf62682eaa74099828f1ffa46f76c7
+Author: Karen0731 <karenbolanos0731@gmail.com>
+Date:   Wed May 19 00:45:35 2021 -0500
+
+    Agregar herencia Analisis semantico y VM
+    
+    Co-authored-by: Alan M. <Am3ra@users.noreply.github.com>
+
+commit 9e6bd0d15227b79a76a4820d020dc5969b38d18b
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Tue May 18 23:15:09 2021 -0500
+
+    Pruebas heredar
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit 9ab738af6ac20223bb7abb6eb73d7f63f0c045d9
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Tue May 18 17:31:01 2021 -0500
+
+    Arreglar lla,adas atributos VM
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit 1a590b53b8ede2f86e7d5b8345c4cfa6c26a649d
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sun May 16 23:28:00 2021 -0500
+
+    - Agregar pruebas analisis semantico recursividad
+    - Agregar pruebas analisis semantico while, if y foor loop
+    - Agregar pruebas ejecución while, if y foor loop
+    - Pasar if a expresion
+    - Agregar pruebas de if como expresion
+    - Agregar bloque func como expresion
+    - Agregar pruebas analisis semantico if y bloque func como expresion
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit eef6795609be2929d33189b5e59b1a40f7f49e80
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Fri May 14 21:02:02 2021 -0500
+
+    Agregar lineas de error a errores semanticos
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit 2f7c613747474e2e74078f1a39b21816c5b69e2a
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Thu May 13 00:32:23 2021 -0500
+
+    agregar llamadas atributos
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit 3abafb98150477fd8adf37fa82f231b47383fe62
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed May 12 23:46:46 2021 -0500
+
+    terminar llamada funcion VM Y SEMANTICO
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit 68c56a29910ced3586f8c1c66b9bb371eb5d61af
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Tue May 11 00:46:53 2021 -0500
+
+    Debugear declaracion clases
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit 89603767f929219214f4037c25584cf4115eede1
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Tue May 11 00:40:46 2021 -0500
+
+    Limpiar metodos innecesarios
+    Agregar declaracion de objetos (analisis, y VM)
+    Modificar impresion de operaciones
+    Agregar interpretacion de variables
+    Agregar asignaicon VM variables
+    agregar return al main
+    agregar soporte para bloque de codigo como estatuto
+    agregar pruebas declaracion de objetos
+    quitar test_parser del gitignore
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit 97dac27761ac3904ddc5558c96f0e734f2b30f6a
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Mon May 10 22:47:11 2021 -0500
+
+    update gitignore
+
+commit c61f0eb5491764deb85641c70b393b1320dfde02
+Merge: 3c99d40 b0b3064
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Mon May 10 22:45:15 2021 -0500
+
+    Merge branch 'main' of https://github.com/Am3ra/Compiladores into alanTest
+
+commit b0b3064f102dac8a92869c51db76f111005275a8
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Mon May 10 22:38:48 2021 -0500
+
+    Distribuir mejor los __repr__
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit f69a2ab8c92c576cbec76f455e69c866a784729f
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Mon May 10 00:23:11 2021 -0500
+
+    finish pretty printing
+
+commit 173c238c152753c0ff02ecbb24e3e7a9ba950062
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sun May 9 23:38:06 2021 -0500
+
+    remover __str__, empezar pprint
+
+commit 02ae36b5fef9acccd3f33a75f0396979b3dc853f
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sun May 9 22:27:27 2021 -0500
+
+    corregir declaracion attributos
+
+commit b7a9fe36a2beb34c6816bce1ef7259bbfea6a8ca
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sat May 8 22:11:03 2021 -0500
+
+    update readme
+
+commit 294cfbe3650a81db8adaa501d092dc66ba6a73d5
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Thu Apr 29 23:27:05 2021 -0500
+
+    renombrar var_def a var_dec
+
+commit c09290c8fa1eb7f07213957d7e9eb42d710b35fb
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Thu Apr 29 00:23:31 2021 -0500
+
+    Hicimos varcallNode recursivo.
+    
+    Agregamos llamadas a atributos.
+    
+    Cambiamos la gramatica de variable
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit 3c99d40e2bd81004455c0ae42e8ecd0ccbe85763
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed Apr 28 21:23:00 2021 -0500
+
+    add parser.out to git ignore
+
+commit c2e6cc18711561d8dd79188c324d924e72eca163
+Merge: d291037 5144d1f
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed Apr 28 21:16:04 2021 -0500
+
+    Merge branch 'main' of https://github.com/Am3ra/Compiladores into alanTest
+
+commit 5144d1f27d438a2208faef9314dce5eb189d7f77
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed Apr 28 21:14:55 2021 -0500
+
+    delete pycache
+
+commit d2910373b0e8364c79768c8fadfd78c0349e2c2c
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed Apr 28 21:09:21 2021 -0500
+
+    add small test
+
+commit 213bbedc77cacf8555915d5dd5858c0127f29d1b
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed Apr 28 21:02:07 2021 -0500
+
+    agregar bloque func como estatuto
+
+commit 79569651c9fdca45139e1e2b638ded9a1e40630b
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed Apr 28 20:35:32 2021 -0500
+
+    deshacer los cambios :D jajaja
+
+commit 59f32198fd8dd16ad12e032194c15efdfdccd01b
+Merge: e9b7bb3 0c78446
+Author: Alan M <17537489+Am3ra@users.noreply.github.com>
+Date:   Wed Apr 28 20:32:07 2021 -0500
+
+    Merge pull request #1 from Am3ra/karen
+    
+    Fixed simple errors and commented unused code
+
+commit 0c78446a30e448ba7c95f255a1b9d31d26a42fca
+Author: Alan M <17537489+Am3ra@users.noreply.github.com>
+Date:   Wed Apr 28 20:31:21 2021 -0500
+
+    dont change vscode settings
+
+commit 05808d138b895ea58ce5f3ac0bc2259bb1b95bb9
+Merge: 3cb3db7 e9b7bb3
+Author: Alan M <17537489+Am3ra@users.noreply.github.com>
+Date:   Wed Apr 28 20:29:43 2021 -0500
+
+    Merge branch 'main' into karen
+
+commit 3cb3db76cb6c310ee13e24f21a3bd33fe9966972
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed Apr 28 20:28:33 2021 -0500
+
+    quitar valores innecesarios
+
+commit e9b7bb31debe101496426fea6c1feec35d9955a2
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Tue Apr 27 23:35:44 2021 -0500
+
+    agregamos return al main
+    primer prueba VM
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit cc477e5b986dc14559285d6ff7667fc289b67503
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Tue Apr 27 23:02:30 2021 -0500
+
+    save all
+
+commit cffa5135bc14726075ce065be4c1d09fa56afc24
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Tue Apr 27 23:02:09 2021 -0500
+
+    debugear pruebas parser
+    VM:
+    * binops
+    * unops
+    * compare
+    * if
+    * while
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit fd4409688d9dd61f6060d096ef4c2e430852b114
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Mon Apr 26 22:38:49 2021 -0500
+
+    init VM, y add vm support to constant nodes
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit f1e476ce1b5edf137d4c2d4c20100b8db3ff2dee
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Thu Apr 22 23:50:37 2021 -0500
+
+    update readme
+
+commit 4db0f8efc48571fe1f60acf8bd97e3ec61cf8323
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Thu Apr 22 23:48:47 2021 -0500
+
+    Wrote 60+ tests, finished ReadNode, WriteNode,
+    IfNode, ForLoopNode.
+    
+    Added documentation for Declarar Symbol Scopes,  check if declared,
+    Assign Node, Var Call node
+    IfNode, WhileNode, ForLoopNode,ReadNode,WriteNode
+    
+    added stricter type checking to BINOPNode and CompareNode
+    
+    Changed Parser to use If,while and forloop nodes
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit d705fd293ad191cdda8b00ca2372cbbfe44c0998
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Thu Apr 22 00:53:26 2021 -0500
+
+    add parametric test
+
+commit 40be94434192c75a854f2daae0d5e00d35279db6
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Thu Apr 22 00:26:04 2021 -0500
+
+    Agregar pruebas unitarias, y debugearlas
+    
+    Co-authored-by: KarenBol0731 <karenbolanos0731@gmail.com>
+
+commit 46c0e272177ce86bbe30f930d905eb484b29b8cc
+Author: Karen0731 <karenbolanos0731@gmail.com>
+Date:   Wed Apr 21 22:23:31 2021 -0500
+
+    add settings to ignore
+
+commit 37b6fc4eb46c1e7a797993f701078420d7b0b1c3
+Author: Karen0731 <karenbolanos0731@gmail.com>
+Date:   Wed Apr 21 21:31:14 2021 -0500
+
+    Fixed simple errors and commented unused code
+
+commit ce53866bc3939bea1ed31d64f8e042bdd2f484f5
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Mon Apr 19 23:09:12 2021 -0500
+
+    add unit test, and then debug them
+
+commit 1f5b0c8a2a509f55897e2cda43f6c08a89ee99cc
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sun Apr 18 23:00:35 2021 -0500
+
+    change grammar, improve AST printing
+
+commit f812d9e467e7ed096bd1e35e293d5cf10c1a9a85
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sun Apr 18 22:27:32 2021 -0500
+
+    Add type system, add atomic types, update README
+
+commit 80bbf13f1870f16d00b39bc1b50267b69627fe58
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sun Apr 18 21:50:32 2021 -0500
+
+    Add expression Nodes
+
+commit 3cce1b36318529277b00ff258b7462ac685c5089
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sun Apr 18 21:15:32 2021 -0500
+
+    add expression clases
+
+commit 6645c728c551bd5b3c8fb815c160a4e7adf9b9a0
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Fri Apr 16 20:45:22 2021 -0500
+
+    delete variable declarada scopes
+
+commit 045928850e5835bb0d319f31037ff8cf25bd47a0
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Fri Apr 16 20:40:56 2021 -0500
+
+    tablas juntas finished
+
+commit 011a116a6bdccee6ddda74233460ed17c06462a6
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Fri Apr 16 19:38:49 2021 -0500
+
+    remove comments
+
+commit 846c1e365a7f7f15fd563558bced3dd67638a725
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed Apr 14 23:44:39 2021 -0500
+
+    Add assign node
+
+commit fa5fd71d90db8fdbd635855da43146d47fb02a79
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed Apr 14 22:31:26 2021 -0500
+
+    add bools
+
+commit 2dfcef10ab6586307927cfdd443f7f5fb5288b2d
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed Apr 14 22:19:21 2021 -0500
+
+    corregir errores
+
+commit 4674f176bd70ce4258b2d4e963ae61b5826ffa90
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed Apr 14 00:54:36 2021 -0500
+
+    add function calls
+
+commit 7447b61e667dd79322bc43ed1f68e8a2d4a04b91
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed Apr 14 00:10:53 2021 -0500
+
+    finish bloque code
+
+commit 469755c19c702e7bacb2d8a9a0ca6f1f2b4e1449
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Tue Apr 13 23:52:32 2021 -0500
+
+    add vardef changes
+
+commit a2ac67b514eefabcdc8082661d59a999cd2cc537
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Tue Apr 13 22:35:30 2021 -0500
+
+    and declaration nodes
+
+commit 5f6770a7ec9aca6838441d5e7cff16ad617c0886
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Tue Apr 13 22:00:57 2021 -0500
+
+    Convert to tabs
+
+commit 5ec259f61f54caaeff58a871365a1633c3d73744
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Mon Apr 12 17:20:14 2021 -0500
+
+    Change names add classes
+
+commit 0250da4c8dc9d0425c8e1dbba3e2d66971ec75a6
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sun Apr 11 21:33:35 2021 -0500
+
+    update readme
+
+commit d707e2ec7f74858cba6a26365d53c6f17b136cd1
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sun Apr 11 21:31:46 2021 -0500
+
+    Cambiar gramaticasa, agreagar method calls
+
+commit 03bd891942dbc3a40a9d36e2c5324b750a4364ac
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sun Apr 11 21:21:30 2021 -0500
+
+    format document
+
+commit f7ea6aeea30df4ac23ae5f53e101af0b66972066
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sun Apr 11 21:21:14 2021 -0500
+
+    add method calls
+
+commit 9d205e3164f848b430a581e7dabca9ab4b114693
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sun Apr 11 20:32:07 2021 -0500
+
+    CAMBIAR EXPRESION
+
+commit 76dd017ece731bcf29382ffca59b6e9183f5ea80
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sun Apr 11 20:11:49 2021 -0500
+
+    remove ids def
+
+commit 6f24961c042a996bb835ce78c15f836ccc95143e
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Sun Apr 11 20:11:19 2021 -0500
+
+    remove ids rule
+
+commit 097a9b7abc289219af1e13db69ce1879d54f3a1c
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Fri Apr 9 18:13:50 2021 -0500
+
+    rename and delete extra files
+
+commit ddbf8332a51c94fb78ddbb89f9ef08c43a367891
+Author: KarenBol0731 <karenbolanos0731@gmail.com>
+Date:   Fri Apr 9 17:29:14 2021 -0500
+
+    Create README.md
+
+commit c4aa66461d723a2878b23cb1b772ab140aae7e52
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed Apr 7 23:03:23 2021 -0500
+
+    Finish initial proposal
+
+commit 557be50f66a188fd63d57a00e6a67fccef1ece16
+Author: am3ra <jp2kk2@gmail.com>
+Date:   Wed Apr 7 21:32:45 2021 -0500
+
+    dELETE hOMEWORK
+
+commit 7c33a351675ee39954f83c495e9ead464d8fcd3e
+Author: Alan M <JP2KK2@GMAIL.COM>
+Date:   Thu Mar 11 20:18:12 2021 -0600
+
+    finish parsers
+
+commit 576dbb31e2075a9b95514aea482259e286bf4e18
+Author: Alan M <JP2KK2@GMAIL.COM>
+Date:   Thu Mar 11 19:38:07 2021 -0600
+
+    Flex and bison
+
+commit f1e70afea44ff3a0901bb57f93976c1dfdd3f9d1
+Author: Diana Esparza <TheAddams@Dianas-iMac-2.local>
+Date:   Thu Mar 11 19:34:13 2021 -0600
+
+    flex bison implementation
+
+commit cf91912c53d8e82063fc516aec33807ab66f798b
+Author: Alan M <17537489+Am3ra@users.noreply.github.com>
+Date:   Fri Mar 12 00:21:13 2021 -0600
+
+    upload 1 lexer-parser
+
+commit bd79e98fb1df125c1e6c545cee073466d3efe7d1
+Author: Alan M <17537489+Am3ra@users.noreply.github.com>
+Date:   Mon Mar 1 21:02:22 2021 -0600
+
+    PreviewPreview
+
+commit ea3217ec748b39508c0e9950e9f07449e087a2ad
+Author: Alan M <17537489+Am3ra@users.noreply.github.com>
+Date:   Mon Mar 1 20:58:21 2021 -0600
+
+    Init
+
+commit ee148588d166b0338780f2f3734ed1b91abc3e85
+Author: Alan M <17537489+Am3ra@users.noreply.github.com>
+Date:   Mon Mar 1 19:35:43 2021 -0600
+
+    Initial commit
