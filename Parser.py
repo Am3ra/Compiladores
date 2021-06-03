@@ -602,8 +602,6 @@ class VarCallNode(Node):
 					raise SemanticError("CAN'T CALL UNDEFINDED VAR {0}".format(self.id),self.lineno)
 			else:
 				var["defined"] = True
-				if self.call_type is None:
-					return var["type"]
 				return self.call_type.analyze(analyzer, var = var, assignment = True)
 		else:
 			raise SemanticError("CAN'T CALL UNDECLARED VAR {0}".format(self.id),self.lineno)
