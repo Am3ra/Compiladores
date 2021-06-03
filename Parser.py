@@ -251,7 +251,6 @@ class ClassDecNode(Node):
 			father = check_if_symbol_declared_scopes(self.dec["inheritance"],[vm.global_symbols]+vm.symbol_scope_list[-1])
 			
 			for attribute in father["attributes"]:
-				# analyzer.symbol_table_list[0][self.dec["id"]]["attributes"].setdefault(attribute,father[attribute])
 				declarar_symbol_scopes_run(attribute.dec, scope, None, force=True)
 			for method in father["methods"]:
 				declarar_symbol_scopes_run(method.dec, scope, None, force=True)
