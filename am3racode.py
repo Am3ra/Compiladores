@@ -30,7 +30,7 @@ if len(args) == 4:
 if args[1] == 'build':
 	with open(args[2], 'r') as file:
 		data = file.read()
-		a = SemanticAnalyzer(data,debug=False).analisis_semantico(filename = output_filename,debug=True)
+		a = SemanticAnalyzer(data,debug=False).analisis_semantico(filename = output_filename)
 else:
 	print(VirtualMachine(fileInput=args[2]).run())
 
